@@ -1,0 +1,6 @@
+pgserver>=0.1.4
+psycopg[binary]>=3.2
+pydantic>=2.7
+pydantic-settings>=2.4
+streamlit>=1.56
+python-dotenv>=1.0

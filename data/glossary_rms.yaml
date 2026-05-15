@@ -1,0 +1,119 @@
+# RMS domain glossary — starter set.
+# Loaded into domain_glossary table on schema bootstrap (idempotent).
+# Future repos for other products ship their own glossary file.
+#
+# Each entry:
+#   term:        the symbol/abbrev as it appears in code
+#   canonical:   preferred full form (optional)
+#   definition:  what the term actually means in this product's domain
+#   notes:       gotchas, common confusions
+
+product: RMS
+
+terms:
+  - term: propcode
+    canonical: property code
+    definition: 5-character RealPage property identifier. Primary key on the prop table; appears in nearly every per-property table (fpunitinv, propertyparameter, expadvstats, polog).
+    notes: Always integer in the schema even though the public name suggests a string.
+
+  - term: fpcode
+    canonical: floor plan code
+    definition: Floor plan identifier within a property. Composite key with propcode in fp/floorplanparameter/fpunitinv tables.
+
+  - term: propfp
+    canonical: property-floorplan
+    definition: Composite of propcode + fpcode used as a string key in some tables (fp, fpunitinv).
+
+  - term: propunit
+    canonical: property unit
+    definition: Unit identifier within a propfp (specific apartment/door).
+
+  - term: propbeds
+    canonical: bedrooms count
+    definition: Number of bedrooms in a unit. Used as a grouping dimension in expadvstats and forecasts.
+
+  - term: useAdjustedRent
+    definition: Property-level boolean flag. When true, the rate engine uses the adjusted rent (after seasonal forecast adjustment) rather than the base rent. Read from propertyparameter.
+
+  - term: recommended rent
+    definition: The rent value RMS produces and writes to UNITRATEMATRIX (new leases) and RENEWALRATEMATRIX (renewals). Output of UnitRatesGenerator + Forecasting + Seasonality + adjustments.
+
+  - term: seasonal forecast adjustment
+    canonical: seasonal forecast adjustment (SFA)
+    definition: Multiplier applied to base rent based on calendar week, computed by the SeasonalityStatisticJob and stored in seasonalforecast table.
+
+  - term: RRG
+    canonical: Rent Roll Grid
+    definition: An rm-web UI screen showing property-level rents by unit/floor-plan in a tabular grid. NOT a code/business concept — purely a UI feature name. (Note common LLM mistake — RRG does NOT mean "Revenue Risk Group" or "Rate Recommendation Guidance".)
+
+  - term: RRUL
+    canonical: Rent Roll Unit-Level
+    definition: rm-web UI for unit-level rent details, deeper drill-down from RRG. Like RRG, this is a UI screen name, not a calculation concept.
+
+  - term: ESS
+    canonical: Expiration Summary Statistics
+    definition: rm-web UI feature showing distribution of lease expirations across a property. Uses expadvstats data.
+
+  - term: TOPOETL
+    canonical: ETL to PO
+    definition: Nightly ETL that pulls data from ysmaster (canonical store) into client per-property PO databases. Entry point EtlToPOExecutor.java in rms-etl/po. Configuration in etl2posql.xml.
+
+  - term: TOYSMaster
+    canonical: ETL to YSMaster
+    definition: ETL that pulls external source data (Yardi, MRI, Entrata, Resman) into the canonical ysmaster database. Lives in rms-etl/api and rms-etl/cds.
+
+  - term: ysmaster
+    definition: The canonical master database where external rental/property data lands. Read by TOPOETL to populate per-client PO databases.
+
+  - term: poconfig
+    definition: Configuration database holding property→database mapping, ETL recipes, server config. Read by po at startup. Schema in ys-admin/database/POConfigSchema.sql.
+
+  - term: polog
+    definition: Logs database for nightly ETL runs. Schema in ys-admin/database/POLogSchema.sql.
+
+  - term: NamedQueries
+    definition: Java helper used to look up SQL queries by name from XML catalogs (yscore_queries.xml etc.). Pattern is `NamedQueries.getNamedQuery("X")` where "X" is the entry key.
+
+  - term: yscore_queries.xml
+    definition: ys-core's primary SQL query catalog. Each `<entry key="X">` is a named SQL query reachable from any Java code via NamedQueries.
+
+  - term: airm_queries.xml
+    definition: AIRM-specific SQL query catalog in ys-core. Same `<entry key>` pattern as yscore_queries.
+
+  - term: etl2posql.xml
+    definition: TOPOETL configuration — each `<service name="X">` is one ETL pass that copies data from ysmaster to a target table in PO. Contains SELECT/INSERT SQL.
+
+  - term: UnitRatesGenerator
+    definition: Java class in rms-core/unitrates that orchestrates rent rate generation per property. Called by both nightly batch (propcode + rateType) and gateway request flows. Writes to UNITRATEMATRIX and RENEWALRATEMATRIX.
+
+  - term: ForecastShell
+    definition: Entry-point shell class for the Forecasting pipeline. Composed of multiple phase tasks (ForecastPhase1, ForecastBetaTask, ForecastDtaFloorPlan, ForecastHorizonTask, ForecastOptTask). R-script driven for the seasonal portion.
+
+  - term: Yoda
+    canonical: Baby YODA
+    definition: Property onboarding pipeline (rms-yoda module). Surrogate finder, peer mapping, rent recalc when a new property is added.
+
+  - term: surrogate finder
+    definition: Algorithm that finds peer/comp properties for a property with insufficient direct history. Lives in rms-yoda + rms-corebi/bi/surrogate.
+
+  - term: stabilization date
+    definition: The date on which a unit/floorplan's rent statistics become reliable enough for forecasting. Computed by StabilizationDateJob in rms-corebi/bi/stabilizationdate.
+
+  - term: probabilistic fractional renewal
+    definition: Method that estimates expected renewal probability and incorporates it into rent calculations. rms-corebi/bi/probabilisticfractionalrenewal.
+
+  - term: UNITRATEMATRIX
+    definition: Per-client database table where new-lease recommended rents are written.
+
+  - term: RENEWALRATEMATRIX
+    definition: Per-client database table where renewal recommended rents are written.
+
+  - term: expadvstats
+    definition: Per-property historical stats table (avg dwell time, avg lease term, etc.) by month/bedrooms. Read heavily by Forecasting and Rates Generation.
+
+  - term: fpunitinv
+    canonical: floor-plan unit inventory
+    definition: Per-property unit inventory table. Joined with prop, fp, propertyparameter for unit-level rate generation.
+
+  - term: PricingReview
+    definition: A ys workflow that lets users review and approve/override RMS-computed rents before they reach operations. Backed by PricingReviewController + PricingReviewServiceImpl.

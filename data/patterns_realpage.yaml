@@ -1,0 +1,158 @@
+# Cross-repo pattern catalog — RealPage RMS conventions.
+#
+# Each pattern describes how to detect an edge between entities in different repos
+# (or across products). The engine in lib/cross_repo.py reads this catalog and
+# extracts edges into the cross_repo_edges table.
+#
+# Generic format — future products drop in their own YAML alongside this file
+# (e.g., patterns_onesite.yaml, patterns_ilm.yaml). Loader walks data/patterns_*.yaml.
+#
+# Pattern fields:
+#   name        — human label
+#   from        — selector for the source side (extractor + filter)
+#   to          — selector for the destination side
+#   edge        — predicate label written into cross_repo_edges.kind
+#   confidence  — default per-edge confidence (0.0 - 1.0)
+
+product: RMS
+
+patterns:
+
+  - name: ys-query-dispatch
+    description: |
+      rm-web TypeScript dispatches a named SQL query by string literal:
+        getQueries({ query: 'getRevenueTrendData', ... })
+      The matching entry lives in a ys query catalog as <entry key="getRevenueTrendData">.
+    from:
+      extractor: ts_string_literal_near_key
+      keys: ['query', 'queryName', 'queryName:', 'queryId']
+      repo_role: UI
+    to:
+      extractor: xml_entry_key
+      filename_glob: '*_queries.xml'
+      repo_role: API
+    edge: dispatches_query
+    confidence: 1.0
+
+  - name: named-query-usage
+    description: |
+      Java code accesses a named SQL query via NamedQueries.getNamedQuery("X")
+      (or similar helpers). Target is an <entry key="X"> in a query catalog.
+    from:
+      extractor: regex_in_body
+      pattern: 'NamedQueries\.getNamedQuery\("([^"]+)"\)'
+      kinds: ['method', 'constructor', 'class']
+    to:
+      extractor: xml_entry_key
+      filename_glob: '*_queries.xml'
+    edge: uses_named_query
+    confidence: 1.0
+
+  - name: java-jpa-table
+    description: |
+      A Java entity class declares a table mapping with @Table(name="X"), or
+      @javax.persistence.Table(name="X"). Target is the table whose DDL we
+      parsed (kind=db_table).
+    from:
+      extractor: regex_in_body
+      pattern: '@Table\s*\(\s*name\s*=\s*"([^"]+)"'
+      kinds: ['class']
+    to:
+      extractor: db_table_name
+    edge: maps_to_table
+    confidence: 1.0
+
+  - name: etl-table-write
+    description: |
+      A po ETL <service> in etl2posql.xml writes one or more tables.
+      Already captured as Fact(predicate=writes_table) by parser_xml; we promote
+      those into cross_repo_edges when the target table is in another repo's DDL.
+    from:
+      extractor: facts_predicate
+      predicate: writes_table
+      from_kinds: ['xml_service']
+    to:
+      extractor: db_table_name
+    edge: writes_table
+    confidence: 1.0
+
+  - name: query-reads-table
+    description: |
+      An <entry key="X"> SQL has FROM/JOIN tables. Cross-link from the query
+      entity to the db_table entity wherever DDL was ingested.
+    from:
+      extractor: facts_predicate
+      predicate: reads_table
+      from_kinds: ['sql_query']
+    to:
+      extractor: db_table_name
+    edge: reads_table
+    confidence: 1.0
+
+  - name: jasper-report-tables
+    description: |
+      ys-reports JRXML <queryString> SQL has FROM/JOIN tables. Cross-link the
+      jrxml_report to db_table entities.
+    from:
+      extractor: facts_predicate
+      predicate: reads_table
+      from_kinds: ['jrxml_report']
+    to:
+      extractor: db_table_name
+    edge: reads_table
+    confidence: 1.0
+
+  - name: ui-launches-report
+    description: |
+      rm-web component launches a JASPER report by name. Detect a string literal
+      that matches a JRXML report name (jrxml_report.name).
+    from:
+      extractor: ts_string_literal_near_key
+      keys: ['report', 'reportName', 'jasperReport']
+      repo_role: UI
+    to:
+      extractor: jrxml_report_name
+    edge: launches_report
+    confidence: 0.9
+
+  - name: poconfig-key-read
+    description: |
+      po Java reads a configuration key whose name appears as a column or table
+      name in poconfig. Heuristic: identifier appears near get/read calls and
+      matches a poconfig schema column.
+    from:
+      extractor: regex_in_body
+      pattern: 'getConfigValue\("([^"]+)"\)|getProperty\("([^"]+)"\)'
+      kinds: ['method', 'class']
+    to:
+      extractor: db_table_name
+    edge: reads_config
+    confidence: 0.7
+
+  - name: rest-endpoint-call
+    description: |
+      rm-web HTTP call to a ys controller endpoint by URL path. Detect string
+      literals like '/rm/v2/...' in TS, then match controllers by RequestMapping.
+    from:
+      extractor: ts_string_literal_near_key
+      keys: ['url', 'endpoint', 'path']
+      repo_role: UI
+    to:
+      extractor: java_request_mapping
+      repo_role: API
+    edge: calls_endpoint
+    confidence: 0.85
+
+  - name: etl-writes-polog
+    description: |
+      po ETL service writes to polog tables (run history). Implicit from
+      writes_table facts targeting tables in POLogSchema.
+    from:
+      extractor: facts_predicate
+      predicate: writes_table
+      from_kinds: ['xml_service', 'method']
+    to:
+      extractor: db_table_in_schema
+      schema: polog
+    edge: writes_log
+    confidence: 0.95
