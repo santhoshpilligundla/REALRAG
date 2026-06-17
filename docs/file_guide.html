@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RealRAG — File Purpose Guide</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; padding: 40px 20px; }
+  h1 { text-align: center; font-size: 2rem; color: #fff; margin-bottom: 8px; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 40px; }
+
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+
+  .card {
+    background: #1e2130;
+    border-radius: 10px;
+    padding: 16px 18px;
+    border: 1px solid #2d3148;
+    transition: transform 0.15s, border-color 0.15s;
+    cursor: default;
+  }
+  .card:hover { transform: translateY(-2px); border-color: #4f46e5; }
+
+  .card-filename { font-size: 0.85rem; font-weight: 700; font-family: monospace; margin-bottom: 6px; }
+  .card-purpose { font-size: 0.83rem; color: #bbb; line-height: 1.55; }
+  .card-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 10px;
+    margin-top: 8px;
+  }
+
+  /* section colors */
+  .chat-section .section-title { background: #1a1040; color: #c084fc; }
+  .chat-section .card { border-left: 3px solid #8b5cf6; }
+  .chat-section .card-filename { color: #c084fc; }
+  .chat-section .card-tag { background: #2d1a5e; color: #c084fc; }
+
+  .pipeline-section .section-title { background: #0d1f14; color: #34d399; }
+  .pipeline-section .card { border-left: 3px solid #10b981; }
+  .pipeline-section .card-filename { color: #34d399; }
+  .pipeline-section .card-tag { background: #0a2e1a; color: #34d399; }
+
+  .parser-section .section-title { background: #0d1a2e; color: #60a5fa; }
+  .parser-section .card { border-left: 3px solid #3b82f6; }
+  .parser-section .card-filename { color: #60a5fa; }
+  .parser-section .card-tag { background: #0d1a3e; color: #60a5fa; }
+
+  .infra-section .section-title { background: #1a1200; color: #fbbf24; }
+  .infra-section .card { border-left: 3px solid #f59e0b; }
+  .infra-section .card-filename { color: #fbbf24; }
+  .infra-section .card-tag { background: #2e2000; color: #fbbf24; }
+
+  .ui-section .section-title { background: #1a0d18; color: #f472b6; }
+  .ui-section .card { border-left: 3px solid #ec4899; }
+  .ui-section .card-filename { color: #f472b6; }
+  .ui-section .card-tag { background: #2e0d22; color: #f472b6; }
+
+  .data-section .section-title { background: #0d1a1a; color: #22d3ee; }
+  .data-section .card { border-left: 3px solid #06b6d4; }
+  .data-section .card-filename { color: #22d3ee; }
+  .data-section .card-tag { background: #0a2828; color: #22d3ee; }
+</style>
+</head>
+<body>
+<h1>📁 RealRAG File Purpose Guide</h1>
+<p class="subtitle">What every file does and why it exists</p>
+
+<div class="container">
+
+  <!-- CHAT -->
+  <div class="section chat-section">
+    <div class="section-title">🤖 Chat & Query</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-filename">lib/chat.py</div>
+        <div class="card-purpose">Main chat orchestrator. Implements the 4-tier auto-escalation router (Fast → Deep → Agent → Live). Decides which mode to use, validates answers for faithfulness, and streams responses to the UI.</div>
+        <span class="card-tag">Core</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/retrieval.py</div>
+        <div class="card-purpose">Hybrid search engine. Runs 5 methods in parallel (vector, keyword, symbol, knowledge-graph, doc-vector), deduplicates results, and returns the top ranked hits with citations.</div>
+        <span class="card-tag">Core</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/agent.py</div>
+        <div class="card-purpose">Tier-3 agentic mode. Claude plans and executes multi-step investigations using tool-use: search, symbol lookup, KG query, code grep. Best for complex cross-repo questions.</div>
+        <span class="card-tag">Agent</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/agent_flows.py</div>
+        <div class="card-purpose">Flow router for Tier-4 Live mode. Reads product dependency graphs from agent_flows.yaml, classifies which repo chain to investigate, and builds the execution plan.</div>
+        <span class="card-tag">Agent</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/claude_runner.py</div>
+        <div class="card-purpose">Headless Claude Code agent runner. Launches existing Claude Code agents (from .claude/agents/ folders in repos) without any UI, streaming their output back to the chat.</div>
+        <span class="card-tag">Agent</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/query_cache.py</div>
+        <div class="card-purpose">Exact question-to-answer cache. Stores confirmed answers keyed by normalized question + product ID. Returns instant results for repeated questions, bypassing all LLM calls.</div>
+        <span class="card-tag">Performance</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/sessions_repo.py</div>
+        <div class="card-purpose">Chat session persistence. Saves conversations to PostgreSQL so chat history survives page reloads and server restarts. Supports multiple sessions per user.</div>
+        <span class="card-tag">Persistence</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/intent.py</div>
+        <div class="card-purpose">Question intent classifier. Determines whether a question is about code structure, business logic, data flow, or configuration — used to tune retrieval strategy.</div>
+        <span class="card-tag">Routing</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="section pipeline-section">
+    <div class="section-title">⚙️ Indexing Pipeline</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-filename">lib/chunker.py</div>
+        <div class="card-purpose">Walk-parse-chunk orchestrator. Traverses repo directories, detects file types, dispatches to the correct parser, and stores normalized ParsedEntity records in PostgreSQL.</div>
+        <span class="card-tag">Pipeline Step 2</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/doc_gen.py</div>
+        <div class="card-purpose">Pass-1 doc generator. Uses Claude to write 6-perspective documentation (structural, behavioral, business, edge cases, examples, cross-refs) for each parsed code entity.</div>
+        <span class="card-tag">Pipeline Step 3</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/doc_gen_pass2.py</div>
+        <div class="card-purpose">Pass-2 module rollup. Aggregates Pass-1 entity docs into per-file module summaries using Claude Sonnet, providing a higher-level view of each source file.</div>
+        <span class="card-tag">Pipeline Step 3b</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/doc_gen_pass3.py</div>
+        <div class="card-purpose">Pass-3 cross-module narratives. Uses Claude Opus to write cross-repo narrative docs based on cross-repo edges. Most expensive step — run after edges are built.</div>
+        <span class="card-tag">Pipeline Step 3c</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/doc_gen_l4_enrich.py</div>
+        <div class="card-purpose">L4 enrichment. Adds worked examples, statement annotations, and git history context to existing entity docs — deepens understanding for complex entities.</div>
+        <span class="card-tag">Pipeline Step 3d</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/embedder.py</div>
+        <div class="card-purpose">OpenAI embedding service. Sends text batches to text-embedding-3-large, caches vectors on disk (keyed by SHA1), handles 8000-token truncation and retry logic.</div>
+        <span class="card-tag">Pipeline Step 4</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/embed_pipeline.py</div>
+        <div class="card-purpose">Embedding pipeline coordinator. Fetches all pending chunks from DB, calls embedder in batches, and writes vectors to FAISS indexes. Tracks completion per repo.</div>
+        <span class="card-tag">Pipeline Step 4</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/faiss_store.py</div>
+        <div class="card-purpose">FAISS vector index management. Builds, reads, and searches per-repo FAISS indexes stored at storage/faiss/. Maintains chunk-id mappings for citation lookups.</div>
+        <span class="card-tag">Pipeline Step 5</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/clone.py</div>
+        <div class="card-purpose">TFS repo cloner. Clones repositories from TFS using PAT authentication, supports shallow cloning for speed, and tracks clone SHA for change detection.</div>
+        <span class="card-tag">Pipeline Step 1</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/cross_repo.py</div>
+        <div class="card-purpose">Cross-repo edge discovery. Runs pattern catalog across all repos to find dependencies (service calls, shared DB tables, common interfaces) and stores them as typed edges.</div>
+        <span class="card-tag">Pipeline Extra</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/kg.py</div>
+        <div class="card-purpose">Knowledge graph query engine. Answers deterministic structural questions (what writes to table X? what calls method Y?) via SQL triple queries — no LLM needed.</div>
+        <span class="card-tag">Search</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARSERS -->
+  <div class="section parser-section">
+    <div class="section-title">🔬 Language Parsers</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-filename">lib/parser_java.py</div>
+        <div class="card-purpose">Parses Java source files using tree-sitter. Extracts classes, methods, interfaces, annotations, imports, and Javadoc. Handles Spring annotations for service detection.</div>
+        <span class="card-tag">Java</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/parser_typescript.py</div>
+        <div class="card-purpose">Parses TypeScript/Angular files using tree-sitter. Extracts components, services, interfaces, decorators. Understands Angular-specific patterns.</div>
+        <span class="card-tag">TypeScript</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/parser_sql.py</div>
+        <div class="card-purpose">Parses SQL stored procedures, views, and functions using sqlglot. Extracts business logic, table dependencies, and parameter documentation.</div>
+        <span class="card-tag">SQL</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/parser_ddl.py</div>
+        <div class="card-purpose">Parses database schema DDL files. Extracts table definitions, column types, constraints, and foreign keys — builds the data model for KG queries.</div>
+        <span class="card-tag">DDL</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/parser_xml.py</div>
+        <div class="card-purpose">Parses Spring XML configs and application configs using lxml. Extracts bean definitions, service wiring, property values, and component dependencies.</div>
+        <span class="card-tag">XML</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/parser_jrxml.py</div>
+        <div class="card-purpose">Parses JasperReports template files (.jrxml). Extracts report parameters, fields, data sources, and layout — documents report structure for chat queries.</div>
+        <span class="card-tag">Reports</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/parser_markdown.py</div>
+        <div class="card-purpose">Parses Markdown documentation files. Extracts sections, headings, and content blocks to make existing documentation searchable via RAG.</div>
+        <span class="card-tag">Docs</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/parsers_common.py</div>
+        <div class="card-purpose">Shared parser utilities. Provides common entity types, text cleaning, line-number helpers, and the ParsedEntity dataclass used by all language parsers.</div>
+        <span class="card-tag">Shared</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFRA -->
+  <div class="section infra-section">
+    <div class="section-title">🏗️ Infrastructure</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-filename">lib/db.py</div>
+        <div class="card-purpose">Database connection manager. Starts the embedded pgserver, creates the realrag database if missing, and provides the psycopg connection factory used everywhere.</div>
+        <span class="card-tag">Database</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/config.py</div>
+        <div class="card-purpose">Settings loader using pydantic-settings. Reads .env file for API keys, model names, DB paths. Provides a cached settings singleton accessible project-wide.</div>
+        <span class="card-tag">Config</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/llm.py</div>
+        <div class="card-purpose">LLM abstraction layer. Wraps Anthropic Claude API calls with retry, streaming, and JSON-mode support. Supports swapping models (Haiku/Sonnet/Opus) per call type.</div>
+        <span class="card-tag">LLM</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/models.py</div>
+        <div class="card-purpose">Pydantic data models. Defines RepoOnboardingRequest, ParsedEntity, and other shared data structures used across the pipeline and API boundaries.</div>
+        <span class="card-tag">Models</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/repos_repo.py</div>
+        <div class="card-purpose">Repository metadata CRUD. Handles inserting, updating, listing, and deleting repo records in PostgreSQL. Tracks clone status, parse counts, and indexing progress.</div>
+        <span class="card-tag">Database</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/runs_repo.py</div>
+        <div class="card-purpose">Pipeline run tracker. Records start/stop/error events for each pipeline stage (clone, parse, embed) so the Activity tab can show what ran, when, and how long it took.</div>
+        <span class="card-tag">Observability</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/walker.py</div>
+        <div class="card-purpose">File system walker. Traverses repo directories respecting .gitignore rules, file-size limits, and extension filters to produce the file list for chunker.py.</div>
+        <span class="card-tag">Pipeline</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/coverage.py</div>
+        <div class="card-purpose">Coverage metrics calculator. Computes per-repo indexing stats (Pass-1 coverage %, verified %, module docs, etc.) for the Coverage tab dashboard.</div>
+        <span class="card-tag">Metrics</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- UI -->
+  <div class="section ui-section">
+    <div class="section-title">🖥️ UI & Entry Points</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-filename">frontend/streamlit_app.py</div>
+        <div class="card-purpose">The entire Streamlit application. Contains all 5 tabs: Chat, Add Repos, Registered Repos, Coverage, Activity. WhatsApp-style chat bubbles with streaming responses.</div>
+        <span class="card-tag">UI</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">run_realrag.bat</div>
+        <div class="card-purpose">One-click app launcher. Clears the stale PostgreSQL PID file if present, then launches streamlit run on the correct file. Run this every time to start the app.</div>
+        <span class="card-tag">Launcher</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">setup.bat</div>
+        <div class="card-purpose">First-time setup script. Creates .venv, installs all dependencies from requirements.txt, and copies .env.example to .env. Run once after cloning.</div>
+        <span class="card-tag">Setup</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">scripts/dev_up.py</div>
+        <div class="card-purpose">Developer bootstrap. Applies DB schema, seeds product data, and verifies the stack is healthy. Run after setup.bat if you need to reset the database.</div>
+        <span class="card-tag">Setup</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA -->
+  <div class="section data-section">
+    <div class="section-title">📊 Data & Config</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-filename">data/glossary_rms.yaml</div>
+        <div class="card-purpose">RMS business term glossary. Defines canonical meanings for terms like "YieldStar", "renewal", "effective rent", "LRO". Injected into LLM prompts to ensure consistent terminology in answers.</div>
+        <span class="card-tag">Business Logic</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">data/agent_flows.yaml</div>
+        <div class="card-purpose">Product dependency graphs for Live Agent mode. Defines which repos chain together per product (e.g., rm-web → ys → po). Adding new products requires only YAML — no code changes.</div>
+        <span class="card-tag">Routing Config</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/presets.py</div>
+        <div class="card-purpose">RMS repo preset metadata. Pre-filled display names, descriptions, workflows, and concepts for the 5 core RMS repos. Enables bulk-register in one click from the UI.</div>
+        <span class="card-tag">Config</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/glossary.py</div>
+        <div class="card-purpose">Glossary bootstrapper. Reads glossary_rms.yaml and inserts/updates terms in PostgreSQL on startup. Glossary terms are included in retrieval context for business questions.</div>
+        <span class="card-tag">Business Logic</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">lib/business_docs.py</div>
+        <div class="card-purpose">Business HTML doc indexer. Embeds the RealRAG bible, scope, and glossary HTML files into a standalone FAISS index. Provides a "business language" search arm separate from code.</div>
+        <span class="card-tag">Business Logic</span>
+      </div>
+      <div class="card">
+        <div class="card-filename">.env.example</div>
+        <div class="card-purpose">Environment variable template. Lists all required keys: ANTHROPIC_API_KEY, OPENAI_API_KEY, model names, DB paths. Copy to .env and fill in before running.</div>
+        <span class="card-tag">Config</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

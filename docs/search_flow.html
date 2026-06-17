@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RealRAG — What Happens When You Search</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; padding: 40px 20px; }
+  h1 { text-align: center; font-size: 2rem; color: #fff; margin-bottom: 8px; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 50px; font-size: 1rem; }
+
+  .timeline { max-width: 860px; margin: 0 auto; position: relative; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #4f46e5, #06b6d4, #10b981);
+    border-radius: 4px;
+  }
+
+  .step { display: flex; margin-bottom: 40px; position: relative; align-items: flex-start; }
+  .step.right { flex-direction: row-reverse; }
+  .step-content {
+    width: 44%;
+    background: #1e2130;
+    border-radius: 12px;
+    padding: 20px 24px;
+    border: 1px solid #2d3148;
+    position: relative;
+  }
+  .step.left .step-content { margin-right: auto; }
+  .step.right .step-content { margin-left: auto; }
+
+  .step-number {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    z-index: 1;
+    top: 10px;
+  }
+
+  .step-icon { font-size: 1.8rem; margin-bottom: 8px; }
+  .step-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .step-desc { font-size: 0.88rem; color: #aaa; line-height: 1.6; }
+  .step-file { margin-top: 10px; font-size: 0.78rem; color: #4f46e5; background: #1a1d2e; padding: 4px 10px; border-radius: 20px; display: inline-block; }
+
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; margin-top: 8px; }
+  .tag-fast { background: #0d4a2f; color: #34d399; }
+  .tag-deep { background: #1e3a5f; color: #60a5fa; }
+  .tag-agent { background: #3b1f5e; color: #c084fc; }
+  .tag-live { background: #4a1f1f; color: #f87171; }
+
+  /* color per step */
+  .s1 .step-number { background: #4f46e5; color: #fff; }
+  .s2 .step-number { background: #0ea5e9; color: #fff; }
+  .s3 .step-number { background: #06b6d4; color: #fff; }
+  .s4 .step-number { background: #10b981; color: #fff; }
+  .s5 .step-number { background: #f59e0b; color: #111; }
+  .s6 .step-number { background: #ef4444; color: #fff; }
+  .s7 .step-number { background: #8b5cf6; color: #fff; }
+  .s8 .step-number { background: #ec4899; color: #fff; }
+
+  .s1 .step-content { border-top: 3px solid #4f46e5; }
+  .s2 .step-content { border-top: 3px solid #0ea5e9; }
+  .s3 .step-content { border-top: 3px solid #06b6d4; }
+  .s4 .step-content { border-top: 3px solid #10b981; }
+  .s5 .step-content { border-top: 3px solid #f59e0b; }
+  .s6 .step-content { border-top: 3px solid #ef4444; }
+  .s7 .step-content { border-top: 3px solid #8b5cf6; }
+  .s8 .step-content { border-top: 3px solid #ec4899; }
+
+  .tier-box {
+    max-width: 860px;
+    margin: 0 auto 50px;
+    background: #1e2130;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #2d3148;
+  }
+  .tier-box h2 { color: #fff; margin-bottom: 16px; font-size: 1.1rem; }
+  .tiers { display: flex; gap: 12px; flex-wrap: wrap; }
+  .tier {
+    flex: 1;
+    min-width: 160px;
+    padding: 14px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  .tier-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+  .tier-desc { font-size: 0.78rem; opacity: 0.85; }
+  .t1 { background: #0d1f0d; border: 1px solid #34d399; color: #34d399; }
+  .t2 { background: #0d1a2e; border: 1px solid #60a5fa; color: #60a5fa; }
+  .t3 { background: #1e0d2e; border: 1px solid #c084fc; color: #c084fc; }
+  .t4 { background: #2e0d0d; border: 1px solid #f87171; color: #f87171; }
+</style>
+</head>
+<body>
+
+<h1>🔍 What Happens When You Search</h1>
+<p class="subtitle">End-to-end journey of a question in RealRAG</p>
+
+<div class="tier-box">
+  <h2>⚡ 4-Tier Auto-Escalation</h2>
+  <div class="tiers">
+    <div class="tier t1"><div class="tier-title">Tier 1 — Fast</div><div class="tier-desc">Instant retrieval + LLM answer</div></div>
+    <div class="tier t2"><div class="tier-title">Tier 2 — Deep</div><div class="tier-desc">More chunks, wider search</div></div>
+    <div class="tier t3"><div class="tier-title">Tier 3 — Agent</div><div class="tier-desc">Multi-step tool-use loop</div></div>
+    <div class="tier t4"><div class="tier-title">Tier 4 — Live</div><div class="tier-desc">Headless Claude agents on source</div></div>
+  </div>
+</div>
+
+<div class="timeline">
+
+  <div class="step left s1">
+    <div class="step-content">
+      <div class="step-icon">💬</div>
+      <div class="step-title">User Types a Question</div>
+      <div class="step-desc">User types a question in the chat box and hits Enter. The question is saved to the session for conversation context.</div>
+      <span class="step-file">frontend/streamlit_app.py</span>
+      <span class="step-file">lib/sessions_repo.py</span>
+    </div>
+    <div class="step-number">1</div>
+  </div>
+
+  <div class="step right s2">
+    <div class="step-content">
+      <div class="step-icon">🔑</div>
+      <div class="step-title">Cache Check</div>
+      <div class="step-desc">Before any LLM call, the exact question is checked in the query cache. If a previous identical question was answered, return it instantly (0 API cost).</div>
+      <span class="step-file">lib/query_cache.py</span>
+      <br><span class="tag tag-fast">~0ms cache hit</span>
+    </div>
+    <div class="step-number">2</div>
+  </div>
+
+  <div class="step left s3">
+    <div class="step-content">
+      <div class="step-icon">🧠</div>
+      <div class="step-title">Embed the Question</div>
+      <div class="step-desc">The question is sent to OpenAI's text-embedding-3-large model to create a 3072-dimension vector representing its semantic meaning.</div>
+      <span class="step-file">lib/embedder.py</span>
+    </div>
+    <div class="step-number">3</div>
+  </div>
+
+  <div class="step right s4">
+    <div class="step-content">
+      <div class="step-icon">🔎</div>
+      <div class="step-title">5-Method Parallel Retrieval</div>
+      <div class="step-desc">
+        Five search methods run simultaneously:<br><br>
+        <b>① Vector</b> — FAISS semantic similarity<br>
+        <b>② Keyword</b> — Postgres full-text search<br>
+        <b>③ Symbol</b> — Exact name match in DB<br>
+        <b>④ KG</b> — Knowledge graph SQL triples<br>
+        <b>⑤ Doc-vec</b> — Generated doc embeddings
+      </div>
+      <span class="step-file">lib/retrieval.py</span>
+      <span class="step-file">lib/faiss_store.py</span>
+      <span class="step-file">lib/kg.py</span>
+    </div>
+    <div class="step-number">4</div>
+  </div>
+
+  <div class="step left s5">
+    <div class="step-content">
+      <div class="step-icon">🏆</div>
+      <div class="step-title">Re-rank & Select Top Hits</div>
+      <div class="step-desc">Top 50 hits from all methods are deduplicated and re-ranked by score. Top 5 are selected and formatted into a context window for the LLM.</div>
+      <span class="step-file">lib/retrieval.py</span>
+    </div>
+    <div class="step-number">5</div>
+  </div>
+
+  <div class="step right s6">
+    <div class="step-content">
+      <div class="step-icon">🤖</div>
+      <div class="step-title">LLM Generates Answer</div>
+      <div class="step-desc">Claude (Haiku by default) is given the context + question with a strict system prompt: answer in plain business English, no code references, no class names, cite only from the provided context.</div>
+      <span class="step-file">lib/chat.py</span>
+      <span class="step-file">lib/llm.py</span>
+    </div>
+    <div class="step-number">6</div>
+  </div>
+
+  <div class="step left s7">
+    <div class="step-content">
+      <div class="step-icon">✅</div>
+      <div class="step-title">Faithfulness Check</div>
+      <div class="step-desc">The answer is automatically validated: Does it look uncertain? Does it mention code artifacts (hallucination)? Do the named subjects appear in retrieved context? If weak → escalate to the next tier.</div>
+      <span class="step-file">lib/chat.py</span>
+      <br><span class="tag tag-deep">Escalates to Tier 2 if weak</span>
+    </div>
+    <div class="step-number">7</div>
+  </div>
+
+  <div class="step right s8">
+    <div class="step-content">
+      <div class="step-icon">📤</div>
+      <div class="step-title">Answer Returned to User</div>
+      <div class="step-desc">The final answer is streamed to the UI as plain business English. Citations (file, entity, line numbers) are shown in a collapsible "Sources" section. Answer is saved to session + cache.</div>
+      <span class="step-file">lib/sessions_repo.py</span>
+      <span class="step-file">lib/query_cache.py</span>
+    </div>
+    <div class="step-number">8</div>
+  </div>
+
+</div>
+</body>
+</html>

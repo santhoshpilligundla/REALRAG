@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RealRAG — Query Flow Diagram</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; padding: 30px 20px; }
+  h1 { text-align: center; font-size: 1.9rem; color: #fff; margin-bottom: 6px; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+
+  .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .tab {
+    padding: 8px 22px;
+    border-radius: 20px;
+    border: 1px solid #2d3148;
+    background: #1e2130;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+  }
+  .tab.active { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+  .tab:hover:not(.active) { border-color: #4f46e5; color: #c084fc; }
+
+  .diagram-box {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 14px;
+    padding: 30px;
+    display: none;
+  }
+  .diagram-box.active { display: block; }
+
+  .mermaid { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>📊 RealRAG Flow Diagrams</h1>
+<p class="subtitle">End-to-end system flows — click a tab to explore</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('query')">🔍 Query Flow</div>
+  <div class="tab" onclick="show('pipeline')">⚙️ Pipeline Flow</div>
+  <div class="tab" onclick="show('retrieval')">🎯 Retrieval Detail</div>
+  <div class="tab" onclick="show('tier')">🏆 Tier Escalation</div>
+</div>
+
+<!-- QUERY FLOW -->
+<div id="query" class="diagram-box active">
+  <div class="mermaid">
+flowchart TD
+    A([👤 User types question in Chat UI]) --> B[/streamlit_app.py/]
+    B --> C{Cached answer\nexists?}
+    C -- Yes --> Z1([✅ Return cached answer instantly])
+    C -- No --> D[Embed question\nvia OpenAI API\nlib/embedder.py]
+    D --> E[5-Method Parallel Retrieval\nlib/retrieval.py]
+
+    E --> E1[FAISS Vector Search\nlib/faiss_store.py]
+    E --> E2[Postgres Full-Text Search]
+    E --> E3[Symbol Exact-Match]
+    E --> E4[Knowledge Graph SQL\nlib/kg.py]
+    E --> E5[Doc-Vector Search]
+
+    E1 & E2 & E3 & E4 & E5 --> F[Re-rank Top 50 → Top 5 Hits]
+    F --> G[Build LLM Context\nwith Citations]
+    G --> H[Claude LLM Call\nlib/llm.py\nHaiku by default]
+    H --> I{Answer quality\ncheck}
+    I -- Strong ✅ --> J[Stream answer to UI]
+    I -- Weak ⚠️ --> K[Deep Search\nmore chunks]
+    K --> H
+    K --> L{Still weak?}
+    L -- Yes --> M[Tier 3: Agent Mode\nlib/agent.py\nMulti-step tool-use]
+    M --> J
+    J --> N[Save to session\nlib/sessions_repo.py]
+    J --> O[Cache answer\nlib/query_cache.py]
+
+    style A fill:#4f46e5,color:#fff
+    style Z1 fill:#10b981,color:#fff
+    style J fill:#10b981,color:#fff
+    style I fill:#f59e0b,color:#111
+    style L fill:#f59e0b,color:#111
+    style M fill:#8b5cf6,color:#fff
+    style H fill:#0ea5e9,color:#fff
+  </div>
+</div>
+
+<!-- PIPELINE FLOW -->
+<div id="pipeline" class="diagram-box">
+  <div class="mermaid">
+flowchart LR
+    A([👤 Register Repo\nin UI]) --> B[lib/repos_repo.py\nSave to DB]
+    B --> C[📥 Clone\nlib/clone.py\nTFS → storage/repos/]
+    C --> D[🔬 Parse & Chunk\nlib/chunker.py]
+
+    D --> D1[parser_java.py]
+    D --> D2[parser_typescript.py]
+    D --> D3[parser_sql.py]
+    D --> D4[parser_xml.py]
+    D --> D5[parser_ddl.py]
+    D --> D6[parser_jrxml.py]
+
+    D1 & D2 & D3 & D4 & D5 & D6 --> E[(PostgreSQL\nEntities + Chunks)]
+
+    E --> F[📝 Doc-Gen Pass 1\nlib/doc_gen.py\nClaude per entity]
+    F --> G[📝 Doc-Gen Pass 2\nlib/doc_gen_pass2.py\nModule rollup]
+    G --> H[📝 Doc-Gen Pass 3\nlib/doc_gen_pass3.py\nCross-repo narratives]
+    H --> I[🧠 Embed\nlib/embedder.py\nOpenAI API]
+    I --> J[💾 Embedding Cache\nstorage/embeddings_cache/]
+    I --> K[📦 Build FAISS Index\nlib/faiss_store.py]
+    K --> L[(storage/faiss/\nVector Indexes)]
+    L --> M([✅ Ready for Chat])
+
+    style A fill:#4f46e5,color:#fff
+    style M fill:#10b981,color:#fff
+    style E fill:#0ea5e9,color:#fff
+    style L fill:#0ea5e9,color:#fff
+  </div>
+</div>
+
+<!-- RETRIEVAL DETAIL -->
+<div id="retrieval" class="diagram-box">
+  <div class="mermaid">
+flowchart TD
+    Q([❓ User Question]) --> EMB[Embed Question\nOpenAI text-embedding-3-large\n3072 dimensions]
+
+    EMB --> P1 & P2 & P3 & P4 & P5
+
+    subgraph parallel ["⚡ 5 Methods Run in Parallel"]
+      P1["🔷 FAISS Vector Search
+      Semantic similarity
+      lib/faiss_store.py
+      Returns: top-20 similar chunks"]
+
+      P2["🔶 Postgres FTS
+      Full-text keyword match
+      tsvector + tsquery
+      Returns: keyword-matching chunks"]
+
+      P3["🔹 Symbol Exact-Match
+      Exact class/method name lookup
+      Direct DB query
+      Returns: exact-named entities"]
+
+      P4["🔸 Knowledge Graph
+      SQL triple queries
+      lib/kg.py
+      Returns: structural relationships"]
+
+      P5["🟣 Doc-Vector Search
+      Matches against generated docs
+      Separate FAISS index
+      Returns: doc-level hits"]
+    end
+
+    P1 & P2 & P3 & P4 & P5 --> MERGE[Merge + Deduplicate\nAll hits combined]
+    MERGE --> RANK[Score & Re-rank\nTop 50 hits]
+    RANK --> TOP5[Select Top 5\nwith Citations]
+    TOP5 --> CTX[Build Context Window\nfor LLM]
+    CTX --> ANS([💬 LLM generates answer])
+
+    style Q fill:#4f46e5,color:#fff
+    style ANS fill:#10b981,color:#fff
+    style parallel fill:#f8f8f8
+  </div>
+</div>
+
+<!-- TIER ESCALATION -->
+<div id="tier" class="diagram-box">
+  <div class="mermaid">
+flowchart TD
+    Q([❓ Question]) --> CACHE{Cache hit?}
+    CACHE -- ✅ Yes --> DONE1([Return cached answer\n~0ms])
+    CACHE -- ❌ No --> T1
+
+    subgraph T1BOX ["⚡ Tier 1 — Fast  ~5s"]
+      T1[Standard retrieval\ntop-5 hits\nClaude Haiku]
+    end
+
+    T1 --> CHK1{Answer strong?}
+    CHK1 -- ✅ Yes --> SAVE
+    CHK1 -- ⚠️ Weak --> T2
+
+    subgraph T2BOX ["🔍 Tier 2 — Deep  ~10s"]
+      T2[Deep retrieval\ntop-20 hits\nClaude Haiku]
+    end
+
+    T2 --> CHK2{Answer strong?}
+    CHK2 -- ✅ Yes --> SAVE
+    CHK2 -- ⚠️ Weak --> T3
+
+    subgraph T3BOX ["🤖 Tier 3 — Agent  ~30s"]
+      T3[Multi-step investigation\ntool-use loop\nClaude Sonnet]
+      T3A[Search → Symbol →\nKG → Grep → Synthesize]
+      T3 --> T3A
+    end
+
+    T3A --> SAVE
+
+    subgraph T4BOX ["🚀 Tier 4 — Live  ~60s+"]
+      T4[Headless Claude agents\non live source code\nFull repo context]
+    end
+
+    Q -- Live mode\nenabled --> T4
+    T4 --> SAVE
+
+    SAVE[💾 Save to session\n+ cache]
+    SAVE --> UI([✅ Answer displayed\nto user])
+
+    style Q fill:#4f46e5,color:#fff
+    style DONE1 fill:#10b981,color:#fff
+    style UI fill:#10b981,color:#fff
+    style T1 fill:#34d399,color:#111
+    style T2 fill:#60a5fa,color:#111
+    style T3 fill:#c084fc,color:#111
+    style T4 fill:#f87171,color:#111
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    flowchart: { curve: 'basis', htmlLabels: true },
+    fontSize: 14
+  });
+
+  function show(id) {
+    document.querySelectorAll('.diagram-box').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+    mermaid.init(undefined, document.querySelectorAll(`#${id} .mermaid`));
+  }
+</script>
+</body>
+</html>
