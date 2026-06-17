@@ -34,7 +34,19 @@ ANTHROPIC_API_KEY=your-key-here
 OPENAI_API_KEY=your-key-here
 ```
 
-**4. Run the app**
+**4. Download pre-built indexes (required for Chat to work)**
+
+Download the FAISS indexes from OneDrive:
+👉 [Download realrag-storage.zip](https://realpage-my.sharepoint.com/:u:/p/santhosh_pilligundla/IQCJ7fythoHeQJ9qtAq5_6f1AXRaFGzrDu-jBq2Y92TrBFk?email=santhosh.pilligundla%40RealPage.com&e=CNE0QI)
+
+Extract the zip — you should get a `faiss` folder. Place it inside `storage/`:
+```
+REALRAG/
+└── storage/
+    └── faiss/       ← extracted here
+```
+
+**5. Run the app**
 ```
 run_realrag.bat
 ```
