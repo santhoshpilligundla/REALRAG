@@ -29,9 +29,7 @@ _HTML_SOURCES = [
     Path("docs/RealRAG-scope.html"),
     Path("docs/RealRAG-glossary.html"),
 ]
-_MD_DIRS = [
-    Path(r"C:/Users/spilligundla/OneDrive - RealPage/Desktop/NLW"),
-]
+_MD_DIRS: list[Path] = []  # add local markdown dirs here if needed
 
 
 def _strip_html(h: str) -> str:
