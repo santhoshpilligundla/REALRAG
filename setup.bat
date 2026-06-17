@@ -2,16 +2,35 @@
 echo === RealRAG Setup ===
 
 echo.
-echo Step 1: Creating Python virtual environment...
-python -m venv .venv
+echo Step 1: Checking Python installation...
+where py >nul 2>&1
 if errorlevel 1 (
-    echo ERROR: Python not found. Install Python 3.11 from https://python.org
+    where python >nul 2>&1
+    if errorlevel 1 (
+        echo ERROR: Python not found. Install Python 3.11 from https://python.org
+        echo        Make sure to check "Add Python to PATH" during installation.
+        pause
+        exit /b 1
+    ) else (
+        set PYTHON=python
+    )
+) else (
+    set PYTHON=py -3.11
+)
+echo Python found: %PYTHON%
+
+echo.
+echo Step 2: Creating Python virtual environment...
+%PYTHON% -m venv .venv
+if errorlevel 1 (
+    echo ERROR: Failed to create virtual environment.
     pause
     exit /b 1
 )
 
 echo.
-echo Step 2: Installing dependencies...
+echo Step 3: Installing dependencies...
+.venv\Scripts\pip install --upgrade pip
 .venv\Scripts\pip install -r requirements.txt
 if errorlevel 1 (
     echo ERROR: Failed to install dependencies.
@@ -20,20 +39,12 @@ if errorlevel 1 (
 )
 
 echo.
-echo Step 3: Setting up .env file...
+echo Step 4: Setting up .env file...
 if not exist .env (
     copy .env.example .env
-    echo .env created from .env.example
-    echo IMPORTANT: Open .env and add your ANTHROPIC_API_KEY and OPENAI_API_KEY
+    echo .env created. Open it and add your ANTHROPIC_API_KEY and OPENAI_API_KEY
 ) else (
     echo .env already exists, skipping.
-)
-
-echo.
-echo Step 4: Initializing database...
-.venv\Scripts\python scripts\dev_up.py
-if errorlevel 1 (
-    echo WARNING: dev_up.py failed. You may need to add API keys to .env first.
 )
 
 echo.
