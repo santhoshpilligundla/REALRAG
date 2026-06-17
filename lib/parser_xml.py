@@ -207,13 +207,30 @@ def parse_generic_xml(path: Path) -> list[ParsedEntity]:
 
 
 def parse_xml_file(path: Path) -> list[ParsedEntity]:
-    """Top-level dispatcher. Inspects filename to choose specialized parser."""
+    """Top-level dispatcher.
+
+    Detection is STRUCTURAL first (robust), then falls back to filename hints.
+    Structural beats filenames because substring filename matching is fragile —
+    e.g. 'etl2po**sql.xml**' contains 'sql.xml' and was wrongly treated as a query
+    catalog, dropping all its <service> entries from the index.
+    """
     name = path.name
     if name.endswith(".jrxml"):
         # JRXML has a dedicated parser; this module shouldn't be called for them.
         return []
-    if _is_query_catalog(name):
-        return parse_query_catalog(path)
+
+    root = _xml_root(_read_text(path))
+    if root is not None:
+        n_service = len(_collect_entries(root, "service"))
+        n_entry = len(_collect_entries(root, "entry"))
+        if n_service and n_service >= n_entry:
+            return parse_etl_service_catalog(path)
+        if n_entry:
+            return parse_query_catalog(path)
+
+    # Fallback to filename hints (ETL checked before query catalog).
     if _is_etl_service(name):
         return parse_etl_service_catalog(path)
+    if _is_query_catalog(name):
+        return parse_query_catalog(path)
     return parse_generic_xml(path)

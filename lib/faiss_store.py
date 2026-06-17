@@ -91,9 +91,23 @@ def write_index(
         json.dumps({"model": model, "dim": dim, "n": len(ids), "kind": kind}),
         encoding="utf-8",
     )
+    # Drop any cached (stale) copy so the next search reads the fresh index.
+    try:
+        load_index.cache_clear()
+    except Exception:
+        pass
 
 
+from functools import lru_cache  # noqa: E402
+
+
+@lru_cache(maxsize=64)
 def load_index(repo_id: UUID, kind: str) -> tuple[faiss.Index, list[UUID], dict] | None:
+    """Load a per-repo index, kept in RAM after first use (pre-warm).
+
+    Cached so repeated queries don't re-read the index from disk each time.
+    Call load_index.cache_clear() after rebuilding indexes in the same process.
+    """
     idx_path, map_path, meta_path = _paths(repo_id, kind)
     if not idx_path.exists():
         return None

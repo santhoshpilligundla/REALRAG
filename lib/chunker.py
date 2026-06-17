@@ -16,6 +16,7 @@ from uuid import UUID
 from lib.db import get_conn
 from lib.models import Repo
 from lib.parser_ddl import looks_like_ddl, parse_ddl_file
+from lib.parser_sql import parse_sql_file
 from lib.parser_java import flatten as java_flatten
 from lib.parser_java import parse_java_file
 from lib.parser_jrxml import parse_jrxml_file
@@ -132,10 +133,11 @@ def _parse_dispatch(file_info: FileInfo) -> list[ParsedEntity]:
         return parse_xml_file(path)
 
     if lang == "sql":
-        # Distinguish DDL schema dumps from ad-hoc SQL files.
+        # DDL schema dumps → table/column entities; everything else (stored
+        # procedures, functions, scripts — core calc logic) → sql_function/etc.
         if looks_like_ddl(path):
             return parse_ddl_file(path)
-        return []
+        return parse_sql_file(path)
 
     if lang == "markdown":
         return parse_markdown_file(path)

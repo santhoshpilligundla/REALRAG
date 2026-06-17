@@ -8,12 +8,14 @@ Extracts table reads/writes and column references.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import sqlglot
 from sqlglot import expressions as ex
 
-from lib.parsers_common import Fact
+from lib.parsers_common import Fact, ParsedEntity
 
 
 @dataclass
@@ -81,6 +83,62 @@ def extract_sql_facts(sql: str, dialect: str | None = None) -> SqlFacts:
                 seen_col.add(cname.lower())
                 out.columns_referenced.append(cname)
 
+    return out
+
+
+_CREATE_RE = re.compile(
+    r'\bCREATE\s+(?:OR\s+REPLACE\s+)?(FUNCTION|PROCEDURE|PROC|VIEW|TRIGGER)\s+'
+    r'(?:IF\s+NOT\s+EXISTS\s+)?([\w".\[\]]+)',   # captures "schema"."name" / [s].[n] / s.n / n
+    re.IGNORECASE,
+)
+
+
+def _clean_name(raw_name: str) -> str:
+    """Strip quotes/brackets and take the last dotted segment ('"public"."mkteffmax"' -> 'mkteffmax')."""
+    cleaned = re.sub(r'["\[\]]', "", raw_name)
+    return cleaned.split(".")[-1] or cleaned
+_KIND = {"FUNCTION": "sql_function", "PROCEDURE": "sql_procedure", "PROC": "sql_procedure",
+         "VIEW": "sql_view", "TRIGGER": "sql_trigger"}
+
+
+def parse_sql_file(path: Path) -> list[ParsedEntity]:
+    """Parse a standalone .sql file into entities — one per CREATE
+    FUNCTION/PROCEDURE/VIEW/TRIGGER (these hold core calc logic, e.g. the
+    forecasting Func_* files). Falls back to one 'sql_script' entity for the
+    whole file when no CREATE is found. Non-DDL SQL was previously dropped.
+    """
+    try:
+        raw = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    if not raw.strip():
+        return []
+
+    matches = list(_CREATE_RE.finditer(raw))
+    out: list[ParsedEntity] = []
+    if matches:
+        for i, m in enumerate(matches):
+            kind = _KIND.get(m.group(1).upper(), "sql_object")
+            name = _clean_name(m.group(2))
+            start = m.start()
+            end = matches[i + 1].start() if i + 1 < len(matches) else len(raw)
+            body = raw[start:end].strip()
+            start_line = raw.count("\n", 0, start) + 1
+            out.append(ParsedEntity(
+                kind=kind, name=name, qualified_name=name,
+                signature=f"{m.group(1).upper()} {name}",
+                body=body, start_line=start_line,
+                end_line=start_line + body.count("\n"),
+                facts=to_facts(name, extract_sql_facts(body)),
+            ))
+    else:
+        name = path.stem
+        out.append(ParsedEntity(
+            kind="sql_script", name=name, qualified_name=name,
+            signature=f"SQL {path.name}", body=raw[:32_000],
+            start_line=1, end_line=raw.count("\n") + 1,
+            facts=to_facts(name, extract_sql_facts(raw)),
+        ))
     return out
 
 

@@ -5,11 +5,27 @@ from pathlib import Path
 from uuid import UUID
 
 import streamlit as st
+import streamlit.components.v1 as components
 from pydantic import ValidationError
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from lib.chat import chat as run_chat  # noqa: E402
+from lib.chat import (  # noqa: E402
+    answer_has_fabrication,
+    answer_looks_unsure,
+    context_covers_subjects,
+    prepare_answer,
+    stream_answer,
+)
+from lib.query_cache import cache_get, cache_put  # noqa: E402
+from lib.agent import run_agent  # noqa: E402
+from lib.agent_flows import build_launch_plan  # noqa: E402
+from lib.claude_runner import run_flow  # noqa: E402
+
+# Query cache OFF during active iteration so pipeline fixes aren't masked by stale
+# cached answers. Set True once behavior is stable for the speed-on-repeats win.
+_CACHE_ON = False
 from lib.chunker import chunk_repo  # noqa: E402
 from lib.clone import clone_repo  # noqa: E402
 from lib.coverage import (  # noqa: E402
@@ -35,6 +51,12 @@ from lib.repos_repo import (  # noqa: E402
     list_repos,
 )
 from lib.runs_repo import list_recent_runs, list_running  # noqa: E402
+from lib.sessions_repo import (  # noqa: E402
+    create_session,
+    latest_session,
+    load_messages,
+    save_message,
+)
 
 
 st.set_page_config(page_title="RealRAG — Config", layout="wide")
@@ -706,67 +728,247 @@ def _run_build_edges() -> None:
             s.update(label=f"Failed: {result.error}", state="error")
 
 
+def _render_sources(citations: list[dict]) -> None:
+    """Collapsed 'Sources' expander, NLW-style — tucked away, not in the answer flow."""
+    if not citations:
+        return
+    with st.expander(f"Sources ({len(citations)})"):
+        for c in citations:
+            label = c.get("qname") or c.get("repo") or "source"
+            loc = f"`{c.get('file', '?')}`"
+            if c.get("start_line"):
+                loc += f":{c.get('start_line')}-{c.get('end_line', '?')}"
+            st.markdown(f"- **{label}** — {loc}")
+
+
 def _render_chat_tab() -> None:
-    st.subheader("Ask RealRAG")
-    st.caption("Cited answers from generated docs + code chunks. Refuses cleanly when context is missing.")
+    st.markdown("""
+    <style>
+    /* hide avatars — let bubbles speak */
+    [data-testid^="chatAvatarIcon"] { display: none !important; }
 
-    products = {p.product_id: p for p in list_products()}
-    product_options = ["(all products)"] + [p.name for p in products.values()]
-    selected = st.selectbox("Scope to product", product_options, key="chat_product")
-    product_id = next(
-        (pid for pid, p in products.items() if p.name == selected),
-        None,
-    )
+    /* reset base message container */
+    [data-testid="stChatMessage"] {
+        padding: 2px 10px !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
 
-    if "chat_history" not in st.session_state:
-        st.session_state["chat_history"] = []
+    /* USER → right-aligned green bubble */
+    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+        flex-direction: row-reverse !important;
+        margin-left: 20% !important;
+        margin-right: 4px !important;
+    }
+    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"])
+    [data-testid="stChatMessageContent"] {
+        background: #dcf8c6 !important;
+        border-radius: 18px 18px 4px 18px !important;
+        padding: 10px 16px !important;
+        margin-left: auto;
+    }
 
+    /* ASSISTANT → left-aligned white bubble */
+    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
+        margin-right: 20% !important;
+    }
+    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"])
+    [data-testid="stChatMessageContent"] {
+        background: #ffffff !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 18px 18px 18px 4px !important;
+        padding: 10px 16px !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.08) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # --- all controls in the sidebar (clean main area, NLW-style) ---
+    with st.sidebar:
+        st.header("💬 RealRAG Chat")
+        products = {p.product_id: p for p in list_products()}
+        product_options = ["(all products)"] + [p.name for p in products.values()]
+        selected = st.selectbox("Product", product_options, key="chat_product")
+        product_id = next((pid for pid, p in products.items() if p.name == selected), None)
+        deep_search = st.checkbox("Deep search", key="chat_deep_search", value=False,
+                                  help="Slower, better recall on hard questions. Otherwise it auto-escalates only when needed.")
+        agent_mode = st.checkbox("Agent / Trace mode", key="chat_agent_mode", value=False,
+                                 help="Multi-step investigation (search → symbols → knowledge-graph → grep). Best for cross-repo traces and 'how is X calculated'. Slower — several steps.")
+        live_agents = st.checkbox("Live Code + Agents interact", key="chat_live_agents", value=False,
+                                  help="Real-time troubleshooting. Routes the question to the right codebase and drives the cross-repo investigator agents (rm-web→ys→po, reports→po) on the LIVE code. Returns the root cause + any data-fix SQL. Slowest — runs a full agent chain.")
+        # Optional live-DB target for the agent run (you enter it directly). Leave
+        # blank to skip live DB checks. PO = postgres, YSMaster = sqlserver.
+        lc_db_server = lc_db_name = ""
+        lc_db_type = "postgres"
+        if live_agents:
+            lc_db_server = st.text_input("DB server (optional)", key="lc_db_server",
+                                         placeholder="e.g. rcqypodbpgr001.realpage.com")
+            lc_db_name = st.text_input("Database (optional)", key="lc_db_name",
+                                       placeholder="e.g. truamerica")
+            lc_db_type = st.selectbox("DB type", ["postgres", "sqlserver"], key="lc_db_type")
+            st.caption("Leave DB blank to skip live data checks. Credentials come from the repo's tools/.env.")
+        new_chat = st.button("🗨 New chat", use_container_width=True)
+        st.caption("Plain-business answers from your indexed RMS codebase. Sources shown under each answer.")
+
+    # Durable conversation: resume the latest saved session on first load (survives
+    # page reloads and server restarts); "New chat" starts a fresh session.
+    if new_chat or "chat_session_id" not in st.session_state:
+        if new_chat:
+            sid = create_session(product_id)
+            st.session_state["chat_history"] = []
+        else:
+            sid = latest_session() or create_session(product_id)
+            st.session_state["chat_history"] = load_messages(sid)
+        st.session_state["chat_session_id"] = sid
+        if new_chat:
+            st.rerun()
+
+    # --- main area: just the conversation thread + input ---
     for turn in st.session_state["chat_history"]:
         with st.chat_message(turn["role"]):
-            st.write(turn["content"])
-            if turn.get("citations"):
-                with st.expander(f"{len(turn['citations'])} citations"):
-                    for c in turn["citations"]:
-                        st.markdown(
-                            f"- **{c.get('qname') or '?'}** — `{c.get('file', '?')}:"
-                            f"{c.get('start_line', '?')}-{c.get('end_line', '?')}`"
-                        )
-            if turn.get("meta"):
-                st.caption(turn["meta"])
+            st.markdown(turn["content"])
+            if turn["role"] == "assistant":
+                _render_sources(turn.get("citations") or [])
 
-    question = st.chat_input("Ask anything about the indexed codebase…")
+    question = st.chat_input("Ask about recommended rent, forecasting, renewals, widgets…")
     if not question:
         return
 
+    sid = st.session_state["chat_session_id"]
     st.session_state["chat_history"].append({"role": "user", "content": question})
+    save_message(sid, "user", question)
     with st.chat_message("user"):
         st.write(question)
 
+    def _stream_to(placeholder, gen) -> str:
+        acc = ""
+        for delta in gen:
+            acc += delta
+            placeholder.markdown(acc)
+        return acc
+
+    def _run(prep, placeholder):
+        if prep["mode"] == "final":
+            placeholder.markdown(prep["answer"])
+            return prep["answer"]
+        return _stream_to(placeholder, stream_answer(prep))
+
+    hist = st.session_state["chat_history"][:-1]
     with st.chat_message("assistant"):
-        with st.spinner("Retrieving + answering…"):
-            ans = run_chat(question, product_id=product_id)
-        st.write(ans.answer or "(empty)")
-        if ans.citations:
-            with st.expander(f"{len(ans.citations)} citations"):
-                for c in ans.citations:
-                    st.markdown(
-                        f"- **{c.get('qname') or '?'}** — `{c.get('file', '?')}:"
-                        f"{c.get('start_line', '?')}-{c.get('end_line', '?')}`"
-                    )
-        meta = (
-            f"intent={ans.intent} · tier={ans.tier} · "
-            f"retrieved={ans.retrieved_hits} · used={ans.used_hits} · "
-            f"verified={ans.is_faithful} · "
-            f"refused={ans.refusal} · tokens(in/out)={ans.prompt_tokens}/{ans.completion_tokens}"
-        )
-        st.caption(meta)
+        # Live Code + Agents: route to the right repo and drive the existing
+        # cross-repo Claude Code investigator agents headless on the live source.
+        if live_agents:
+            ph = st.empty()
+            status = st.empty()
+            with st.spinner("Routing to the right codebase…"):
+                plan = build_launch_plan(question, product_id=product_id,
+                                         server=lc_db_server, database=lc_db_name,
+                                         db_type=lc_db_type)
+            _live = plan["db_connection"] != "unavailable"
+            status.caption(f"🧭 flow `{plan['entry']}` ({' → '.join(plan['chain'])}) · "
+                           f"agent `{plan['agent']}` · live-DB {'on' if _live else 'off'}")
+            meta: dict = {}
+            answer_text = _stream_to(ph, run_flow(plan, question, meta))
+            citations = []
+            display_tier = f"live-agents · {plan['entry']}"
+            if meta.get("cost_usd"):
+                status.caption(f"🧭 flow `{plan['entry']}` ({' → '.join(plan['chain'])}) · "
+                               f"agent `{plan['agent']}` · ${meta['cost_usd']:.2f}")
+        # Opt-in agentic path: multi-step tool-use investigation. Separate from the
+        # default fast/streaming path (which is left exactly as-is).
+        elif agent_mode:
+            ph = st.empty()
+            status = st.empty()
+            with st.spinner("Agent investigating…"):
+                res = run_agent(question, product_id=product_id, history=hist,
+                                on_step=lambda s: status.caption(f"🔧 {s}"))
+            status.empty()
+            answer_text = res.get("answer") or "(no answer)"
+            ph.markdown(answer_text)
+            citations = res.get("citations") or []
+            display_tier = f"agent · {res.get('steps')} steps"
+            if res.get("trace"):
+                with st.expander(f"Investigation ({len(res['trace'])} tool calls)"):
+                    for t in res["trace"]:
+                        st.markdown(f"- `{t}`")
+        # Speed: exact cache hit (only for standalone questions, no prior context).
+        elif (cached := (cache_get(product_id, question) if (_CACHE_ON and not hist) else None)):
+            ph = st.empty()
+            ph.markdown(cached["answer"])
+            answer_text = cached["answer"]
+            citations = cached["citations"] or []
+            display_tier = f"{cached.get('tier')} · cached"
+        else:
+            with st.spinner("Retrieving…"):
+                prep = prepare_answer(question, product_id=product_id, history=hist,
+                                      deep_search=deep_search)
+            ph = st.empty()
+            answer_text = _run(prep, ph)
+            citations = prep.get("citations") or []
+            display_tier = prep.get("display_tier")
+
+            # Weakness signals: refusal, hedge, fabricated artifact, OR the question's
+            # named subject is absent from the retrieved sources (retrieval drifted —
+            # the 'confident-wrong neighborhood' failure).
+            def _weak(ans: str, ctx: str) -> bool:
+                return (answer_looks_unsure(ans)
+                        or answer_has_fabrication(ans, ctx)
+                        or not context_covers_subjects(question, ctx))
+
+            ctx_text = prep.get("context_text", "")
+            grounded = True
+            if not deep_search and (prep["mode"] == "final" or _weak(answer_text, ctx_text)):
+                # Step 1: escalate to Deep search.
+                st.caption("🔎 Verifying / searching deeper…")
+                with st.spinner("Deep search…"):
+                    prep2 = prepare_answer(question, product_id=product_id, history=hist,
+                                           deep_search=True)
+                answer_text = _run(prep2, ph)
+                citations = prep2.get("citations") or citations
+                display_tier = f"{prep2.get('display_tier')} (deep)"
+                ctx_text = prep2.get("context_text", ctx_text)
+                # Step 2: still weak → hand off to the multi-step agent (final recourse).
+                if prep2["mode"] != "final" and _weak(answer_text, ctx_text):
+                    st.caption("🤖 Still uncertain — investigating step-by-step…")
+                    with st.spinner("Agent investigating…"):
+                        res = run_agent(question, product_id=product_id, history=hist)
+                    answer_text = res.get("answer") or answer_text
+                    citations = res.get("citations") or citations
+                    display_tier = f"agent · {res.get('steps')} steps (auto)"
+                    grounded = not answer_looks_unsure(answer_text)
+
+            # Cache only grounded, confident answers (never cache a weak/uncertain one).
+            if (_CACHE_ON and not hist and answer_text and grounded
+                    and not answer_looks_unsure(answer_text)
+                    and context_covers_subjects(question, ctx_text)):
+                cache_put(product_id, question, answer_text, citations, display_tier)
+
+        _render_sources(citations)
 
     st.session_state["chat_history"].append({
         "role": "assistant",
-        "content": ans.answer or "(empty)",
-        "citations": ans.citations,
-        "meta": meta,
+        "content": answer_text or "(empty)",
+        "citations": citations,
     })
+    save_message(sid, "assistant", answer_text or "(empty)", citations)
+
+    # Scroll the conversation to the latest answer (Streamlit stays at top otherwise).
+    components.html(
+        """
+        <script>
+          const doc = window.parent.document;
+          const sels = ['section.main', '[data-testid="stMain"]',
+                        '[data-testid="stAppViewContainer"]', '.main'];
+          let c = null;
+          for (const s of sels) { const e = doc.querySelector(s); if (e) { c = e; break; } }
+          const go = () => { if (c) c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' });
+                             else window.parent.scrollTo(0, doc.body.scrollHeight); };
+          setTimeout(go, 100); setTimeout(go, 400);
+        </script>
+        """,
+        height=0,
+    )
 
 
 def _render_coverage_tab() -> None:

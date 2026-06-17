@@ -1,0 +1,603 @@
+{
+  "env": "qa",
+  "url": "https://aoqa.realpage.com",
+  "recorded_at": "20260613_061334",
+  "web_vitals": {
+    "lcp_ms": 5752,
+    "cls_score": 5.4997,
+    "fid_ms": 0.6,
+    "long_tasks": 105,
+    "long_task_total_ms": 10091
+  },
+  "navigation_timing": {
+    "dns": 0,
+    "tcp": 0,
+    "ttfb": 585.5999999940395,
+    "response": 0.9000000059604645,
+    "dom_loading": 664,
+    "load_event": 0.19999998807907104,
+    "total_load": 1374.699999988079
+  },
+  "resource_summary": {
+    "by_type": {
+      "link": {
+        "count": 12,
+        "total_ms": 0,
+        "total_bytes": 0
+      },
+      "script": {
+        "count": 79,
+        "total_ms": 679,
+        "total_bytes": 0
+      },
+      "css": {
+        "count": 13,
+        "total_ms": 0,
+        "total_bytes": 0
+      },
+      "fetch": {
+        "count": 89,
+        "total_ms": 16356,
+        "total_bytes": 358840
+      },
+      "xmlhttprequest": {
+        "count": 51,
+        "total_ms": 23940,
+        "total_bytes": 14385
+      },
+      "other": {
+        "count": 1,
+        "total_ms": 1,
+        "total_bytes": 0
+      },
+      "img": {
+        "count": 5,
+        "total_ms": 0,
+        "total_bytes": 0
+      }
+    },
+    "slow_requests": [
+      {
+        "name": "https://aoqa.realpage.com/ysconfig/app/property/search",
+        "type": "fetch",
+        "duration": 2413,
+        "size": 351270,
+        "start": 3843
+      },
+      {
+        "name": "https://aoqa.realpage.com/ysconfig/app/state?application=AIRM_Property_Picker&searchType=Lease%20Transaction",
+        "type": "fetch",
+        "duration": 1307,
+        "size": 662,
+        "start": 4153
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/ds/fetch-data?propertyId=350270&client=capstonemf&queryName=getUnitsWidgetData",
+        "type": "xmlhttprequest",
+        "duration": 960,
+        "size": 0,
+        "start": 6140
+      },
+      {
+        "name": "https://aoqa.realpage.com/ysconfig/wp/AIRM/property_dashboard",
+        "type": "xmlhttprequest",
+        "duration": 842,
+        "size": 2152,
+        "start": 4831
+      },
+      {
+        "name": "https://aoqa.realpage.com/ysconfig/wp/AIRM/portfolio_dashboard",
+        "type": "xmlhttprequest",
+        "duration": 841,
+        "size": 710,
+        "start": 4833
+      },
+      {
+        "name": "https://aoqa.realpage.com/ysconfig/wp/AIRM/forecast_dashboard",
+        "type": "xmlhttprequest",
+        "duration": 840,
+        "size": 946,
+        "start": 4834
+      },
+      {
+        "name": "https://aoqa.realpage.com/ysconfig/wp/AIRM/SelectedPropertyDashboard",
+        "type": "xmlhttprequest",
+        "duration": 811,
+        "size": 481,
+        "start": 4864
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/airm-dashboard/getAverageRent",
+        "type": "xmlhttprequest",
+        "duration": 777,
+        "size": 0,
+        "start": 6239
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/ds/fetch-data?propertyIds=350270&client=ysanalysis&queryName=getAmenityTrendChartReport",
+        "type": "xmlhttprequest",
+        "duration": 752,
+        "size": 0,
+        "start": 6243
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/airm-dashboard/benchmarks/350270",
+        "type": "xmlhttprequest",
+        "duration": 688,
+        "size": 0,
+        "start": 6400
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/settings/getallpropertyparameters",
+        "type": "xmlhttprequest",
+        "duration": 679,
+        "size": 0,
+        "start": 6170
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/ds/fetch-data?propertyId=350270&client=capstonemf&queryName=getRenewalRecommendedWidgetData",
+        "type": "xmlhttprequest",
+        "duration": 657,
+        "size": 0,
+        "start": 6130
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/ds/fetch-data?propertyId=350270&client=capstonemf&queryName=getForecastedRenewalsChartData",
+        "type": "xmlhttprequest",
+        "duration": 655,
+        "size": 0,
+        "start": 6421
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/ds/fetch-data?propertyId=350270&bedCount=-1&queryName=getExpirationSeasonalityData&client=capstonemf",
+        "type": "xmlhttprequest",
+        "duration": 650,
+        "size": 0,
+        "start": 6172
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/ds/fetch-data?propertyId=350270&client=capstonemf&queryName=getOccupancyWidget",
+        "type": "xmlhttprequest",
+        "duration": 610,
+        "size": 0,
+        "start": 6142
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/ds/fetch-data?propertyId=350270&client=capstonemf&queryName=getPropertyActualChart",
+        "type": "xmlhttprequest",
+        "duration": 607,
+        "size": 0,
+        "start": 6155
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/ds/fetch-data?client=capstonemf&propertyId=350270&queryName=getAIDemandSummaryData",
+        "type": "xmlhttprequest",
+        "duration": 590,
+        "size": 0,
+        "start": 6149
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/fa/getFeatures",
+        "type": "xmlhttprequest",
+        "duration": 589,
+        "size": 0,
+        "start": 6154
+      },
+      {
+        "name": "https://aoqa.realpage.com/ysconfig/app/state?application=AIRM_Property_Picker&searchType=Lease%20Transaction",
+        "type": "xmlhttprequest",
+        "duration": 587,
+        "size": 662,
+        "start": 2651
+      },
+      {
+        "name": "https://ysrmsappqa.realpage.com/fa/getFeatures",
+        "type": "xmlhttprequest",
+        "duration": 586,
+        "size": 0,
+        "start": 6160
+      }
+    ],
+    "large_requests": []
+  },
+  "console_errors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "location": "https://tracking-stg.realpage.com/tracker?systemId=SYPO1:0"
+    },
+    {
+      "type": "warning",
+      "text": "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+      "location": "https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDLCJcDIyGDM1Tu_tnBKswfbzEOM2v38Ak&libraries=weather,geometry,drawing,visualization,places&language=en:1544"
+    },
+    {
+      "type": "error",
+      "text": "The library weather is unknown. Please see https://developers.google.com/maps/documentation/javascript/libraries",
+      "location": "https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDLCJcDIyGDM1Tu_tnBKswfbzEOM2v38Ak&libraries=weather,geometry,drawing,visualization,places&language=en:1505"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: colDef.width should be a number, not string",
+      "location": "https://cs-cdn-stg.realpage.com/WC/PP/1.0.2/rp-property-picker/p-b6b6f695.entry.js:64"
+    },
+    {
+      "type": "warning",
+      "text": "Mixed Content: The page at 'https://aoqa.realpage.com/ys/rm/ai/dashboards/property' was loaded over HTTPS, but requested an insecure element 'http://cdn.realpage.com/images/illustrations/generic.svg'. This request was automatically upgraded to HTTPS, For more information see https://blog.chromium.org/2019/10/no-more-mixed-messages-about-https.html",
+      "location": "https://aoqa.realpage.com/ys/rm/ai/dashboards/property:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 500 ()",
+      "location": "https://ysrmsappqa.realpage.com/airm-dashboard/amenities?ysmasterPropertyId=350270&client=capstonemf:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'keys')\n    at e.ngOnInit (https://aoqa.realpage.com/ys/14-es2015.88f48b322e21f68d4210.js:1:3112)\n    at Di (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5157037)\n    at xi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156878)\n    at Bi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156604)\n    at Fr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5175914)\n    at Module.Pr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5175757)\n    at Rh (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:781277)\n    at Xr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5179398)\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5177973)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178400",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'keys')\n    at e.ngOnInit (https://aoqa.realpage.com/ys/14-es2015.88f48b322e21f68d4210.js:1:3112)\n    at Di (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5157037)\n    at xi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156878)\n    at Bi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156604)\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178107)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178400\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178425)\n    at vo (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5185410)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178903\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178914)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "Deprecation warning: value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), which is not reliable across all browsers and versions. Non RFC2822/ISO date formats are discouraged. Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.\nArguments: \n[0] _isAMomentObject: true, _isUTC: false, _useUTC: false, _l: undefined, _i: 06/01/26, _f: undefined, _strict: undefined, _locale: [object Object]\nError\n    at r.createFromInputFallback (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7202875)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223002\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223053\n    at be (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223361)\n    at Be (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223622)\n    at Me (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223704)\n    at r (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7199797)\n    at e.generateDate (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:167167)\n    at https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:167066\n    at re (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2687653)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'score')\n    at dashboardsDataService.getBenchMarkDetails.pipe.subscribe.benchmarkAPIResponse [as _next] (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:103265)\n    at c.__tryOrUnsub (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2313032)\n    at c.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2312253)\n    at l._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311424)\n    at l.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)\n    at s.nextOrComplete (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2608004)\n    at s._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2607926)\n    at s.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)\n    at s._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:6052144)\n    at s.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "RAUL Paging Bar Component ERROR: current page can't be less than 1 or greater than total pages number",
+      "location": "https://aoqa.realpage.com/ys/133-es2015.f905f7513ee1b2d34eea.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "location": "https://tracking-stg.realpage.com/tracker?systemId=SYPO1:0"
+    },
+    {
+      "type": "warning",
+      "text": "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+      "location": "https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDLCJcDIyGDM1Tu_tnBKswfbzEOM2v38Ak&libraries=weather,geometry,drawing,visualization,places&language=en:1544"
+    },
+    {
+      "type": "error",
+      "text": "The library weather is unknown. Please see https://developers.google.com/maps/documentation/javascript/libraries",
+      "location": "https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDLCJcDIyGDM1Tu_tnBKswfbzEOM2v38Ak&libraries=weather,geometry,drawing,visualization,places&language=en:1505"
+    },
+    {
+      "type": "warning",
+      "text": "Mixed Content: The page at 'https://aoqa.realpage.com/ys/rm/ai/dashboards/property' was loaded over HTTPS, but requested an insecure element 'http://cdn.realpage.com/images/illustrations/generic.svg'. This request was automatically upgraded to HTTPS, For more information see https://blog.chromium.org/2019/10/no-more-mixed-messages-about-https.html",
+      "location": "https://aoqa.realpage.com/ys/rm/ai/dashboards/property:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'keys')\n    at e.ngOnInit (https://aoqa.realpage.com/ys/14-es2015.88f48b322e21f68d4210.js:1:3112)\n    at Di (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5157037)\n    at xi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156878)\n    at Bi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156604)\n    at Fr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5175914)\n    at Module.Pr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5175757)\n    at Rh (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:781277)\n    at Xr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5179398)\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5177973)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178400",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'keys')\n    at e.ngOnInit (https://aoqa.realpage.com/ys/14-es2015.88f48b322e21f68d4210.js:1:3112)\n    at Di (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5157037)\n    at xi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156878)\n    at Bi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156604)\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178107)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178400\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178425)\n    at vo (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5185410)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178903\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178914)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 500 ()",
+      "location": "https://ysrmsappqa.realpage.com/airm-dashboard/amenities?ysmasterPropertyId=350270&client=capstonemf:0"
+    },
+    {
+      "type": "error",
+      "text": "RAUL Paging Bar Component ERROR: current page can't be less than 1 or greater than total pages number",
+      "location": "https://aoqa.realpage.com/ys/133-es2015.f905f7513ee1b2d34eea.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "Deprecation warning: value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), which is not reliable across all browsers and versions. Non RFC2822/ISO date formats are discouraged. Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.\nArguments: \n[0] _isAMomentObject: true, _isUTC: false, _useUTC: false, _l: undefined, _i: 06/01/26, _f: undefined, _strict: undefined, _locale: [object Object]\nError\n    at r.createFromInputFallback (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7202875)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223002\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223053\n    at be (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223361)\n    at Be (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223622)\n    at Me (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7223704)\n    at r (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:7199797)\n    at e.generateDate (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:167167)\n    at https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:167066\n    at re (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2687653)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'score')\n    at dashboardsDataService.getBenchMarkDetails.pipe.subscribe.benchmarkAPIResponse [as _next] (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:103265)\n    at c.__tryOrUnsub (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2313032)\n    at c.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2312253)\n    at l._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311424)\n    at l.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)\n    at s.nextOrComplete (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2608004)\n    at s._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2607926)\n    at s.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)\n    at s._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:6052144)\n    at s.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: colDef.width should be a number, not string",
+      "location": "https://cs-cdn-stg.realpage.com/WC/PP/1.0.2/rp-property-picker/p-b6b6f695.entry.js:64"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "Mixed Content: The page at 'https://aoqa.realpage.com/ys/rm/ai/dashboards/property' was loaded over HTTPS, but requested an insecure element 'http://cdn.realpage.com/images/illustrations/generic.svg'. This request was automatically upgraded to HTTPS, For more information see https://blog.chromium.org/2019/10/no-more-mixed-messages-about-https.html",
+      "location": "https://aoqa.realpage.com/ys/rm/ai/dashboards/property:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'keys')\n    at e.ngOnInit (https://aoqa.realpage.com/ys/14-es2015.88f48b322e21f68d4210.js:1:3112)\n    at Di (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5157037)\n    at xi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156878)\n    at Bi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156604)\n    at Fr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5175914)\n    at Module.Pr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5175757)\n    at Rh (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:781277)\n    at Xr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5179398)\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5177973)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178400",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'keys')\n    at e.ngOnInit (https://aoqa.realpage.com/ys/14-es2015.88f48b322e21f68d4210.js:1:3112)\n    at Di (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5157037)\n    at xi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156878)\n    at Bi (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5156604)\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178107)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178400\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178425)\n    at vo (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5185410)\n    at https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178903\n    at Kr (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5178914)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 500 ()",
+      "location": "https://ysrmsappqa.realpage.com/airm-dashboard/amenities?ysmasterPropertyId=350270&client=capstonemf:0"
+    },
+    {
+      "type": "error",
+      "text": "RAUL Paging Bar Component ERROR: current page can't be less than 1 or greater than total pages number",
+      "location": "https://aoqa.realpage.com/ys/133-es2015.f905f7513ee1b2d34eea.js:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'score')\n    at dashboardsDataService.getBenchMarkDetails.pipe.subscribe.benchmarkAPIResponse [as _next] (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:103265)\n    at c.__tryOrUnsub (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2313032)\n    at c.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2312253)\n    at l._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311424)\n    at l.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)\n    at s.nextOrComplete (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2608004)\n    at s._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2607926)\n    at s.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)\n    at s._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:6052144)\n    at s.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR Error: Uncaught (in promise): TypeError: Cannot read properties of undefined (reading 'occupancy28Day')\nTypeError: Cannot read properties of undefined (reading 'occupancy28Day')\n    at e.constructSeries (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:1642557)\n    at e.i (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:1641092)\n    at i.next (<anonymous>)\n    at n (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:1642273)\n    at l.invoke (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:6558)\n    at Object.onInvoke (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5315093)\n    at l.invoke (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:6498)\n    at i.run (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:1970)\n    at https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:16711\n    at l.invokeTask (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:7176)\n    at e.constructSeries (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:1642557)\n    at e.i (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:1641092)\n    at i.next (<anonymous>)\n    at n (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:1642273)\n    at l.invoke (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:6558)\n    at Object.onInvoke (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5315093)\n    at l.invoke (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:6498)\n    at i.run (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:1970)\n    at https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:16711\n    at l.invokeTask (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:7176)\n    at b (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:15915)\n    at https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:14994\n    at n (https://aoqa.realpage.com/ys/19-es2015.65eaf4329544f6cf91a5.js:1:1642291)\n    at l.invoke (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:6558)\n    at Object.onInvoke (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5315093)\n    at l.invoke (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:6498)\n    at i.run (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:1970)\n    at https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:16711\n    at l.invokeTask (https://aoqa.realpage.com/ys/polyfills-es2015.485bf63274e71db739ae.js:1:7176)\n    at Object.onInvokeTask (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5314982)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: groupRemoveSingleChildren and groupHideOpenParents do not work with each other, you need to pick one. And don't ask us how to us these together on our support forum either you will get the same answer!",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "location": "https://ysrmsappqa.realpage.com/airm-dashboard/bookstranslation/118753:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "location": "https://ysrmsappqa.realpage.com/airm-dashboard/bookstranslation/128273:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "location": "https://ysrmsappqa.realpage.com/airm-dashboard/bookstranslation/2388:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot set properties of undefined (setting 'poEndDate')\n    at e.leasingAuditPOEndDateEvent (https://aoqa.realpage.com/ys/25-es2015.3ef0507e25de738677d2.js:1:49101)\n    at https://aoqa.realpage.com/ys/25-es2015.3ef0507e25de738677d2.js:1:55646\n    at sl (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5227737)\n    at r (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5227897)\n    at c.n [as _next] (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:5292996)\n    at c.__tryOrUnsub (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2313032)\n    at c.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2312253)\n    at l._next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311424)\n    at l.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:2311198)\n    at gf.next (https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:1:4032477)",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://aoqa.realpage.com/ys/main-es2015.00f4fa53158b162d1e77.js:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "location": "https://www.googletagmanager.com/ns.html?id=function%20De(t){return()=%3Et.getGoogleTagManagerId()}:0"
+    }
+  ],
+  "failed_requests": [
+    {
+      "url": "https://data.pendo.io/data/guide.js/7acefbd3-a47d-498b-5904-08ab2e384aff?jzb=eJx1jsFqwzAQRH-l6Fys1IFQfOuxt0Lo2QySIi_IK1UrB0zxv2d9MRTSm5jRezu_5k5CLddPbwYjhVKiuLBPMK8GzuWF27NqqUnDqbUig7XIP-hqQCqIoXN5tqu4zDeKFqXYBPbEUbE5NHg0mOE4vD_pyQWF4qI6bQKP31ezHYP-Qxjz_v0KblOW6eXrT0syFqz7juGGJEF9BTVw-zisGum63fF2tqeL7U_9Rcl7qEKZNe6793PXj6Vmb7btASqxbGc&v=2.83.2_prod&ct=1781356440072",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://data.pendo.io/data/ptm.gif/7acefbd3-a47d-498b-5904-08ab2e384aff?v=2.83.2_prod&ct=1781356440070&jzb=eJzNUl1v1DAQ_CvIz1G-nKR3easAlUrAVT0QBwhZ29hJDI5tbIcqnO6_3xqdKiqVPgASvEUzmd3ZGX_ck7BYQVoiudBB9gtJyI0zt144FuSETHG2KmjdVFWeN01Cvkkvg3FMchR5K5WSw6y5AhRC15lZhwe52SkExxCsb7MMzFdInQBlYRBpZ6Zs8Z3RvRwysDZToLnUA8qsM9aTdk-M4uzebnb1_PWzDXvD3vHL23FTN-v3Mwrif4_5-D3_h4QEuLmM-PX5GJbd7vNYdxv6cniFut7BJH6QF9RcFxcfvufqhdtOT7_ENJcg8AJa00Nyl_YkQlz4XyZ92hs_HxqPimHGWcgIzd5uYzYnO7-SaIwH0S3oMBo_Prm6x0rPLCzRRNuD8gLnWXD4Gs_vpiLEIcQZBc3yJivzsoldCuel0QiX6YqmJcMb-F_oqirqn7pSBvijXZ39u66it5OjdVWWf356SVeHT0cP6l5o",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://www.google-analytics.com/g/collect?v=2&tid=G-H8Y5PW0TDE&gtm=45je66a1v9201297023z89201285045za20gzb9201285045zd9201285045&_p=1781356431481&gcd=13l3l3l3l1l1&npa=0&dma=0&are=1&cid=1980858143.1781356432&frm=0&pscdl=noapi&rcb=2&sr=1280x720&uaa=x86&uab=64&uafvl=Google%2520Chrome%3B149.0.7827.103%7CChromium%3B149.0.7827.103%7CNot)A%253BBrand%3B24.0.0.0&uam=&uamb=0&uap=Windows&uapv=19.0.0&uaw=0&ul=en-us&_s=1&tag_exp=115616986~115938466~115938468~119392697~119392705~119456239~119456247&sid=1781356443&sct=1&seg=0&dl=https%3A%2F%2Faoqa.realpage.com%2Fysconfig%2Fapp%2Flanding&dr=https%3A%2F%2Faoqa.realpage.com%2Fysconfig%2Fapp%2Flogin&dt=RealPage%2C%20Inc%20-%20Asset%20Optimization&en=link_click&_fv=1&_ss=1&ep.link_url=https%3A%2F%2Faoqa.realpage.com%2Fysconfig%2Fapp%2Fredirect%3Furl%3Dhttps%253a%252f%252faoqa.realpage.com%252fys%252frm%252fai&tfd=14567",
+      "method": "POST",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://data.pendo.io/data/ptm.gif/7acefbd3-a47d-498b-5904-08ab2e384aff?v=2.83.2_prod&ct=1781356444181&jzb=eJztVe9P2zAQ_VeQJb61lDQUukrTFCiDiLZsRdvYACHHcRNvju3ZDiVM_d-5BK0_sy1UY9qHNlUb-3z33tnne1c_kM0URR00kiQ1qIYCLceG6lvLEph2DtqO29rf23PdPaeG7phhVupbFoKHUYxzFqUi5BgcMSEyFbbUlmoOk7G1ynQaDSy_4x1NMVc4ojtEJo3MEClGLGpgpRoci5CJCNyUlsqgDnDEOqL26S2CSB4YCxz4JxyW5C-WWQ6URco5sLFWF66xpiOwL0JoGjJNiX0DxF4XtLZdb7v5Fr4r5GAuM_Cj8zfM0KSGkswXIb1HnV2AjxkPZ0OFNRX2mNNkxrbnV6Y7H7y1GLxZHvxD72fwUKYBRHwOBBxpBf5d_-NKAoG0ViafNFZVcJoHi0CO-0ekBDNxJIWFNV12N8Wdm_57CfY9f7DWEa2_f7Ke11d9DBuoqF4DC4bPw3ppjPxkXhpDJoIFWNdNTDmvAvZqGQ0uVRnceX_gH3rD-sXpcW96oWQwBXoiEGehxpaGVZCXK74c9_C8-3mtyoNusBB-MvuA9z30SnQtru3cszhaHVeZ-U1Ez98a0jsqUrrVxwLqLYFk55egghkO_DzXoRfb7PLya9wi524v6kPKI40TWhhPXDl0Tr487PJTfZEcfQOjocYwKQrzvT1z22r8QAe747P26ftctDJLYYecA9ed1KaSRjgjufOvJK21D23of5G0i3feag-C1WFKbJcaUqUoIJ3nXS1Sx0wny3B5f4XLXK0tVZPAjWBvBHsj2BvB3gh2iWDPJLtURHNt5DiCgFeI05FFN_9ASdut5uTmEftbjlE",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://cs-cdn-dev.realpage.com/EXPLORE/ao/img/landing/us/Hero-background2.png",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://www.google-analytics.com/g/collect?v=2&tid=G-HFM1PZKE5M&gtm=45je66a1h1v9192862970za200zd9192862970&_p=1781356446450&gcd=13l3l3l3l1l1&npa=0&dma=0&are=1&cid=1980858143.1781356432&frm=0&pscdl=noapi&rcb=12&sr=1280x720&uaa=x86&uab=64&uafvl=Google%2520Chrome%3B149.0.7827.103%7CChromium%3B149.0.7827.103%7CNot)A%253BBrand%3B24.0.0.0&uam=&uamb=0&uap=Windows&uapv=19.0.0&uaw=0&ul=en-us&_s=1&tag_exp=115938466~115938469~119456239~119456247&sid=1781356446&sct=1&seg=0&dl=https%3A%2F%2Faoqa.realpage.com%2Fys%2Frm%2Fai&dr=https%3A%2F%2Faoqa.realpage.com%2Fysconfig%2Fapp%2Flanding&dt=&en=page_view&_fv=1&_ss=1&_ee=1&tfd=3235",
+      "method": "POST",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://tracking-stg.realpage.com/tracker?systemId=SYPO1",
+      "method": "GET",
+      "failure": "net::ERR_NAME_NOT_RESOLVED"
+    },
+    {
+      "url": "https://www.googletagmanager.com/gtm.js?id=function%20De(t){return()=%3Et.getGoogleTagManagerId()}",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://www.googletagmanager.com/ns.html?id=function%20De(t){return()=%3Et.getGoogleTagManagerId()}",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://www.google-analytics.com/g/collect?v=2&tid=G-HFM1PZKE5M&gtm=45je66a1h1v9192862970za200zd9192862970&_p=1781356446450&gcd=13l3l3l3l1l1&npa=0&dma=0&_eu=AAAAAAQ&are=1&cid=1980858143.1781356432&frm=0&pscdl=noapi&rcb=12&sr=1280x720&uaa=x86&uab=64&uafvl=Google%2520Chrome%3B149.0.7827.103%7CChromium%3B149.0.7827.103%7CNot)A%253BBrand%3B24.0.0.0&uam=&uamb=0&uap=Windows&uapv=19.0.0&uaw=0&ul=en-us&_s=7&tag_exp=115938466~115938469~119456239~119456247&sid=1781356446&sct=1&seg=1&dl=https%3A%2F%2Faoqa.realpage.com%2Fys%2Frm%2Fai%2Fdashboards%2Fproperty&dr=https%3A%2F%2Faoqa.realpage.com%2Fys%2F&dt=AI%20Revenue%20Management&en=user_engagement&_et=36698&tfd=72007",
+      "method": "POST",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://tracking-stg.realpage.com/tracker?systemId=SYPO1",
+      "method": "GET",
+      "failure": "net::ERR_NAME_NOT_RESOLVED"
+    },
+    {
+      "url": "https://www.googletagmanager.com/gtm.js?id=function%20De(t){return()=%3Et.getGoogleTagManagerId()}",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://cdn.realpage.com/raul/v2.85.5/css/plugins/icons/checkbox-unchecked.svg",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://cdn.realpage.com/raul/v2.85.5/css/plugins/icons/menu.svg",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://cdn.realpage.com/raul/v2.85.5/css/plugins/icons/asc.svg",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://cdn.realpage.com/raul/v2.85.5/css/plugins/icons/checkbox-checked.svg",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    }
+  ],
+  "http_errors": [
+    {
+      "url": "https://www.googletagmanager.com/ns.html?id=function%20De(t){return()=%3Et.getGoogleTagManagerId()}",
+      "status": 404,
+      "method": "GET"
+    },
+    {
+      "url": "https://ysrmsappqa.realpage.com/airm-dashboard/amenities?ysmasterPropertyId=350270&client=capstonemf",
+      "status": 500,
+      "method": "GET"
+    },
+    {
+      "url": "https://www.googletagmanager.com/ns.html?id=function%20De(t){return()=%3Et.getGoogleTagManagerId()}",
+      "status": 404,
+      "method": "GET"
+    },
+    {
+      "url": "https://ysrmsappqa.realpage.com/airm-dashboard/amenities?ysmasterPropertyId=350270&client=capstonemf",
+      "status": 500,
+      "method": "GET"
+    },
+    {
+      "url": "https://ysrmsappqa.realpage.com/airm-dashboard/amenities?ysmasterPropertyId=350270&client=capstonemf",
+      "status": 500,
+      "method": "GET"
+    },
+    {
+      "url": "https://ysrmsappqa.realpage.com/airm-dashboard/bookstranslation/118753",
+      "status": 404,
+      "method": "GET"
+    },
+    {
+      "url": "https://ysrmsappqa.realpage.com/airm-dashboard/bookstranslation/128273",
+      "status": 404,
+      "method": "GET"
+    },
+    {
+      "url": "https://ysrmsappqa.realpage.com/airm-dashboard/bookstranslation/2388",
+      "status": 404,
+      "method": "GET"
+    }
+  ],
+  "shots_dir": "docs\\perf_reports\\shots_qa_20260613_061334",
+  "video_path": "not recorded (ffmpeg unavailable)",
+  "report_path": "docs\\perf_reports\\perf_qa_20260613_061334.json",
+  "har_path": "docs\\perf_reports\\network_qa_20260613_061334.har"
+}

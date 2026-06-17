@@ -136,6 +136,37 @@ def call(
     )
 
 
+def stream_text(
+    system: str | list[dict[str, Any]],
+    user: str,
+    *,
+    tier: str = "default",
+    max_tokens: int = 1024,
+):
+    """Yield answer text deltas as they arrive — for responsive UI streaming.
+
+    Best-effort: one retry on a transient error before the stream opens; once the
+    stream is flowing we don't retry (the UI shows whatever streamed).
+    """
+    model = _model_for_tier(tier)
+    for attempt in range(2):
+        try:
+            with _client().messages.stream(
+                model=model,
+                max_tokens=max_tokens,
+                system=_system_blocks(system),
+                messages=[{"role": "user", "content": user}],
+            ) as stream:
+                for delta in stream.text_stream:
+                    yield delta
+            return
+        except Exception as e:
+            if attempt == 0 and _is_retryable_status(e):
+                time.sleep(_backoff_seconds(0))
+                continue
+            raise
+
+
 _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
 
 

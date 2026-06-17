@@ -9,12 +9,16 @@ from typing import Sequence
 
 import numpy as np
 import openai
+import tiktoken
 
 from lib.config import get_settings
 
 
 CACHE_ROOT = Path("storage/embeddings_cache")
 DEFAULT_BATCH = 100
+# OpenAI's hard limit for text-embedding-3-* is 8192 tokens per input.
+# Truncate to a margin below it so a single oversized chunk can't 400 the batch.
+MAX_INPUT_TOKENS = 8000
 
 
 @lru_cache
@@ -22,7 +26,8 @@ def _client() -> openai.OpenAI:
     settings = get_settings()
     if not settings.openai_api_key:
         raise RuntimeError("OPENAI_API_KEY not set in .env")
-    return openai.OpenAI(api_key=settings.openai_api_key)
+    # Bump retries: embedding runs are long and the network here is flaky.
+    return openai.OpenAI(api_key=settings.openai_api_key, max_retries=5)
 
 
 def _model_name() -> str:
@@ -31,6 +36,25 @@ def _model_name() -> str:
     if full.startswith("openai:"):
         return full.split(":", 1)[1]
     return full
+
+
+@lru_cache
+def _encoding(model: str) -> "tiktoken.Encoding":
+    try:
+        return tiktoken.encoding_for_model(model)
+    except Exception:
+        return tiktoken.get_encoding("cl100k_base")
+
+
+def _truncate(model: str, text: str) -> str:
+    """Clip text to MAX_INPUT_TOKENS so the embeddings API never 400s on length."""
+    if not text:
+        return ""
+    enc = _encoding(model)
+    toks = enc.encode(text)
+    if len(toks) <= MAX_INPUT_TOKENS:
+        return text
+    return enc.decode(toks[:MAX_INPUT_TOKENS])
 
 
 def _cache_path(model: str, text: str) -> Path:
@@ -64,6 +88,9 @@ def embed_texts(
         return np.empty((0, 0), dtype=np.float32), _model_name()
 
     model = _model_name()
+    # Clip every input up front: keeps cache keys stable for normal-length texts
+    # (only oversized ones change) and guarantees no length-based 400s.
+    texts = [_truncate(model, t) for t in texts]
     n = len(texts)
     vectors: list[np.ndarray | None] = [None] * n
 

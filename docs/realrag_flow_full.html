@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RealRAG — Full Flow + Step-by-Step Code Map</title>
+<style>
+  :root{--off:#2b6cb0;--run:#2f855a;--dec:#b7791f;--ag:#6b46c1;--st:#475569;--ink:#172033;--mut:#667085;--line:#cbd5e1}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font:14.5px/1.55 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);margin:0;padding:24px 16px 80px;background:#fafbfc}
+  .wrap{max-width:1000px;margin:0 auto}
+  h1{font-size:25px;margin:0 0 4px;border-bottom:3px solid var(--run);padding-bottom:8px}
+  h2{font-size:20px;margin:38px 0 6px}
+  h3{font-size:14px;color:var(--mut);margin:20px 0 8px;text-transform:uppercase;letter-spacing:.6px}
+  .sub{color:var(--mut);margin:0 0 14px}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;font-size:12px}
+  .legend span{padding:3px 10px;border-radius:12px;border:1px solid #ddd}
+  .b-off{background:#eaf2fb;color:var(--off)}.b-run{background:#e9f7ef;color:var(--run)}
+  .b-dec{background:#fdf6e3;color:var(--dec)}.b-ag{background:#f1ebfb;color:var(--ag)}.b-st{background:#f1f5f9;color:var(--st)}
+  .toc{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:14px 0;font-size:13px}
+  .toc a{color:var(--run);text-decoration:none;margin-right:6px}
+
+  /* ---- flowchart ---- */
+  .col{display:flex;flex-direction:column;align-items:stretch}
+  .arrow{align-self:center;color:#94a3b8;font-size:18px;margin:3px 0}
+  .start,.end{align-self:center;background:var(--ink);color:#fff;border-radius:20px;padding:7px 18px;font-weight:700;font-size:13px}
+  .node{display:block;border:1.4px solid var(--line);border-radius:9px;padding:9px 12px;background:#fff;border-left:5px solid #94a3b8;text-decoration:none;color:var(--ink)}
+  .node:hover{box-shadow:0 2px 8px rgba(0,0,0,.10)}
+  .node .tag{display:inline-block;color:#fff;border-radius:5px;font-size:11px;padding:1px 7px;margin-right:8px;font-weight:700;vertical-align:middle}
+  .node .ti{font-weight:600}
+  .node small{display:block;color:var(--mut);margin:3px 0 0 0;font-size:12px}
+  .run .tag{background:var(--run)}.run{border-left-color:var(--run)}
+  .off .tag{background:var(--off)}.off{border-left-color:var(--off)}
+  .ag .tag{background:var(--ag)}.ag{border-left-color:var(--ag);background:#f6f2fd}
+  .decision{align-self:stretch;border:1.4px dashed var(--dec);background:#fdf6e3;border-radius:9px;padding:9px 12px;font-weight:600;color:#7a5b12;text-align:center}
+  .yes{color:var(--dec);font-weight:700;font-size:12px;margin:5px 0 2px 22px}
+  .branch{margin:5px 0 5px 22px;border-left:3px dotted var(--dec);padding-left:12px;display:flex;flex-direction:column;gap:6px}
+  .ladder{border:1.5px solid var(--dec);border-radius:10px;padding:10px 12px;background:#fffdf5;margin:6px 0}
+  .ladder .lh{font-weight:700;color:#7a5b12;margin-bottom:6px}
+
+  /* ---- detail cards ---- */
+  .card{border:1px solid var(--line);border-left:5px solid var(--run);border-radius:9px;background:#fff;padding:12px 15px;margin:10px 0}
+  .card.offc{border-left-color:var(--off)} .card.agc{border-left-color:var(--ag)}
+  .card h4{margin:0 0 4px;font-size:15.5px}
+  .card .why{font-size:13.5px;margin:6px 0}
+  .card .codeln{margin-top:8px;font-size:12px;border-top:1px dashed #e2e8f0;padding-top:7px}
+  .card .codeln b{color:var(--mut);font-weight:600;margin-right:4px}
+  code{background:#0f172a;color:#e2e8f0;border-radius:5px;padding:1px 6px;margin:1px 3px 1px 0;font-size:11.5px;font-family:ui-monospace,Consolas,monospace;display:inline-block}
+  code.fn{background:#14532d;color:#dcfce7}code.data{background:#7c2d12;color:#ffedd5}
+  .back{font-size:11px;color:var(--mut);text-decoration:none;float:right}
+  .note{background:#fff8e6;border:1px solid #f0d98c;border-radius:8px;padding:9px 13px;font-size:13px;margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>RealRAG — Full Flow &amp; Step-by-Step Code Map</h1>
+  <p class="sub">Top: the complete flowchart (no step omitted). Bottom: every step explained, with the exact <b>file → function</b> that runs it. Click any box to jump to its detail.</p>
+  <div class="legend">
+    <span class="b-run">Runtime</span><span class="b-off">Offline</span><span class="b-dec">Decision</span><span class="b-ag">Agent</span>
+    <span><code class="fn">green = function</code></span><span><code class="data">orange = data</code></span>
+  </div>
+  <div class="toc"><b>Jump to:</b>
+    <a href="#flow-run">Runtime flowchart</a> ·
+    <a href="#flow-off">Offline flowchart</a> ·
+    <a href="#details-run">Runtime step details</a> ·
+    <a href="#details-off">Offline step details</a>
+  </div>
+
+  <!-- ============================ RUNTIME FLOWCHART ============================ -->
+  <h2 id="flow-run">A. Runtime flowchart — answering a question</h2>
+  <div class="col">
+    <div class="start">USER SUBMITS A QUESTION</div>
+    <div class="arrow">&#9660;</div>
+    <a class="node run" href="#s1"><span class="tag">R1</span><span class="ti">Render chat &amp; capture input + sidebar state</span><small>frontend/streamlit_app.py · _render_chat_tab()</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node run" href="#s2"><span class="tag">R2</span><span class="ti">Resume session &amp; load history; save the user turn</span><small>lib/sessions_repo.py · latest_session / load_messages / save_message</small></a>
+    <div class="arrow">&#9660;</div>
+
+    <div class="decision">&#9670; R3 &mdash; Agent mode ON? &nbsp;|&nbsp; else cache hit? <a href="#s3" style="font-weight:400">(detail)</a></div>
+    <div class="yes">Agent mode ON &rarr; go straight to the AGENT LOOP (RA), skip everything below</div>
+    <div class="yes">Cache hit (only if cache on &amp; no history) &rarr; return stored answer</div>
+    <div class="arrow">&#9660; default fast path (cache currently OFF)</div>
+
+    <a class="node run" href="#s4"><span class="tag">R4</span><span class="ti">Build conversation context (last ~4 turns)</span><small>lib/chat.py · prepare_answer()</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node run" href="#s5"><span class="tag">R5</span><span class="ti">Understand intent (fast heuristic, or LLM classify in Deep)</span><small>lib/chat.py · _fast_intent() &nbsp;|&nbsp; lib/intent.py · classify()</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node run" href="#s6"><span class="tag">R6</span><span class="ti">Embed the question (meaning vector)</span><small>lib/embedder.py · embed_texts()</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node run" href="#s7"><span class="tag">R7</span><span class="ti">Knowledge-graph shortcut (writes/reads table facts)</span><small>lib/chat.py · _kg_answer_for() &rarr; lib/kg.py</small></a>
+    <div class="arrow">&#9660;</div>
+
+    <a class="node run" href="#s8"><span class="tag">R8</span><span class="ti">Retrieve &mdash; 5 arms in parallel + relevance gate</span>
+      <small>lib/retrieval.py · retrieve() &rarr; vector_arm_code / vector_arm_generated / fts_arm / symbol_arm / business_arm</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node run" href="#s9"><span class="tag">R9</span><span class="ti">Fuse &amp; rank (RRF + doc-boost + calc-bias + critical-boost)</span><small>lib/retrieval.py · _fuse_and_rank()</small></a>
+    <div class="arrow">&#9660;</div>
+
+    <div class="decision">&#9670; R10 &mdash; Deep search ON? &rarr; LLM re-rank the pool <a href="#s10" style="font-weight:400">(detail)</a></div>
+    <div class="branch"><a class="node run" href="#s10"><span class="ti">AI reads top candidates &amp; reorders by true relevance</span><small>lib/retrieval.py · _llm_rerank()</small></a></div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="decision">&#9670; R11 &mdash; any matches found? &nbsp; if NONE &rarr; code-search fallback <a href="#s11" style="font-weight:400">(detail)</a></div>
+    <div class="branch"><a class="node run" href="#s11"><span class="ti">Grep the live cloned source &amp; answer (or honestly refuse)</span><small>lib/chat.py · _code_fallback_answer() &rarr; lib/code_search.py · search_code()</small></a></div>
+    <div class="arrow">&#9660; matches found</div>
+
+    <a class="node run" href="#s12"><span class="tag">R12</span><span class="ti">Assemble context &mdash; special cases (enumeration / exact)</span><small>lib/chat.py · _file_full_listing() · wants_exact() · _system_blocks_stream_exact()</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node run" href="#s13"><span class="tag">R13</span><span class="ti">Build prompt + pick model tier (Haiku/Sonnet/Opus)</span><small>lib/chat.py · _build_prompt() · _TIER_TO_MODEL</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node run" href="#s14"><span class="tag">R14</span><span class="ti">Generate the answer &mdash; streamed, business language</span><small>lib/chat.py · stream_answer() &rarr; lib/llm.py · stream_text()</small></a>
+    <div class="arrow">&#9660;</div>
+
+    <div class="decision">&#9670; R15 &mdash; self-check: is the answer WEAK? <a href="#s15" style="font-weight:400">(detail)</a><br>
+      <small style="font-weight:400">weak = answer_looks_unsure OR answer_has_fabrication OR NOT context_covers_subjects</small></div>
+
+    <div class="ladder">
+      <div class="lh">If WEAK &mdash; auto-escalation ladder (only when Deep-search toggle is OFF)</div>
+      <a class="node run" href="#s16"><span class="tag">R16</span><span class="ti">Step 1 &mdash; re-run in Deep search, replace answer in place</span><small>lib/chat.py · prepare_answer(deep_search=True) · streamlit_app.py L845-854</small></a>
+      <div class="arrow">&#9660; if Deep answer is STILL weak AND not a "final"-mode answer</div>
+      <a class="node ag" href="#s17"><span class="tag">R17</span><span class="ti">Step 2 &mdash; hand off to the AGENT LOOP (final recourse)</span><small>lib/agent.py · run_agent() · streamlit_app.py L856-863</small></a>
+    </div>
+    <div class="arrow">&#9660; (answer solid, or escalation finished)</div>
+
+    <a class="node run" href="#s18"><span class="tag">R18</span><span class="ti">Render answer + collapsible Sources</span><small>frontend/streamlit_app.py · _render_sources()</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node run" href="#s19"><span class="tag">R19</span><span class="ti">Persist the turn + cache write (gated) + auto-scroll</span><small>lib/sessions_repo.py · save_message() · lib/query_cache.py · cache_put() · components.html()</small></a>
+    <div class="arrow">&#9660;</div>
+    <div class="end">ANSWER DELIVERED</div>
+  </div>
+
+  <h3 id="flow-agent">RA &mdash; The Agent loop (opt-in, or escalation's last rung)</h3>
+  <div class="col">
+    <a class="node ag" href="#sa"><span class="tag">RA</span><span class="ti">Multi-step tool-use investigation (&le; 6 steps)</span>
+      <small>lib/agent.py · run_agent() &rarr; _dispatch() · tools: search_knowledge_base / find_symbol / what_writes_to_table / what_reads_table / trace_cross_repo / grep_source / get_documentation</small></a>
+  </div>
+
+  <!-- ============================ OFFLINE FLOWCHART ============================ -->
+  <h2 id="flow-off">B. Offline flowchart — building the knowledge base</h2>
+  <div class="col">
+    <div class="start">REGISTER A REPO</div>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o1"><span class="tag">O1</span><span class="ti">Register &amp; validate repo metadata</span><small>frontend/streamlit_app.py · lib/repos_repo.py · lib/presets.py · lib/models.py</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o2"><span class="tag">O2</span><span class="ti">Clone the repository</span><small>lib/clone.py · clone_repo()</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o3"><span class="tag">O3</span><span class="ti">Walk &amp; classify files (skip junk)</span><small>lib/walker.py · walk()</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o4"><span class="tag">O4</span><span class="ti">Parse each file &rarr; entities + facts (per-language dispatch)</span><small>lib/chunker.py · chunk_repo() &rarr; _parse_dispatch() &rarr; parser_java / parser_typescript / parser_xml / parser_sql / parser_ddl / parser_jrxml / parser_markdown</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o5"><span class="tag">O5</span><span class="ti">Persist pieces + facts (skip-if-unchanged hash)</span><small>lib/chunker.py · _persist_entities_recursive / _persist_chunks_and_facts · lib/db.py</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o6"><span class="tag">O6</span><span class="ti">Doc-gen Pass 1 &mdash; entity docs (Haiku)</span><small>lib/doc_gen.py · doc_gen_repo() &rarr; agenerate_entity_doc()</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o7"><span class="tag">O7</span><span class="ti">Build cross-repo edges (deterministic patterns)</span><small>lib/cross_repo.py · discover_edges() · data/patterns_realpage.yaml</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o8"><span class="tag">O8</span><span class="ti">Pass 2 (module) &rarr; L4 enrich (PO) &rarr; Pass 3 (cross-module)</span><small>lib/doc_gen_pass2.py · lib/doc_gen_l4_enrich.py + lib/git_history.py · lib/doc_gen_pass3.py</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o9"><span class="tag">O9</span><span class="ti">Embed everything &rarr; build FAISS + business-doc index</span><small>lib/embed_pipeline.py · embed_repo() &rarr; lib/embedder.py · lib/faiss_store.py · lib/business_docs.py</small></a>
+    <div class="arrow">&#9660;</div>
+    <a class="node off" href="#o10"><span class="tag">O10</span><span class="ti">Coverage matrix + self-healing queue</span><small>lib/coverage.py</small></a>
+    <div class="arrow">&#9660;</div>
+    <div class="end">KNOWLEDGE BASE READY</div>
+  </div>
+
+  <!-- ============================ RUNTIME DETAILS ============================ -->
+  <h2 id="details-run">C. Runtime step details</h2>
+
+  <div class="card" id="s1"><a class="back" href="#flow-run">&#8593; flow</a><h4>R1 &mdash; Render chat &amp; capture input</h4>
+    <div class="why">The Chat tab draws the conversation and reads your typed question plus the sidebar state: which product to search, the <b>Deep search</b> toggle, the <b>Agent mode</b> toggle, and the <b>New chat</b> button. This is the single entry point for every question.</div>
+    <div class="codeln"><b>code</b><code>frontend/streamlit_app.py</code><code class="fn">_render_chat_tab()</code></div></div>
+
+  <div class="card" id="s2"><a class="back" href="#flow-run">&#8593; flow</a><h4>R2 &mdash; Resume session &amp; load history</h4>
+    <div class="why">Reuses the latest saved conversation (or creates one), loads prior messages so the chat survives reloads/restarts, and immediately records your new question. This is what makes the chat <b>persistent and multi-turn</b>.</div>
+    <div class="codeln"><b>code</b><code>lib/sessions_repo.py</code><code class="fn">latest_session()</code><code class="fn">create_session()</code><code class="fn">load_messages()</code><code class="fn">save_message()</code> · <b>data</b><code class="data">sessions</code><code class="data">messages</code></div></div>
+
+  <div class="card" id="s3"><a class="back" href="#flow-run">&#8593; flow</a><h4>R3 &mdash; Mode router (Agent? / Cache?)</h4>
+    <div class="why">Two early exits before the normal path: (1) if <b>Agent mode</b> is ON, the question goes straight to the multi-step agent (RA). (2) if the answer cache is on AND there's no prior context, an exact repeat returns instantly. The cache is currently <b>disabled</b> during development, so this almost always falls through to the fast path.</div>
+    <div class="codeln"><b>code</b><code>frontend/streamlit_app.py</code> (L804 agent · L820 cache) · <code>lib/query_cache.py</code><code class="fn">cache_get()</code></div></div>
+
+  <div class="card" id="s4"><a class="back" href="#flow-run">&#8593; flow</a><h4>R4 &mdash; Build conversation context</h4>
+    <div class="why">Folds the last ~4 turns into a context block and keeps the previous user turn, so follow-ups like "give an example of <i>that</i>" resolve correctly and the retrieval search is aimed using the real subject.</div>
+    <div class="codeln"><b>code</b><code>lib/chat.py</code><code class="fn">prepare_answer()</code> (builds the history block)</div></div>
+
+  <div class="card" id="s5"><a class="back" href="#flow-run">&#8593; flow</a><h4>R5 &mdash; Understand intent</h4>
+    <div class="why">Figures out the <b>kind</b> of question (definition / calculation / list / how-it-works), how <b>hard</b> it is (which model tier), and the <b>key terms</b> to search. Fast path uses a no-LLM heuristic; Deep search uses the LLM classifier, which also rewrites/expands the query (HyDE). Also flags "exact" and "what all / list all" phrasing.</div>
+    <div class="codeln"><b>code</b><code>lib/chat.py</code><code class="fn">_fast_intent()</code><code class="fn">_is_calc_question()</code><code class="fn">wants_exact()</code><code class="fn">_is_enumeration()</code> · <code>lib/intent.py</code><code class="fn">classify()</code></div></div>
+
+  <div class="card" id="s6"><a class="back" href="#flow-run">&#8593; flow</a><h4>R6 &mdash; Embed the question</h4>
+    <div class="why">Turns the question (plus the previous turn) into a meaning-vector via OpenAI, so the app can find material by <b>meaning</b>, not just matching words. Results are cached on disk and oversized text is truncated to fit the model limit.</div>
+    <div class="codeln"><b>code</b><code>lib/embedder.py</code><code class="fn">embed_texts()</code><code class="fn">_truncate()</code><code class="fn">_load_cached()</code> · <b>data</b><code class="data">storage/embeddings_cache/*.npy</code></div></div>
+
+  <div class="card" id="s7"><a class="back" href="#flow-run">&#8593; flow</a><h4>R7 &mdash; Knowledge-graph shortcut</h4>
+    <div class="why">For fact-style structural questions ("what writes to / reads from table X"), build a deterministic answer directly from the recorded fact triples &mdash; exact and complete, no fuzzy search needed.</div>
+    <div class="codeln"><b>code</b><code>lib/chat.py</code><code class="fn">_kg_answer_for()</code> · <code>lib/kg.py</code><code class="fn">writes_to_table()</code><code class="fn">reads_from_table()</code><code class="fn">find_entity_by_name()</code> · <b>data</b><code class="data">facts</code></div></div>
+
+  <div class="card" id="s8"><a class="back" href="#flow-run">&#8593; flow</a><h4>R8 &mdash; Retrieve: 5 arms in parallel</h4>
+    <div class="why">Five searches run at once and their candidates are pooled, so nothing slips through: <b>(1)</b> meaning-search on code, <b>(2)</b> meaning-search on generated docs, <b>(3)</b> keyword full-text, <b>(4)</b> exact-symbol match (pulls the entity's full doc), <b>(5)</b> curated business-docs. A light cosine gate (<code>_VECTOR_MIN_COS</code>) drops true vector noise.</div>
+    <div class="codeln"><b>code</b><code>lib/retrieval.py</code><code class="fn">retrieve()</code><code class="fn">vector_arm_code()</code><code class="fn">vector_arm_generated()</code><code class="fn">fts_arm()</code><code class="fn">symbol_arm()</code><code class="fn">business_arm()</code> · <code>lib/faiss_store.py</code><code class="fn">search()</code> · <code>lib/business_docs.py</code><code class="fn">search_business_docs()</code></div></div>
+
+  <div class="card" id="s9"><a class="back" href="#flow-run">&#8593; flow</a><h4>R9 &mdash; Fuse &amp; rank</h4>
+    <div class="why">Merges the five lists into one ranked shortlist. Pieces several arms agree on rise (Reciprocal Rank Fusion); then nudges: plain-English docs get a boost, calculation questions bias toward pricing/SQL (UI down), and known critical entry-points get lifted. <b>Either code or docs can win</b> &mdash; the boosts are nudges, not rules.</div>
+    <div class="codeln"><b>code</b><code>lib/retrieval.py</code><code class="fn">_fuse_and_rank()</code><code class="fn">_calc_weight()</code><code class="fn">_critical_boost()</code><code class="fn">_doc_rank()</code><code class="fn">_dedup_key()</code></div></div>
+
+  <div class="card" id="s10"><a class="back" href="#flow-run">&#8593; flow</a><h4>R10 &mdash; LLM re-rank (Deep search only)</h4>
+    <div class="why">A second, smarter pass: the AI <b>reads</b> the top candidates and reorders them by which truly answers the question &mdash; fixing cases where the math ranking was fooled by surface signals. Costs an extra AI call, so it only runs in Deep search (or auto-escalation).</div>
+    <div class="codeln"><b>code</b><code>lib/retrieval.py</code><code class="fn">_llm_rerank()</code> &rarr; <code>lib/llm.py</code><code class="fn">call_json()</code></div></div>
+
+  <div class="card" id="s11"><a class="back" href="#flow-run">&#8593; flow</a><h4>R11 &mdash; No matches &rarr; code-search fallback</h4>
+    <div class="why">If every arm comes back empty, the app abandons the pre-built index and <b>greps the actual cloned source files</b> for your keywords, then answers from those snippets &mdash; or honestly says it doesn't know rather than guessing. A safety net for under-documented corners.</div>
+    <div class="codeln"><b>code</b><code>lib/chat.py</code><code class="fn">_code_fallback_answer()</code> &rarr; <code>lib/code_search.py</code><code class="fn">search_code()</code> · <b>data</b><code class="data">storage/repos/* (cloned files)</code></div></div>
+
+  <div class="card" id="s12"><a class="back" href="#flow-run">&#8593; flow</a><h4>R12 &mdash; Assemble context (special cases)</h4>
+    <div class="why">Two adjustments before writing: <b>Enumeration</b> ("what all / list all") pulls EVERY entry of the dominant file so the list is complete, not truncated. <b>Exact</b> ("formula / which table / columns") switches to a prompt that is allowed to name precise artifacts, relaxing the usual no-code-references rule.</div>
+    <div class="codeln"><b>code</b><code>lib/chat.py</code><code class="fn">_is_enumeration()</code><code class="fn">_file_full_listing()</code><code class="fn">wants_exact()</code><code class="fn">_system_blocks_stream_exact()</code></div></div>
+
+  <div class="card" id="s13"><a class="back" href="#flow-run">&#8593; flow</a><h4>R13 &mdash; Build prompt + pick model tier</h4>
+    <div class="why">Assembles the final instruction package: history + KG facts + glossary definitions + retrieved context + your question. Then routes to a model by difficulty &mdash; T1 Haiku (simple), T2 Sonnet (mid), T3 Opus (complex reasoning).</div>
+    <div class="codeln"><b>code</b><code>lib/chat.py</code><code class="fn">_build_prompt()</code><code class="fn">_system_blocks_stream()</code><code class="fn">_TIER_TO_MODEL</code> · <code>lib/glossary.py</code><code class="fn">glossary_block()</code></div></div>
+
+  <div class="card" id="s14"><a class="back" href="#flow-run">&#8593; flow</a><h4>R14 &mdash; Generate the answer (streamed)</h4>
+    <div class="why">The chosen model writes the reply in <b>plain business language with no code references</b> in the prose, and the text streams onto the screen token-by-token so it feels fast and responsive.</div>
+    <div class="codeln"><b>code</b><code>lib/chat.py</code><code class="fn">stream_answer()</code> &rarr; <code>lib/llm.py</code><code class="fn">stream_text()</code> · <code>frontend/streamlit_app.py</code><code class="fn">_stream_to()</code></div></div>
+
+  <div class="card" id="s15"><a class="back" href="#flow-run">&#8593; flow</a><h4>R15 &mdash; Self-check (is the answer weak?)</h4>
+    <div class="why">After writing, the app grades its own answer. It's flagged <b>weak</b> if ANY of: it sounds unsure/refuses, it names something not in the retrieved sources (fabrication), or the question's subject isn't actually covered (retrieval drifted). A solid answer ends here.</div>
+    <div class="codeln"><b>code</b><code>lib/chat.py</code><code class="fn">answer_looks_unsure()</code><code class="fn">answer_has_fabrication()</code><code class="fn">context_covers_subjects()</code> · <code>frontend/streamlit_app.py</code><code class="fn">_weak()</code> (L838)</div></div>
+
+  <div class="card" id="s16"><a class="back" href="#flow-run">&#8593; flow</a><h4>R16 &mdash; Escalation Step 1: Deep search</h4>
+    <div class="why">If weak (and the Deep toggle was OFF), the app re-runs the question in Deep search (smarter intent + LLM re-rank + stronger model) and <b>replaces the answer in place</b>. This fires when the fast answer is weak OR was a "final"-mode (non-streamed) answer.</div>
+    <div class="codeln"><b>code</b><code>frontend/streamlit_app.py</code> L845-854 · <code>lib/chat.py</code><code class="fn">prepare_answer(deep_search=True)</code></div></div>
+
+  <div class="card agc" id="s17"><a class="back" href="#flow-run">&#8593; flow</a><h4>R17 &mdash; Escalation Step 2: Agent loop</h4>
+    <div class="why"><b>Exact gate:</b> the agent runs only if the Deep-search answer is <b>still weak</b> AND it was not a "final"-mode deterministic answer. It investigates step-by-step, then its result replaces the answer. If the Deep answer was good, the agent never runs. (Note: when you turn Deep search ON manually, this auto-ladder is skipped entirely.)</div>
+    <div class="codeln"><b>code</b><code>frontend/streamlit_app.py</code> L856-863 · <code>lib/agent.py</code><code class="fn">run_agent()</code></div></div>
+
+  <div class="card agc" id="sa"><a class="back" href="#flow-agent">&#8593; flow</a><h4>RA &mdash; The Agent loop (detail)</h4>
+    <div class="why">The model plans up to ~6 tool calls; each result is fed back and it decides the next move, then writes a grounded business answer. Tools: <b>search_knowledge_base</b> (full hybrid retrieve), <b>find_symbol</b>, <b>what_writes_to_table</b> / <b>what_reads_table</b>, <b>trace_cross_repo</b> (follow UI&rarr;API&rarr;SQL&rarr;ETL&rarr;table), <b>grep_source</b>, <b>get_documentation</b>.</div>
+    <div class="codeln"><b>code</b><code>lib/agent.py</code><code class="fn">run_agent()</code><code class="fn">_dispatch()</code><code class="fn">_entity_doc()</code> · reuses <code>lib/retrieval.py</code><code>lib/kg.py</code><code>lib/code_search.py</code></div></div>
+
+  <div class="card" id="s18"><a class="back" href="#flow-run">&#8593; flow</a><h4>R18 &mdash; Render answer + sources</h4>
+    <div class="why">Shows the streamed answer and a collapsible <b>Sources</b> list (the citations behind it), so you can see what the answer was grounded in.</div>
+    <div class="codeln"><b>code</b><code>frontend/streamlit_app.py</code><code class="fn">_render_sources()</code></div></div>
+
+  <div class="card" id="s19"><a class="back" href="#flow-run">&#8593; flow</a><h4>R19 &mdash; Persist + cache + scroll</h4>
+    <div class="why">Saves the question + answer + sources so the conversation survives reloads; writes to the answer cache only if the answer is grounded &amp; confident (cache currently off); auto-scrolls the view to the new answer.</div>
+    <div class="codeln"><b>code</b><code>lib/sessions_repo.py</code><code class="fn">save_message()</code> · <code>lib/query_cache.py</code><code class="fn">cache_put()</code> · <code>frontend/streamlit_app.py</code><code class="fn">components.html()</code></div></div>
+
+  <!-- ============================ OFFLINE DETAILS ============================ -->
+  <h2 id="details-off">D. Offline step details</h2>
+
+  <div class="card offc" id="o1"><a class="back" href="#flow-off">&#8593; flow</a><h4>O1 &mdash; Register repo</h4>
+    <div class="why">Capture repo metadata: source URL, product, repo role, priority, critical entry points, languages. RMS repos can be added from presets.</div>
+    <div class="codeln"><b>code</b><code>frontend/streamlit_app.py</code> · <code>lib/repos_repo.py</code> · <code>lib/presets.py</code> · <code>lib/models.py</code> · <b>data</b><code class="data">products</code><code class="data">repos</code></div></div>
+
+  <div class="card offc" id="o2"><a class="back" href="#flow-off">&#8593; flow</a><h4>O2 &mdash; Clone</h4>
+    <div class="why">Git-clones the repository to local storage so parsers and the code-search fallback can read the real files.</div>
+    <div class="codeln"><b>code</b><code>lib/clone.py</code><code class="fn">clone_repo()</code> · <b>data</b><code class="data">storage/repos/*</code></div></div>
+
+  <div class="card offc" id="o3"><a class="back" href="#flow-off">&#8593; flow</a><h4>O3 &mdash; Walk &amp; classify files</h4>
+    <div class="why">Lists every file, detects its language, and skips binaries, generated, vendored, and test files so only meaningful source is indexed.</div>
+    <div class="codeln"><b>code</b><code>lib/walker.py</code><code class="fn">walk()</code> · <b>data</b><code class="data">repo_files</code></div></div>
+
+  <div class="card offc" id="o4"><a class="back" href="#flow-off">&#8593; flow</a><h4>O4 &mdash; Parse each file (per-language dispatch)</h4>
+    <div class="why">The chunker routes every file to the right parser and extracts atomic units (classes, methods, queries, services, functions) plus facts (reads/writes table). XML uses <b>structural</b> detection (count &lt;service&gt; vs &lt;entry&gt;) so query catalogs and ETL catalogs aren't confused; non-DDL SQL files yield SQL functions/procedures.</div>
+    <div class="codeln"><b>code</b><code>lib/chunker.py</code><code class="fn">chunk_repo()</code><code class="fn">_parse_dispatch()</code> · <code>lib/parser_java.py</code><code class="fn">parse_java_file()</code> · <code>lib/parser_typescript.py</code> · <code>lib/parser_xml.py</code><code class="fn">parse_xml_file()</code> · <code>lib/parser_sql.py</code><code class="fn">parse_sql_file()</code><code class="fn">extract_sql_facts()</code> · <code>lib/parser_ddl.py</code> · <code>lib/parser_jrxml.py</code> · <code>lib/parser_markdown.py</code></div></div>
+
+  <div class="card offc" id="o5"><a class="back" href="#flow-off">&#8593; flow</a><h4>O5 &mdash; Persist pieces + facts</h4>
+    <div class="why">Saves entities, code/doc chunks, and fact triples to Postgres. A body-hash skips unchanged pieces on re-runs, so re-indexing is incremental.</div>
+    <div class="codeln"><b>code</b><code>lib/chunker.py</code><code class="fn">_persist_entities_recursive()</code><code class="fn">_persist_chunks_and_facts()</code> · <code>lib/db.py</code> · <b>data</b><code class="data">entities</code><code class="data">code_chunks</code><code class="data">doc_chunks</code><code class="data">facts</code></div></div>
+
+  <div class="card offc" id="o6"><a class="back" href="#flow-off">&#8593; flow</a><h4>O6 &mdash; Doc-gen Pass 1 (entity docs, Haiku)</h4>
+    <div class="why">For each meaningful piece, the LLM writes a structured doc with 6 perspectives (structural, behavioral, business, edge-cases, worked example, cross-refs), grounded in the glossary and checked by a verifier. These plain-English docs are what most answers are built from.</div>
+    <div class="codeln"><b>code</b><code>lib/doc_gen.py</code><code class="fn">doc_gen_repo()</code><code class="fn">_list_entities_for_scope()</code><code class="fn">agenerate_entity_doc()</code> · <code>lib/glossary.py</code> · <code>lib/llm.py</code> · <b>data</b><code class="data">generated_docs</code></div></div>
+
+  <div class="card offc" id="o7"><a class="back" href="#flow-off">&#8593; flow</a><h4>O7 &mdash; Cross-repo edges</h4>
+    <div class="why">Applies a hand-curated pattern catalog to link UI &rarr; API &rarr; SQL &rarr; ETL &rarr; table across repos &mdash; deterministic, no LLM. This powers cross-repo tracing.</div>
+    <div class="codeln"><b>code</b><code>lib/cross_repo.py</code><code class="fn">discover_edges()</code> · <code>data/patterns_realpage.yaml</code> · <b>data</b><code class="data">cross_repo_edges</code></div></div>
+
+  <div class="card offc" id="o8"><a class="back" href="#flow-off">&#8593; flow</a><h4>O8 &mdash; Pass 2 / L4 enrich / Pass 3</h4>
+    <div class="why">Pass 2 (Sonnet) rolls entity docs into file/module narratives; L4 (PO only) adds extra worked examples, statement-level annotations, and git-history context; Pass 3 (Opus) narrates end-to-end cross-module workflows.</div>
+    <div class="codeln"><b>code</b><code>lib/doc_gen_pass2.py</code><code class="fn">doc_gen_pass2_repo()</code> · <code>lib/doc_gen_l4_enrich.py</code> + <code>lib/git_history.py</code> · <code>lib/doc_gen_pass3.py</code> · <b>data</b><code class="data">generated_docs</code><code class="data">examples</code></div></div>
+
+  <div class="card offc" id="o9"><a class="back" href="#flow-off">&#8593; flow</a><h4>O9 &mdash; Embed &amp; build indexes</h4>
+    <div class="why">Embeds all code chunks and generated docs (batched, cached, 8192-token truncation), writes per-repo FAISS indexes (code.* and generated.*), and builds the curated business-doc index. These are the indexes the runtime search arms query.</div>
+    <div class="codeln"><b>code</b><code>lib/embed_pipeline.py</code><code class="fn">embed_repo()</code> · <code>lib/embedder.py</code><code class="fn">embed_texts()</code> · <code>lib/faiss_store.py</code><code class="fn">write_index()</code> · <code>lib/business_docs.py</code><code class="fn">build_business_index()</code> · <b>data</b><code class="data">storage/faiss/*</code></div></div>
+
+  <div class="card offc" id="o10"><a class="back" href="#flow-off">&#8593; flow</a><h4>O10 &mdash; Coverage + self-healing</h4>
+    <div class="why">Tracks how much of each repo has docs and logs questions that failed, so gaps can be filled later.</div>
+    <div class="codeln"><b>code</b><code>lib/coverage.py</code> · <b>data</b><code class="data">entity_coverage</code><code class="data">failed_questions</code></div></div>
+
+  <div class="note"><b>Two important runtime facts (verified in code):</b> (1) Auto-escalation (fast&rarr;Deep&rarr;Agent) only runs when the <b>Deep search toggle is OFF</b>; turning it ON answers once in Deep mode without auto-escalating. (2) The answer cache is intentionally <b>disabled</b> (<code>_CACHE_ON=False</code>) during development so pipeline fixes aren't masked by stale answers.</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RealRAG — The Implementation Bible</title>
+<style>
+  :root {
+    --fg: #1a1a1a;
+    --muted: #555;
+    --soft: #777;
+    --accent: #0a5c8a;
+    --accent-light: #e8f1f7;
+    --accent-dark: #073f5e;
+    --border: #d0d0d0;
+    --bg: #ffffff;
+    --bg-alt: #fafafa;
+    --bg-soft: #f4f6f8;
+    --code-bg: #f1f3f5;
+    --warn: #b85c00;
+    --warn-bg: #fff8e1;
+    --good: #1e6e3a;
+    --good-bg: #e8f5ee;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    font-size: 15px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 28px 72px; }
+  header {
+    border-bottom: 4px solid var(--accent);
+    padding-bottom: 22px;
+    margin-bottom: 36px;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  h1 {
+    font-size: 36px;
+    margin: 6px 0 6px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .lead { color: var(--muted); font-size: 16px; max-width: 800px; }
+  h2 {
+    font-size: 24px;
+    margin: 56px 0 14px;
+    color: var(--accent-dark);
+    border-bottom: 2px solid var(--accent-light);
+    padding-bottom: 6px;
+  }
+  h3 { font-size: 18px; margin: 30px 0 10px; color: var(--fg); }
+  h4 { font-size: 15px; margin: 22px 0 8px; color: var(--accent-dark); text-transform: uppercase; letter-spacing: 0.04em; }
+  p { margin: 8px 0; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 4px 0; }
+  code {
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: Consolas, "SF Mono", Monaco, monospace;
+    font-size: 0.9em;
+    color: #0a3a5c;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 14px 18px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: Consolas, "SF Mono", Monaco, monospace;
+    font-size: 13px;
+    border-left: 3px solid var(--accent);
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; color: var(--fg); }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0 18px;
+    font-size: 13.5px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 11px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--accent-light); font-weight: 600; color: var(--accent-dark); }
+  tr:nth-child(even) td { background: var(--bg-alt); }
+  .toc {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 18px 0 32px;
+  }
+  .toc h3 { margin: 0 0 8px; }
+  .toc ol { margin: 0; padding-left: 22px; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .qa {
+    border-left: 4px solid var(--accent);
+    padding: 14px 18px;
+    margin: 18px 0;
+    background: var(--bg-alt);
+    border-radius: 0 6px 6px 0;
+  }
+  .qa .q {
+    font-weight: 600;
+    color: var(--accent-dark);
+    margin-bottom: 6px;
+  }
+  .qa .q::before { content: "Q. "; color: var(--accent); }
+  .qa .a::before { content: "A. "; color: var(--good); font-weight: 700; }
+  .callout {
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn);
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 0 4px 4px 0;
+    color: #5c3a00;
+    font-size: 13.5px;
+  }
+  .good {
+    background: var(--good-bg);
+    border-left: 4px solid var(--good);
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 0 4px 4px 0;
+    color: #0e4a25;
+    font-size: 13.5px;
+  }
+  .flow {
+    font-family: Consolas, monospace;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    padding: 18px;
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: pre;
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin: 14px 0;
+  }
+  .pill {
+    display: inline-block;
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    padding: 2px 9px;
+    border-radius: 11px;
+    font-size: 11.5px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .pill.os { background: #e8f5ee; color: #0e4a25; }
+  .pill.warn { background: #fff8e1; color: #b85c00; }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+  }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+  }
+  .card h4 { margin: 0 0 6px; }
+  footer {
+    margin-top: 64px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    color: var(--soft);
+    font-size: 12px;
+    text-align: center;
+  }
+  @media print {
+    .wrap { max-width: 100%; padding: 14px; }
+    h2 { page-break-after: avoid; }
+    table, .flow, pre { page-break-inside: avoid; }
+    .qa { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">RealPage Hackathon &middot; The Implementation Bible</div>
+  <h1>RealRAG</h1>
+  <div class="lead">A self-service code-understanding platform. Paste a TFS repo URL — get a living, queryable knowledge base in minutes. This document is the single reference for design, decisions, and implementation.</div>
+</header>
+
+<!-- ============================================================== -->
+<section class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#problem">The Problem (Plain English)</a></li>
+    <li><a href="#vision">The Vision</a></li>
+    <li><a href="#core-loop">The Core Loop</a></li>
+    <li><a href="#architecture">Architecture Overview</a></li>
+    <li><a href="#qa">All Questions Asked &mdash; Locked Answers</a></li>
+    <li><a href="#pipelines">Pipelines (with flowcharts)</a></li>
+    <li><a href="#data-model">Data Model</a></li>
+    <li><a href="#tech-stack">Technology Stack</a></li>
+    <li><a href="#concepts">Concepts Glossary &mdash; Plain English</a></li>
+    <li><a href="#decisions">Locked Decisions Summary</a></li>
+    <li><a href="#needs">What We Need From the Team</a></li>
+    <li><a href="#risks">Risks &amp; Mitigations</a></li>
+    <li><a href="#build">Build Order &mdash; Hackathon vs Production</a></li>
+  </ol>
+</section>
+
+<!-- ============================================================== -->
+<section id="tldr">
+<h2>1. TL;DR</h2>
+<p>RealPage's codebases are huge, span decades, cross multiple repos. Engineers waste hours tracing simple questions. RealRAG turns any RealPage codebase into a living knowledge base: paste a TFS URL, the system reads the code, writes its own documentation, stores it in a vector database, and answers plain-English questions in under 2 seconds with file-and-line citations. Updates itself on every commit. Works across products with strict isolation. Open-source defaults at every layer.</p>
+
+<div class="good">
+<strong>The product in one line:</strong> Paste a TFS URL &rarr; ask questions &rarr; get cited answers in seconds &rarr; docs stay fresh forever.
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h4>What it does</h4>
+    <p>Reads any RealPage codebase, generates layered documentation, indexes it into a vector database, and answers questions with citations.</p>
+  </div>
+  <div class="card">
+    <h4>How it stays accurate</h4>
+    <p>Every claim cites file:line. Verifier drops unsupported claims. Refusal mode says "I don't know" instead of hallucinating.</p>
+  </div>
+  <div class="card">
+    <h4>How it stays fast</h4>
+    <p>Pre-computes everything at index time. Caches at every layer. Sub-2-second answers on 95% of questions.</p>
+  </div>
+  <div class="card">
+    <h4>How it stays fresh <span class="pill warn">Phase 2</span></h4>
+    <p>Manual "Refresh repo" button in the admin panel for the initial release. Webhook-driven auto-refresh is designed and deferred to Phase 2.</p>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================== -->
+<section id="problem">
+<h2>2. The Problem (Plain English)</h2>
+<p>RealPage has many products (RMS, OneSite, ILM, etc.). Each product is built from multiple code repositories. Together it's millions of lines of code, written across decades, by people who have mostly left the company.</p>
+
+<p>When anyone needs to understand <em>how something works</em> &mdash; for example, "How is the Revenue Trend Widget data populated?" &mdash; they have to:</p>
+
+<ol>
+  <li>Search the UI repo (rm-web) for the widget</li>
+  <li>Find the API call name it sends</li>
+  <li>Search the API repo (ys) for that API name</li>
+  <li>Read the SQL it runs</li>
+  <li>Identify the database table</li>
+  <li>Search the backend repo (po) for code that writes that table</li>
+  <li>Read the ETL job, the Java logic, the upstream calculations&hellip;</li>
+</ol>
+
+<p>This takes <strong>hours per question</strong>. Onboarding a new engineer takes <strong>months</strong>. Existing tools all fail:</p>
+
+<ul>
+  <li><strong>grep / IDE search</strong> &mdash; only sees one repo at a time, no semantic understanding</li>
+  <li><strong>Confluence / SharePoint</strong> &mdash; goes stale within weeks of being written</li>
+  <li><strong>ChatGPT / Copilot scoped to one repo</strong> &mdash; can't trace across repos, hallucinates without citations</li>
+</ul>
+
+<p>The business knowledge is locked inside the code, and there's no living, trusted, cross-repo source of truth.</p>
+</section>
+
+<!-- ============================================================== -->
+<section id="vision">
+<h2>3. The Vision</h2>
+<p>A platform where any RealPage engineer pastes a TFS repo URL and gets back a living, queryable knowledge base in minutes. The system reads the code, writes its own documentation, indexes it, and answers questions with citations and worked examples in under 2 seconds. Updates itself on every commit. Works across all products. Available to engineers, the PME team, and business owners.</p>
+
+<h3>Quality bars (non-negotiable)</h3>
+<table>
+<thead><tr><th>Bar</th><th>Target</th></tr></thead>
+<tbody>
+<tr><td>Generic — same pipeline works for any RealPage repo</td><td>No per-repo handcrafting</td></tr>
+<tr><td>Documentation depth</td><td>Layered: entity &rarr; module &rarr; cross-module narrative; evidence-anchored</td></tr>
+<tr><td>Retrieval speed</td><td>&lt; 2 s on 95% of queries; &lt; 15 s on agentic-fallback queries</td></tr>
+<tr><td>Accuracy</td><td>85&ndash;92% on factual / behavioral; 99% on structural; every claim cites file:line</td></tr>
+<tr><td>Worked examples</td><td>Every business rule paired with at least one verified example</td></tr>
+<tr><td>Freshness</td><td>Docs never older than the last commit on the watched branch</td></tr>
+<tr><td>Cost</td><td>~$300 one-time per repo to onboard; sub-cent per query</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ============================================================== -->
+<section id="core-loop">
+<h2>4. The Core Loop</h2>
+<ol>
+  <li><strong>Onboard</strong> &mdash; engineer pastes a TFS URL + PAT in the config screen.</li>
+  <li><strong>Ingest</strong> &mdash; system clones the repo, parses it, generates layered documentation, indexes everything into Postgres + FAISS.</li>
+  <li><strong>Pick a product</strong> &mdash; user selects RMS / OneSite / ILM. All subsequent queries are scoped to that product.</li>
+  <li><strong>Query</strong> &mdash; engineer asks a plain-English question; system returns a cited answer with worked examples in &lt; 2 s.</li>
+  <li><strong>Fall back</strong> &mdash; if the docs aren't enough, the system reads the live cloned source via an agentic walk; the new finding feeds back into the index.</li>
+  <li><strong>Stay fresh</strong> &mdash; for the initial release, a "Refresh repo" button in the admin panel triggers re-indexing on demand. <span class="pill warn">Phase 2:</span> webhook-driven auto-refresh on every commit (design captured in &sect;7.3 but not implemented now).</li>
+</ol>
+</section>
+
+<!-- ============================================================== -->
+<section id="architecture">
+<h2>5. Architecture Overview</h2>
+
+<div class="flow">
+                            REALRAG &mdash; HIGH-LEVEL ARCHITECTURE
+
+   ┌──────────────────────────────────────────────────────────────────────────┐
+   │                              CONFIG SCREEN                               │
+   │   Paste TFS URL + PAT &rarr; pick product &rarr; click "Add &amp; index"            │
+   └─────────────────────────────────────┬────────────────────────────────────┘
+                                         │
+                                         ▼
+   ┌──────────────────────────────────────────────────────────────────────────┐
+   │                        INGESTION (background worker)                     │
+   │   git clone (PAT)  →  walk  →  parse  →  chunk  →  embed  →  doc-gen     │
+   │                          (3 passes)  →  verify  →  cross-repo merge      │
+   └─────────────────────────────────────┬────────────────────────────────────┘
+                                         │
+                                         ▼
+   ┌──────────────────────────────────────────────────────────────────────────┐
+   │   STORAGE (per product, per repo)                                        │
+   │                                                                          │
+   │   PostgreSQL                                  FAISS (in RAM)             │
+   │     repos · entities · chunks                   code · docs ·            │
+   │     facts · dependencies                        generated · examples     │
+   │     cross_repo_edges · examples · audit         (per product folder)     │
+   │     domain_glossary · sessions                                           │
+   │                                                                          │
+   │   Disk: cloned source for live source-walk fallback                      │
+   └─────────────────────────────────────┬────────────────────────────────────┘
+                                         │
+                                         ▼
+   ┌──────────────────────────────────────────────────────────────────────────┐
+   │                            QUERY PATH                                    │
+   │   intent classifier  →  parallel retrieval  →  re-rank  →                │
+   │   tier router  →  LLM (with citations)  →  verifier  →  stream to UI     │
+   └─────────────────────────────────────┬────────────────────────────────────┘
+                                         │
+                                         ▼
+   ┌──────────────────────────────────────────────────────────────────────────┐
+   │                              CHAT UI                                     │
+   │   Cited answers + worked examples + evidence cards + freshness badge     │
+   └──────────────────────────────────────────────────────────────────────────┘
+
+   Auto-update: TFS webhook on commit  →  incremental re-index  →  cache invalidation
+</div>
+
+<h3>Why this shape</h3>
+<ul>
+  <li><strong>Postgres holds structure</strong> (entities, relationships, facts). It's queryable and joinable.</li>
+  <li><strong>FAISS holds similarity</strong> (vectors). It's fast for "find similar."</li>
+  <li><strong>The two are linked by chunk_id.</strong> Every retrieval joins them.</li>
+  <li><strong>Per-product isolation</strong> at every layer (DB rows tagged with product_id; FAISS files separated by product folder).</li>
+  <li><strong>Cloned source on disk</strong> for the rare case where the indexed view isn't enough &mdash; the agent reads the live file directly.</li>
+</ul>
+</section>
+
+<!-- ============================================================== -->
+<section id="qa">
+<h2>6. All Questions Asked &mdash; Locked Answers</h2>
+
+<div class="qa"><div class="q">Will the code itself be stored in the vector database?</div>
+<div class="a">Yes &mdash; in two tiers. FAISS holds the embeddings (vectors). Postgres holds the actual code text. They're linked by chunk_id. When Claude answers, it reads the code text retrieved from Postgres after FAISS finds the right chunks.</div></div>
+
+<div class="qa"><div class="q">When new code is committed, will the documentation update?</div>
+<div class="a">Yes. A TFS webhook fires on every commit. The system runs <code>git diff</code>, finds the changed files, re-parses them, and re-indexes <em>only entities whose body actually changed</em> (entity-content hashing). A typical PR is fully re-indexed in 30&ndash;60 seconds for under $1.</div></div>
+
+<div class="qa"><div class="q">How will documentation be generated as detailed as possible, so nothing is missed?</div>
+<div class="a">Six strategies, layered:
+<ol>
+<li><strong>Atomic units</strong> — every function, class, SQL query, XML entry, config key, table column, test gets its own record.</li>
+<li><strong>Schema-constrained generation</strong> — LLM must fill every required field; cannot skip.</li>
+<li><strong>Parser-first extraction</strong> — facts (signatures, types, table refs) come from parsers, never the LLM.</li>
+<li><strong>Six perspectives per entity</strong> — structural, behavioral, business, edge cases, worked example, cross-references.</li>
+<li><strong>Three-pass hierarchical generation</strong> — entity (cheap LLM) → module (mid) → cross-module narrative (heavy).</li>
+<li><strong>Coverage matrix + auto-fill</strong> — gaps are tracked; nightly job fills the largest gaps first.</li>
+</ol></div></div>
+
+<div class="qa"><div class="q">How will retrieval be very fast?</div>
+<div class="a">Pre-warm FAISS in RAM at startup; per-repo isolation so we search only relevant data; parallel retrieval (vector + keyword + symbol-exact + graph) via async; multi-level caching (query, embedding, prompt); streaming so the user sees the first word in &lt; 500 ms; tier routing so 60% of queries take the cheapest path. Result: median answer in ~700 ms, p95 in ~1.8 s.</div></div>
+
+<div class="qa"><div class="q">How will answers be very accurate?</div>
+<div class="a">Twelve layered defenses:
+<ol>
+<li>Hybrid retrieval (vector + keyword + symbol-exact + graph)</li>
+<li>HyDE for vague questions</li>
+<li>Cross-encoder re-ranking</li>
+<li>Domain glossary expansion</li>
+<li>Citation-strict prompt + structured output</li>
+<li>Refusal mode (says "I don't know" instead of hallucinating)</li>
+<li>Verifier pass: citation validity + symbol grounding + faithfulness check</li>
+<li>Self-RAG iteration when confidence is low</li>
+<li>Knowledge-graph triples for structural questions (no LLM, 100% accurate)</li>
+<li>Tests as ground-truth behavior</li>
+<li>Eval framework with golden test set</li>
+<li>Feedback loop &mdash; failed questions feed self-healing</li>
+</ol></div></div>
+
+<div class="qa"><div class="q">How will cross-repo dependencies be tracked? Example: Revenue Trend Widget data comes from ys repo but is built in po repo.</div>
+<div class="a">Per-repo extraction lands in one shared Postgres schema. Custom extractors pull legacy patterns (TS string literals like <code>query: 'X'</code>, XML query catalog entries, ETL XML services, SQL FROM/JOIN refs). A merge pass stitches edges by exact string match into a <code>cross_repo_edges</code> table. At query time, a recursive Postgres CTE walks the graph in &lt; 50 ms, retrieves docs at each step, and the LLM narrates the chain with citations.</div></div>
+
+<div class="qa"><div class="q">If I don't tell you the example, will you understand the cross-repo connection?</div>
+<div class="a">Partially &mdash; honest answer. Three strategies fill the gap:
+<ul>
+<li><strong>Hand-curated YAML pattern catalog</strong> &mdash; one senior engineer writes the cross-repo patterns once (one day of work); reused forever. Best accuracy.</li>
+<li><strong>LLM-assisted pattern discovery at onboarding</strong> &mdash; LLM reads samples, proposes patterns, human accepts. Catches the obvious ones automatically.</li>
+<li><strong>Co-occurrence statistical discovery</strong> &mdash; nightly job finds new patterns from token frequencies. ~85% accurate.</li>
+</ul>
+We use all three.</div></div>
+
+<div class="qa"><div class="q">What's the strategy for chunking, indexing, embedding?</div>
+<div class="a">
+<strong>Chunking:</strong> AST-aware via tree-sitter; one chunk per atomic unit; never split mid-function. Multi-chunk-type indices (code, doc, generated, examples, tests, schema, config).<br>
+<strong>Indexing:</strong> Postgres for structure + FAISS for similarity; per-repo per-product isolation; atomic upsert across both stores in a single transaction; entity-content hashing to skip unchanged code; index versioning.<br>
+<strong>Embedding:</strong> BAAI/bge-large-en-v1.5 (open source, 1024-dim) or OpenAI text-embedding-3-large (3072-dim); same model at index and query time; batched (100 chunks per call); persistent cache; multi-vector per entity (signature, body, summary embedded separately).</div></div>
+
+<div class="qa"><div class="q">Will you create a database per product?</div>
+<div class="a">No &mdash; one Postgres database with <code>product_id</code> as a column on every table. FAISS files <em>are</em> physically separated by product folder. Defense-in-depth ACL: API route &rarr; query &rarr; (optional) Postgres row-level security. Switch to per-product physical databases only if compliance demands it later.</div></div>
+
+<div class="qa"><div class="q">After cloning, will the code be stored on disk?</div>
+<div class="a">Yes &mdash; partial+shallow clones (~10% of full size) kept long-term under <code>storage/repos/&lt;product&gt;/&lt;repo&gt;/&lt;branch&gt;/</code>. Reasons: incremental <code>git fetch</code> on commits, agentic source-walk fallback, <code>git blame</code> for "why" questions, re-parse without re-clone. Encrypted at rest; per-product permissions; deleted only when a repo is removed from the config screen.</div></div>
+
+<div class="qa"><div class="q">When a user clicks a product name, will queries be scoped to that product?</div>
+<div class="a">Yes &mdash; product context is the user's primary scope. Once "in" RMS, every retrieval, every document, every example is scoped to RMS. Glossary changes per product. URL becomes <code>/api/v1/products/{product_id}/&hellip;</code>. Switching products is one click. Cross-product queries require explicit opt-in.</div></div>
+
+<div class="qa"><div class="q">For every business rule, will an example be available?</div>
+<div class="a">Yes &mdash; every rule stored carries at least one verified worked example as a mandatory field of the same record. Pydantic schema rejects rules without examples. The system literally cannot store a rule without a paired example. At query time, rule + example are retrieved together; no on-the-fly synthesis needed.</div></div>
+
+<div class="qa"><div class="q">Doesn't pairing examples increase documentation cost?</div>
+<div class="a">Yes &mdash; about 30&ndash;50% one-time index cost increase, ~10% storage. But:
+<ul>
+<li>Per-query cost goes <em>down</em> (no on-the-fly synthesis)</li>
+<li>Pre-stored examples pay for themselves on the first ~30 queries that hit them</li>
+<li>Bounded by tiered richness: trivial entities get no example, important ones get full examples</li>
+</ul>
+Net: cheaper to operate, faster to answer, more consistent across users.</div></div>
+
+<div class="qa"><div class="q">What about the database schema for RMS / other products?</div>
+<div class="a">Not blocking. The system extracts table/column references from code regardless. When you provide schema dumps (<code>pg_dump --schema-only</code> dropped into <code>db/external_schemas/</code>), accuracy on SQL/table claims jumps from ~85% to ~98%, and column-level docs become available.</div></div>
+
+<div class="qa"><div class="q">Do we need agentic RAG?</div>
+<div class="a">Yes, but tiered &mdash; not always-on. Three modes routed by intent:
+<ul>
+<li><strong>Tier 1 &mdash; Naive RAG</strong> (60% of queries): one retrieval, one answer, &lt; 1 s, $0.001</li>
+<li><strong>Tier 2 &mdash; Self-RAG</strong> (25%): LLM critiques retrieval, re-retrieves if weak</li>
+<li><strong>Tier 3 &mdash; Agentic RAG</strong> (12%): multi-step tool use for cross-repo / multi-hop questions</li>
+<li><strong>Tier 4 &mdash; Live source-walk</strong> (3%): reads cloned files when the index is insufficient</li>
+</ul></div></div>
+
+<div class="qa"><div class="q">What's the admin / config screen?</div>
+<div class="a">A web UI for: managing repos (paste TFS URL, trigger re-index, remove); cost dashboards per product/team; tuning thresholds (FAISS score floor, top-K, tier rules); reviewing LLM-proposed cross-repo patterns; user/ACL management; audit log search; coverage matrix per repo; failed-question queue.</div></div>
+
+<div class="qa"><div class="q">What embedding model is used in the existing AI-RMS today?</div>
+<div class="a">OpenAI <code>text-embedding-3-large</code> (3072 dimensions). Pluggable via <code>EMBEDDING_MODEL</code> env var. For RealRAG production: open-source default <strong>BAAI/bge-large-en-v1.5</strong> (1024 dims, MIT license).</div></div>
+</section>
+
+<!-- ============================================================== -->
+<section id="pipelines">
+<h2>7. Pipelines (with flowcharts)</h2>
+
+<h3>7.1 &mdash; Onboarding pipeline (paste URL &rarr; ready to query)</h3>
+<div class="flow">
+   [User pastes TFS URL + PAT in config screen]
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Validate: URL allow-listed?     │
+   │           PAT works?            │
+   │           User has permission?  │
+   │           Disk quota available? │
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ git clone (partial + shallow)   │  ── PAT in HTTP header, never in URL
+   │ → storage/repos/&lt;p&gt;/&lt;r&gt;/&lt;b&gt;/    │
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Walk files                      │  classify: code / doc / sql / test
+   │ Skip: binaries, secrets, gen'd  │
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Parse                           │  tree-sitter (code), lxml (XML),
+   │                                 │  sqlglot (SQL), markdown chunker
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Extract entities + facts        │  signatures, types, callers, callees,
+   │                                 │  table reads/writes (deterministic)
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Chunk at AST boundaries         │  one chunk per atomic unit
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Skip-if-unchanged filter        │  body_hash compare
+   └────────────────┬────────────────┘
+                    │
+              ┌─────┴─────┐
+              ▼           ▼
+   ┌───────────────┐ ┌──────────────────────┐
+   │ Embed (batch) │ │ Doc-gen (3 passes)    │  parallel lanes
+   │  bge-large /  │ │  Pass 1: entity       │
+   │  3-large      │ │  Pass 2: module       │
+   │               │ │  Pass 3: narrative    │
+   └───────┬───────┘ └──────────┬───────────┘
+           │                    │
+           └────────┬───────────┘
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Verify                          │  citation validity, symbol grounding,
+   │                                 │  SQL claim validity, LLM faithfulness
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Cross-repo merge                │  string-match facts across repos
+   │                                 │  → cross_repo_edges
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Atomic upsert                   │  Postgres + FAISS in single tx
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Update last_indexed_sha         │
+   │ Notify admin panel              │
+   │ Invalidate query cache          │
+   └─────────────────────────────────┘
+                    │
+                    ▼
+              [READY TO QUERY]
+
+  Initial onboarding: ~25-60 minutes for a po-sized repo
+  Queries start working at minute 2-3 (Lane A finishes first)
+</div>
+
+<h3>7.2 &mdash; Query pipeline (question &rarr; cited answer)</h3>
+<div class="flow">
+   [User picks product, asks question]
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Cache lookup                    │  exact + semantic
+   │ (40% hit rate target)           │  hit → return in &lt; 100 ms
+   └────────────────┬────────────────┘  miss ↓
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Query understanding             │  intent classifier (cheap LLM)
+   │                                 │  query rewrite
+   │                                 │  HyDE for vague Qs
+   │                                 │  glossary expansion
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Embed query                     │  cached if seen recently
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────────────┐
+   │ Parallel retrieval (asyncio.gather)     │  total = max(retrievers)
+   │   • FAISS vector                        │
+   │   • Postgres FTS (keyword)              │
+   │   • Symbol exact-match                  │
+   │   • Graph walk (callers/callees)        │
+   │   • Doc-vec, example-vec                │
+   │   • Cross-repo expansion                │
+   └────────────────┬────────────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Re-rank top-50 → top-5          │  cross-encoder + diversity filter
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Tier router                     │  T1 → T2 → T3 → T4 by intent
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ LLM (with citation-strict       │  schema-constrained output
+   │  prompt + refusal mode)         │  prompt cached by Anthropic
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Verifier                        │  citation validity, symbol grounding
+   │                                 │  faithfulness check (cheap LLM)
+   │                                 │  drop unsupported claims
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Stream tokens + evidence cards  │  SSE; first token &lt; 500 ms
+   └─────────────────────────────────┘
+
+  Median: 700 ms · p95: 1.8 s · p99: 4 s
+</div>
+
+<h3>7.3 &mdash; Auto-update pipeline (commit &rarr; fresh docs in &lt; 60 s) <span class="pill warn">DEFERRED &mdash; Phase 2</span></h3>
+<div class="callout warn"><strong>Not implemented in initial scope.</strong> Auto-refresh on commit (TFS webhooks, incremental re-index, nightly catch-up) is planned but deferred. For initial release, re-indexing is triggered manually from the admin panel ("Refresh repo" button) when needed. Design captured below for future implementation.</div>
+<div class="flow">
+   [Engineer pushes commit to TFS]
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ TFS Service Hook fires          │
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Webhook receiver                │  HMAC verify
+   │ POST /webhooks/tfs              │  idempotent on (repo, sha)
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ git fetch + git diff            │  files changed since last_indexed_sha
+   │  &lt;last_sha&gt;..HEAD              │
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Re-parse changed files only     │
+   │ Compute body_hash per entity    │
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Skip-if-unchanged               │  most "changed" entities skip:
+   │ (whitespace, comments, etc.)    │  body_hash unchanged
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Re-embed + re-doc-gen           │  only entities with new body_hash
+   │ (only what truly changed)       │
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Verifier                        │
+   └────────────────┬────────────────┘
+                    │
+                    ▼
+   ┌─────────────────────────────────┐
+   │ Atomic upsert                   │
+   │ Update last_indexed_sha         │
+   │ Invalidate query cache for repo │
+   └─────────────────────────────────┘
+
+  Typical PR: 15-60 s · Massive refactor (200 files): 2-5 min
+  Whitespace-only commit: ~5 s, $0
+
+  Reliability: idempotent · nightly catch-up replays missed webhooks
+</div>
+
+<h3>7.4 &mdash; Cross-repo trace (Revenue Trend Widget example)</h3>
+<div class="flow">
+   User: "How is the Revenue Trend Widget data populated?"
+                       │
+                       ▼
+                 intent = trace
+                 → tier 3 (agentic)
+                       │
+                       ▼
+   ┌──────────────────────────────────────────────────────────┐
+   │ Symbol resolver: "Revenue Trend Widget" → entity match   │
+   │   matches: rm-web/revenue-trend.component.ts             │
+   └────────────────────────────┬─────────────────────────────┘
+                                │
+                                ▼
+   ┌──────────────────────────────────────────────────────────┐
+   │ Recursive Postgres CTE on cross_repo_edges               │
+   │   start: rm-web component                                │
+   │   walk: dispatches_query → reads_table ← writes_table    │
+   │         ← runs_etl ← calls                               │
+   │   stop: data sources or root entry points                │
+   └────────────────────────────┬─────────────────────────────┘
+                                │
+                                ▼
+       Chain found:
+   1. rm-web/revenue-trend.component.ts:198
+        sends query name 'getRevenueTrendData'
+   2. ys/yscore_queries.xml:5234
+        defines getRevenueTrendData; reads table 'revenuetrend'
+   3. revenuetrend (table)
+        written by:
+   4. po/etl2posql.xml:710
+        ETL service 'RevenueTrend'
+   5. po/RevenueTrendCalculator.java
+        orchestrates the ETL
+   6. po/UnitRatesGenerator.java:1450
+        provides upstream rate data
+                                │
+                                ▼
+   ┌──────────────────────────────────────────────────────────┐
+   │ Retrieve generated docs for each step (in parallel)      │
+   └────────────────────────────┬─────────────────────────────┘
+                                │
+                                ▼
+   ┌──────────────────────────────────────────────────────────┐
+   │ LLM composes narrative with citations to each step       │
+   │ Verifier checks every claim                              │
+   └────────────────────────────┬─────────────────────────────┘
+                                │
+                                ▼
+                  Cited answer in 5-12 s
+</div>
+
+<h3>7.5 &mdash; Config Screen Inputs (TFS link + Repo Overview) <span class="pill" style="background:#e8f1f7;color:#0a5c8a">CRITICAL</span></h3>
+<p>The config screen captures more than just a URL. The <strong>repo overview</strong> entered by the engineer onboarding the repo is consumed at indexing time and at query time &mdash; it is not optional metadata. Without it, the system has no human-curated grounding for the repo's purpose, owners, or critical entry points.</p>
+
+<div class="callout warn"><strong>The overview is load-bearing.</strong> The same TFS URL pasted by two different engineers should produce two different indexing experiences if the overviews differ. Treat overview fields as first-class input, not decoration.</div>
+
+<h4>Required and recommended fields per repo</h4>
+<table>
+<thead><tr><th>Field</th><th>Required?</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><strong>TFS URL</strong></td><td>Yes</td><td>Where to clone from</td></tr>
+<tr><td><strong>PAT</strong> (vaulted)</td><td>Yes</td><td>Authentication for clone + fetch</td></tr>
+<tr><td><strong>Product</strong> (RMS / OneSite / ILM / &hellip;)</td><td>Yes</td><td>Product-context isolation; ACL; FAISS folder routing</td></tr>
+<tr><td><strong>Display name</strong></td><td>Yes</td><td>Shown in admin and chat UI ("the dashboards repo"); used for query routing</td></tr>
+<tr><td><strong>Branch</strong></td><td>Yes (default <code>master</code>)</td><td>Which branch to track</td></tr>
+<tr><td><strong>One-line description</strong></td><td>Yes</td><td>"What this repo is for" &mdash; e.g., "Angular UI for property and portfolio dashboards"</td></tr>
+<tr><td><strong>Repo role / category</strong></td><td>Yes</td><td>UI / API / ETL / Reports / Config / Other &mdash; drives chunking and indexing strategy</td></tr>
+<tr><td><strong>Major workflows / features</strong></td><td>Yes</td><td>Free-text or list. Goes into the system prompt for doc-gen and queries scoped to this repo.</td></tr>
+<tr><td><strong>Key business concepts owned</strong></td><td>Yes</td><td>e.g., "seasonal forecast adjustment, recommended rent, ETL orchestration." Seeds the per-product domain glossary.</td></tr>
+<tr><td><strong>Critical entry points</strong></td><td>Recommended</td><td>e.g., <code>EtlToPOExecutor.java</code>, <code>UnitRatesGenerator.java</code>, <code>dashboard.component.ts</code>. Forces these to L4 (deepest) doc-gen tier.</td></tr>
+<tr><td><strong>Indexing priority</strong></td><td>Yes</td><td>P0 / P1 / P2 / P3 &mdash; controls doc-gen depth and tier-routing</td></tr>
+<tr><td><strong>Languages / frameworks</strong></td><td>Auto-detected, editable</td><td>Drives parser selection (tree-sitter grammar, etc.)</td></tr>
+<tr><td><strong>Owner team / contact</strong></td><td>Yes</td><td>For audit log, gap escalation, "who do I ask if RealRAG can't answer this?"</td></tr>
+<tr><td><strong>Related repos (depends on / used by)</strong></td><td>Recommended</td><td>Hints to the cross-repo edge merger; speeds up bootstrap</td></tr>
+<tr><td><strong>Special notes / exclusions</strong></td><td>Optional</td><td>e.g., "<code>rmsws-webapp</code> is legacy &mdash; exclude from indexing"; skip generated DTOs; etc.</td></tr>
+<tr><td><strong>Sub-path</strong> (for monorepos)</td><td>Optional</td><td>Index only this subdirectory of the repo</td></tr>
+<tr><td><strong>Clone depth</strong></td><td>Default: shallow 50</td><td>full / shallow_50 / shallow_100 &mdash; affects clone size + git blame reach</td></tr>
+<tr><td><strong>LFS enabled</strong></td><td>Default: off</td><td>Pull LFS blobs (rarely needed)</td></tr>
+</tbody>
+</table>
+
+<h4>How each input is consumed downstream</h4>
+<table>
+<thead><tr><th>Input</th><th>Used by</th></tr></thead>
+<tbody>
+<tr><td>One-line description</td><td>Doc-gen system prompt &middot; admin UI repo cards &middot; chat UI tooltip</td></tr>
+<tr><td>Major workflows / features</td><td>Doc-gen prompt context &middot; query routing (matching "the renewal workflow" to the right repo) &middot; pre-built starter questions on the chat landing page</td></tr>
+<tr><td>Key business concepts</td><td>Domain glossary seed &middot; HyDE prompt &middot; verifier vocabulary check</td></tr>
+<tr><td>Critical entry points</td><td>Forces L4 doc-gen tier on those entities &middot; pinned in the cross-repo graph</td></tr>
+<tr><td>Indexing priority</td><td>Doc-gen tier router (P0 = full 3-pass + examples; P3 = L1 only)</td></tr>
+<tr><td>Repo role / category</td><td>Selects extractor pipeline (UI = TS string-literal extractor; ETL = XML service extractor; etc.)</td></tr>
+<tr><td>Owner team / contact</td><td>Audit log &middot; failed-question escalation &middot; admin UI "ask the owner" button</td></tr>
+<tr><td>Related repos</td><td>Cross-repo merge pass narrows search space; faster onboarding</td></tr>
+<tr><td>Special notes / exclusions</td><td>Walker filter &middot; doc-gen exclusion list</td></tr>
+</tbody>
+</table>
+
+<h4>Form schema (Pydantic)</h4>
+<pre><code>class RepoOnboardingRequest(BaseModel):
+    # Identity
+    product_id: UUID
+    display_name: str = Field(..., min_length=2, max_length=80)
+
+    # Source
+    tfs_url: HttpUrl
+    pat: SecretStr
+    branch: str = "master"
+    sub_path: str | None = None
+
+    # Overview &mdash; LOAD-BEARING
+    one_line_description: str = Field(..., min_length=20, max_length=200,
+        description="What this repo is for, in plain English.")
+    repo_role: Literal["UI", "API", "ETL", "Reports", "Config", "Other"]
+    major_workflows: list[str] = Field(..., min_items=1,
+        description="Major workflows or features this repo owns.")
+    key_business_concepts: list[str] = Field(..., min_items=1,
+        description="Domain terms this repo defines or is the primary owner of.")
+    critical_entry_points: list[str] = Field(default_factory=list,
+        description="Files/classes that are core entry points; forced to deepest doc tier.")
+
+    # Indexing controls
+    priority: Literal["P0", "P1", "P2", "P3"] = "P1"
+    languages: list[str] = Field(default_factory=list)  # auto-detect if empty
+
+    # Operational
+    owner_team: str
+    owner_contact: str  # email or Slack handle
+    related_repos: list[UUID] = Field(default_factory=list)
+    special_notes: str | None = None
+
+    # Clone settings
+    clone_depth: Literal["full", "shallow_50", "shallow_100"] = "shallow_50"
+    enable_lfs: bool = False</code></pre>
+
+<h4>Storage</h4>
+<p>The <code>repos</code> table is extended with the overview columns:</p>
+<pre><code>repos (
+    repo_id              UUID PRIMARY KEY,
+    product_id           UUID FK,
+    tfs_url              TEXT,
+    branch               TEXT,
+    last_indexed_sha     TEXT,
+    status               TEXT,
+    vault_pat_ref        TEXT,
+
+    -- Overview fields (load-bearing)
+    display_name         TEXT NOT NULL,
+    one_line_description TEXT NOT NULL,
+    repo_role            TEXT NOT NULL,
+    major_workflows      TEXT[] NOT NULL,
+    key_business_concepts TEXT[] NOT NULL,
+    critical_entry_points TEXT[],
+    priority             TEXT NOT NULL,
+    languages            TEXT[],
+    owner_team           TEXT NOT NULL,
+    owner_contact        TEXT NOT NULL,
+    related_repos        UUID[],
+    special_notes        TEXT,
+
+    clone_depth          TEXT NOT NULL,
+    enable_lfs           BOOLEAN NOT NULL,
+    sub_path             TEXT,
+    created_at           TIMESTAMP NOT NULL,
+    updated_at           TIMESTAMP NOT NULL
+);</code></pre>
+
+<h4>UI mock-up</h4>
+<div class="flow">
+  ┌────────────────────────────────────────────────────────────────────┐
+  │  ADD REPO &mdash; RealRAG Config                                       │
+  ├────────────────────────────────────────────────────────────────────┤
+  │  Product:  [ RMS ▼ ]                                               │
+  │                                                                    │
+  │  TFS URL:  [ https://tfs.realpage.com/&hellip;/po.git              ]   │
+  │  PAT:      [ &bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull; ]    [ Test ]            │
+  │  Branch:   [ master ▼ ]                                            │
+  │                                                                    │
+  │  Display name:  [ po (RMS backend &mdash; ETL + calc engine)        ]   │
+  │  Repo role:     ( ) UI  ( ) API  (•) ETL  ( ) Reports  ( ) Config  │
+  │  Priority:      (•) P0   ( ) P1   ( ) P2   ( ) P3                  │
+  │                                                                    │
+  │  ─── OVERVIEW (used by doc-gen and queries) ───                    │
+  │                                                                    │
+  │  One-line description:                                             │
+  │  [ Java backend that runs all RMS ETLs and computes recommended  ] │
+  │  [ rents per unit. The heart of the application.                 ] │
+  │                                                                    │
+  │  Major workflows / features:                                       │
+  │  [+] TOPOETL                                                       │
+  │  [+] Forecasting                                                   │
+  │  [+] Rates Generation                                              │
+  │  [+] Seasonality / Stabilization / OperatingStatistics             │
+  │  [+ Add another...]                                                │
+  │                                                                    │
+  │  Key business concepts owned:                                      │
+  │  [+] propcode, useAdjustedRent, recommended rent, seasonal forecast│
+  │  [+ Add another...]                                                │
+  │                                                                    │
+  │  Critical entry points (forced to deepest doc-gen tier):           │
+  │  [+] EtlToPOExecutor.java                                          │
+  │  [+] UnitRatesGenerator.java                                       │
+  │  [+] ForecastShell.java                                            │
+  │  [+ Add another...]                                                │
+  │                                                                    │
+  │  Owner team:    [ RMS Core         ]                               │
+  │  Owner contact: [ rms-core@&hellip;       ]                            │
+  │                                                                    │
+  │  Special notes (e.g., excluded paths):                             │
+  │  [ Exclude rmsws-webapp/ from indexing &mdash; legacy            ]      │
+  │                                                                    │
+  │  Related repos:  [×] ys  [×] rm-web  [+ add]                       │
+  │                                                                    │
+  │  ─── ADVANCED ───                                                  │
+  │  Clone depth:  ( ) full  (•) shallow 50  ( ) shallow 100           │
+  │  LFS enabled:  [ ]                                                 │
+  │  Sub-path:     [                            ]                      │
+  │                                                                    │
+  │                                                                    │
+  │            [ Cancel ]                  [ Add &amp; Index ]              │
+  └────────────────────────────────────────────────────────────────────┘
+</div>
+
+<div class="callout good"><strong>Why this matters:</strong> with rich overview inputs, the doc-gen for <code>po</code> starts knowing this is the ETL heart, that propcode and useAdjustedRent are domain terms, that <code>UnitRatesGenerator.java</code> is critical, and that legacy code under <code>rmsws-webapp/</code> should be skipped. Without the overview, the system would have to discover all of this from scratch &mdash; slower, less accurate, and might miss context that doesn't appear in the code itself.</div>
+</section>
+
+<!-- ============================================================== -->
+<section id="data-model">
+<h2>8. Data Model</h2>
+
+<h3>Postgres tables (single database, scoped by product_id)</h3>
+<pre><code>products              (product_id PK, name, created_at)
+repos                 (repo_id PK, product_id FK, url, branch,
+                       last_indexed_sha, status, vault_pat_ref,
+                       -- overview fields (load-bearing; see §7.5):
+                       display_name, one_line_description, repo_role,
+                       major_workflows[], key_business_concepts[],
+                       critical_entry_points[], priority, languages[],
+                       owner_team, owner_contact, related_repos[],
+                       special_notes, clone_depth, enable_lfs, sub_path)
+repo_files            (file_id PK, repo_id FK, path, sha, language)
+entities              (entity_id PK, product_id, repo_id, file_id,
+                       kind, name, signature, body_hash,
+                       start_line, end_line, parent_entity_id)
+code_chunks           (chunk_id PK, product_id, repo_id, entity_id,
+                       content, embedding_model, faiss_ord,
+                       sha, language)
+doc_chunks            (chunk_id PK, product_id, repo_id, source_path,
+                       content, embedding_model, faiss_ord)
+generated_docs        (doc_id PK, product_id, entity_id, level,
+                       perspective, content, source_chunk_ids,
+                       generated_at, model_used, verified)
+examples              (example_id PK, product_id, repo_id, concept,
+                       narrative, inputs JSONB, outputs JSONB,
+                       calculation_steps, source_chunk_ids,
+                       cited_tables, cited_columns, confidence,
+                       verified, faiss_ord)
+facts                 (subject, predicate, object, product_id, repo_id,
+                       confidence, source_entity_id)
+dependencies          (from_entity_id FK, to_entity_id FK, kind,
+                       product_id)
+cross_repo_edges      (from_entity_id, to_entity_id, kind,
+                       confidence, product_id)
+domain_glossary       (term, canonical, definition, product_id)
+sessions              (session_id PK, user_id, product_id, created_at)
+messages              (message_id PK, session_id FK, role, content,
+                       citations, created_at)
+audit_log             (id PK, user_id, product_id, action,
+                       payload JSONB, created_at)
+</code></pre>
+
+<h3>FAISS file layout (per product, per chunk type)</h3>
+<pre><code>storage/faiss/
+├── rms/
+│   ├── code.po.faiss          ← code chunks for po
+│   ├── code.ys.faiss
+│   ├── code.rm-web.faiss
+│   ├── code.ys-reports.faiss
+│   ├── doc.po.faiss
+│   ├── generated.po.faiss     ← LLM-written docs
+│   └── examples.po.faiss      ← worked examples
+├── onesite/
+│   └── ...
+└── ilm/
+    └── ...
+</code></pre>
+
+<h3>Cloned source on disk</h3>
+<pre><code>storage/repos/
+├── rms/
+│   ├── po/master/             ← partial+shallow git clone
+│   ├── ys/master/
+│   ├── rm-web/master/
+│   └── ys-reports/master/
+├── onesite/
+│   └── ...
+└── ilm/
+    └── ...
+</code></pre>
+</section>
+
+<!-- ============================================================== -->
+<section id="tech-stack">
+<h2>9. Technology Stack</h2>
+<p>Open-source first at every layer. Proprietary kept only as plug-in fallback for the few cases where it still earns its cost.</p>
+
+<h3>9.1 Languages &amp; runtime</h3>
+<table>
+<thead><tr><th>Layer</th><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>Backend</td><td>Python 3.12</td><td>PSF</td><td>API, indexing, doc-gen, webhooks</td></tr>
+<tr><td>Frontend (demo)</td><td>Streamlit</td><td>Apache-2</td><td>Quick chat UI for hackathon</td></tr>
+<tr><td>Frontend (prod)</td><td>Next.js + React + TypeScript</td><td>MIT</td><td>Polished UI with graph + admin</td></tr>
+<tr><td>Styling</td><td>Tailwind CSS + shadcn/ui</td><td>MIT</td><td>Design system</td></tr>
+<tr><td>Scripting</td><td>Bash / PowerShell</td><td>—</td><td>Dev-up, deploy</td></tr>
+</tbody>
+</table>
+
+<h3>9.2 Backend frameworks</h3>
+<table>
+<thead><tr><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>FastAPI</td><td>MIT</td><td>Async REST framework; auto-OpenAPI</td></tr>
+<tr><td>Uvicorn</td><td>BSD</td><td>ASGI server</td></tr>
+<tr><td>Pydantic v2</td><td>MIT</td><td>Type-safe DTOs; structured-output enforcement</td></tr>
+<tr><td>pydantic-settings</td><td>MIT</td><td>Env-driven config</td></tr>
+<tr><td>psycopg v3 + psycopg_pool</td><td>LGPL-3</td><td>Postgres driver + connection pool</td></tr>
+<tr><td>asyncio + anyio</td><td>PSF / MIT</td><td>Concurrency for parallel retrieval</td></tr>
+<tr><td>httpx</td><td>BSD</td><td>Async HTTP client</td></tr>
+</tbody>
+</table>
+
+<h3>9.3 Data layer</h3>
+<table>
+<thead><tr><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>PostgreSQL 16</td><td>PostgreSQL</td><td>Owns structure: entities, chunks, facts, edges</td></tr>
+<tr><td>pgserver (dev only)</td><td>Apache-2</td><td>Embedded Postgres for local development</td></tr>
+<tr><td>FAISS (faiss-cpu)</td><td>MIT</td><td>Per-repo vector indices in RAM</td></tr>
+<tr><td>Alembic</td><td>MIT</td><td>Schema migrations</td></tr>
+<tr><td>pgvector (alternative)</td><td>PostgreSQL</td><td>If we want vectors in Postgres later</td></tr>
+</tbody>
+</table>
+
+<h3>9.4 Code parsing</h3>
+<table>
+<thead><tr><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>tree-sitter + grammars</td><td>MIT</td><td>AST parsing for Java, TS, Python, SQL, C#</td></tr>
+<tr><td>lxml</td><td>BSD</td><td>XML parsing (sql.xml, ETL XML, Spring config)</td></tr>
+<tr><td>sqlglot</td><td>MIT</td><td>SQL parser; extracts FROM/JOIN/INSERT/UPDATE</td></tr>
+<tr><td>PyYAML</td><td>MIT</td><td>Config / pattern-catalog parser</td></tr>
+<tr><td>python-magic</td><td>MIT</td><td>File-type detection</td></tr>
+<tr><td>system git (subprocess)</td><td>GPL-2</td><td>Clone / fetch / diff</td></tr>
+</tbody>
+</table>
+
+<h3>9.5 Embeddings</h3>
+<table>
+<thead><tr><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td><strong>BAAI/bge-large-en-v1.5</strong></td><td>MIT</td><td><strong>Locked OS default</strong>; 1024-dim; strong on code+prose</td></tr>
+<tr><td>OpenAI text-embedding-3-large</td><td>Proprietary</td><td>Plug-in alternative; 3072-dim</td></tr>
+<tr><td>BAAI/bge-m3</td><td>MIT</td><td>Multilingual, 8K context, multi-vector</td></tr>
+<tr><td>BAAI/bge-code-v1</td><td>MIT</td><td>Code-specific embedding boost</td></tr>
+<tr><td>sentence-transformers</td><td>Apache-2</td><td>Standard wrapper for HF models</td></tr>
+<tr><td>Text Embeddings Inference (TEI)</td><td>Apache-2</td><td>HuggingFace's optimized embedding server</td></tr>
+<tr><td>tiktoken</td><td>BSD</td><td>Token counting</td></tr>
+<tr><td>numpy</td><td>BSD</td><td>Vector math</td></tr>
+</tbody>
+</table>
+
+<h3>9.6 LLMs</h3>
+<table>
+<thead><tr><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td><strong>Qwen 2.5 Coder 14B/32B</strong></td><td>Tongyi (commercial OK)</td><td>Tier 1/2: entity + module doc-gen</td></tr>
+<tr><td><strong>Llama 3.3 70B Instruct</strong></td><td>Llama Community</td><td>Tier 2: code reasoning, narrative</td></tr>
+<tr><td><strong>DeepSeek-V3</strong></td><td>MIT</td><td>Tier 3: cross-module narratives, examples</td></tr>
+<tr><td>Anthropic Claude (Haiku/Sonnet/Opus)</td><td>Proprietary</td><td>Plug-in fallback for highest-quality narratives</td></tr>
+<tr><td>OpenAI gpt-4o family</td><td>Proprietary</td><td>Plug-in alternative</td></tr>
+<tr><td>vLLM</td><td>Apache-2</td><td>Self-hosting OS LLMs with prefix caching</td></tr>
+<tr><td>LiteLLM</td><td>MIT</td><td>One interface; swap providers in config</td></tr>
+<tr><td>Instructor</td><td>MIT</td><td>Force LLM to fill Pydantic schema</td></tr>
+</tbody>
+</table>
+
+<h3>9.7 Re-ranking</h3>
+<table>
+<thead><tr><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>BAAI/bge-reranker-v2-m3</td><td>MIT</td><td>Cross-encoder; top-50 → top-5</td></tr>
+<tr><td>MMR (custom)</td><td>—</td><td>Diversity filter</td></tr>
+</tbody>
+</table>
+
+<h3>9.8 Caching, queue, observability</h3>
+<table>
+<thead><tr><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>Valkey (OS fork of Redis)</td><td>BSD-3</td><td>Distributed cache + Celery broker</td></tr>
+<tr><td>Celery</td><td>BSD</td><td>Background job queue (production)</td></tr>
+<tr><td>functools.lru_cache</td><td>PSF</td><td>In-process cache</td></tr>
+<tr><td>OpenTelemetry SDK</td><td>Apache-2</td><td>Tracing across embed → retrieve → LLM</td></tr>
+<tr><td>Prometheus + Grafana</td><td>Apache-2</td><td>Metrics, dashboards</td></tr>
+<tr><td>Loki</td><td>AGPL-3</td><td>Log aggregation</td></tr>
+</tbody>
+</table>
+
+<h3>9.9 Auth, security, ops <span class="pill warn">DEFERRED &mdash; Phase 2</span></h3>
+<div class="callout warn"><strong>Not implemented in initial scope.</strong> SSO, PAT vault, secret scanning, and the production security hardening listed below are planned but deferred. For the initial release the system runs with simple env-var auth and a shared dev PAT &mdash; trusted-network deployment only. Production-grade auth/security to be designed and implemented in Phase 2 before any external user access.</div>
+<table>
+<thead><tr><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>Azure AD / Okta SSO</td><td>—</td><td>User auth via OIDC</td></tr>
+<tr><td>HashiCorp Vault Community</td><td>MPL-2</td><td>PAT vault</td></tr>
+<tr><td>Azure Key Vault (alt)</td><td>—</td><td>Managed alternative</td></tr>
+<tr><td>detect-secrets / trufflehog</td><td>Apache-2 / MIT</td><td>Sensitive-data scanner pre-index</td></tr>
+<tr><td>Docker + Docker Compose</td><td>Apache-2</td><td>Containerization</td></tr>
+<tr><td>Caddy / Nginx</td><td>Apache-2 / BSD-2</td><td>Reverse proxy + TLS</td></tr>
+<tr><td>Azure DevOps Pipelines</td><td>—</td><td>CI/CD</td></tr>
+</tbody>
+</table>
+
+<h3>9.10 Evaluation, code quality</h3>
+<table>
+<thead><tr><th>Tool</th><th>License</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>RAGAS</td><td>Apache-2</td><td>RAG eval: faithfulness, recall, precision, relevance</td></tr>
+<tr><td>pytest + pytest-asyncio</td><td>MIT</td><td>Backend tests</td></tr>
+<tr><td>Jest + Playwright</td><td>MIT / Apache-2</td><td>Frontend + E2E tests</td></tr>
+<tr><td>ruff + black + mypy</td><td>MIT / Apache</td><td>Lint, format, typecheck Python</td></tr>
+<tr><td>ESLint + Prettier</td><td>MIT</td><td>TS/JS lint &amp; format</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ============================================================== -->
+<section id="concepts">
+<h2>10. Concepts Glossary &mdash; Plain English</h2>
+<p>One line per concept. What it is. Why it matters.</p>
+
+<table>
+<thead><tr><th>Concept</th><th>What it is</th><th>Why we use it</th></tr></thead>
+<tbody>
+
+<tr><td><strong>RAG (Retrieval-Augmented Generation)</strong></td><td>Looking up relevant chunks of code/docs and giving them to the LLM as context, instead of relying on the LLM's training data.</td><td>The whole product is built on it. Stops hallucinations because answers are grounded in real code.</td></tr>
+
+<tr><td><strong>Naive RAG</strong></td><td>One look-up, one LLM answer. The simplest form.</td><td>Fast and cheap; works for 60% of questions.</td></tr>
+
+<tr><td><strong>Self-RAG</strong></td><td>The LLM checks if the look-up was good, and if not, asks for more before answering.</td><td>Catches ambiguous questions where the first look-up missed something.</td></tr>
+
+<tr><td><strong>Agentic RAG</strong></td><td>The LLM is given tools (search, graph-walk, read-file) and plans a multi-step investigation.</td><td>Needed for cross-repo / multi-hop questions like "trace from UI to database."</td></tr>
+
+<tr><td><strong>HyDE</strong></td><td>Make up a fake answer first, embed that fake answer, then look up real chunks similar to it.</td><td>Vague questions don't match real chunks well; a hypothetical answer matches them better.</td></tr>
+
+<tr><td><strong>Embedding</strong></td><td>A list of 1024 (or 3072) numbers that represents the meaning of a chunk of text.</td><td>Lets us find "similar" chunks fast; the basis of vector search.</td></tr>
+
+<tr><td><strong>Vector database</strong></td><td>A database optimized for "find vectors similar to this one." We use FAISS.</td><td>Sub-30 ms similarity search across millions of chunks.</td></tr>
+
+<tr><td><strong>FAISS</strong></td><td>Facebook's open-source library for fast similarity search.</td><td>Industry standard; battle-tested; sub-30 ms top-K.</td></tr>
+
+<tr><td><strong>Chunk</strong></td><td>A small piece of code or doc &mdash; usually one function, one class, one SQL query.</td><td>The unit we embed and retrieve. Smaller = more precise; bigger = more context.</td></tr>
+
+<tr><td><strong>AST-aware chunking</strong></td><td>Splitting code at function/class boundaries (using a parser) instead of arbitrary line counts.</td><td>Preserves logic; embeddings make sense. Cutting mid-function destroys meaning.</td></tr>
+
+<tr><td><strong>tree-sitter</strong></td><td>An open-source parser library that turns code into an Abstract Syntax Tree for any language.</td><td>The de-facto standard. Handles Java, TypeScript, SQL, Python, etc.</td></tr>
+
+<tr><td><strong>Hybrid retrieval</strong></td><td>Running vector search + keyword search + symbol exact-match all in parallel and merging results.</td><td>Each catches what the others miss. Single biggest accuracy lever.</td></tr>
+
+<tr><td><strong>Re-ranking</strong></td><td>Taking the top 50 results and using a smarter (slower) model to score them more carefully, keeping the best 5.</td><td>Lifts accuracy by 15% for ~80 ms latency cost.</td></tr>
+
+<tr><td><strong>Cross-encoder</strong></td><td>A model that scores a (question, chunk) pair together, more accurately than vector similarity alone.</td><td>The standard re-ranker (e.g., BAAI/bge-reranker-v2-m3).</td></tr>
+
+<tr><td><strong>Citation grounding</strong></td><td>Every claim in the answer must reference a specific file:line.</td><td>Wrong answers become visibly wrong (the citation doesn't actually say that). Builds trust.</td></tr>
+
+<tr><td><strong>Refusal mode</strong></td><td>The system says "I don't have evidence" instead of guessing.</td><td>Better silence than hallucination. Users learn to trust it.</td></tr>
+
+<tr><td><strong>Verifier pass</strong></td><td>After the LLM generates an answer, a second pass checks every claim against the source.</td><td>Catches hallucinations that slipped past the prompt. Drops unsupported sentences.</td></tr>
+
+<tr><td><strong>Schema-constrained generation</strong></td><td>Forcing the LLM to fill a typed JSON schema (every field required).</td><td>Guarantees nothing is skipped. The LLM literally cannot return an incomplete doc.</td></tr>
+
+<tr><td><strong>Few-shot prompting</strong></td><td>Including 2-3 perfect examples in the prompt before asking the LLM to produce the next one.</td><td>Locks in voice and structure. LLMs match style much better than they follow instructions.</td></tr>
+
+<tr><td><strong>Prompt caching</strong></td><td>Anthropic caches the system prompt + retrieved chunks for 5 minutes; repeat calls pay only for the new tokens.</td><td>~60% token savings on follow-up turns of the same conversation.</td></tr>
+
+<tr><td><strong>Tier routing</strong></td><td>Picking a cheap (Haiku), medium (Sonnet), or expensive (Opus) LLM based on question complexity.</td><td>30-100× cost savings vs always using the heaviest model.</td></tr>
+
+<tr><td><strong>Streaming (SSE)</strong></td><td>Sending the answer to the user word-by-word as the LLM generates it.</td><td>First token in &lt; 500 ms even when the full answer takes 3 s.</td></tr>
+
+<tr><td><strong>Knowledge graph triples</strong></td><td>Storing facts as (subject, predicate, object) like (functionX, calls, functionY).</td><td>Some questions ("what writes to table X?") are answered by SQL on triples &mdash; provably 100% accurate, no LLM.</td></tr>
+
+<tr><td><strong>Cross-repo edges</strong></td><td>Connections between entities in different repos (rm-web sends query name → ys defines that name).</td><td>Lets us trace UI → API → SQL → ETL → table across the whole RealPage stack.</td></tr>
+
+<tr><td><strong>Pattern catalog</strong></td><td>A YAML file describing how cross-repo connections work in this organization.</td><td>One day of work by a senior engineer; reused for every repo onboarded.</td></tr>
+
+<tr><td><strong>Worked example</strong></td><td>A concrete scenario with real numbers showing how a business rule plays out.</td><td>Stored alongside every rule. Users get a concrete answer for "give me an example."</td></tr>
+
+<tr><td><strong>Domain glossary</strong></td><td>List of business terms (propcode, RRG, useAdjustedRent) injected into every prompt.</td><td>Forces consistent vocabulary; prevents the LLM from inventing synonyms.</td></tr>
+
+<tr><td><strong>Diátaxis framework</strong></td><td>Documentation has four types: Reference, Explanation, How-to, Tutorial. Each answers different questions.</td><td>Generate all four per entity = covers any question.</td></tr>
+
+<tr><td><strong>Map-reduce summarization</strong></td><td>Chunk a big file, summarize each chunk, then summarize the summaries.</td><td>Defeats "lost-in-the-middle." Big files don't break the LLM.</td></tr>
+
+<tr><td><strong>Entity-content hash</strong></td><td>A fingerprint of a function's body. We store the hash and skip re-indexing if the hash didn't change.</td><td>Whitespace edits and comment fixes cost zero LLM calls. Real changes cost only what's truly different.</td></tr>
+
+<tr><td><strong>Atomic upsert</strong></td><td>Updating Postgres + FAISS together in a single transaction. Both succeed or both roll back.</td><td>Never leaves a half-indexed broken state.</td></tr>
+
+<tr><td><strong>Index versioning</strong></td><td>Tagging the index with (embedding_model, schema_version, parser_version). Bumping a version triggers a full rebuild.</td><td>Lets us swap the embedding model without breaking anything.</td></tr>
+
+<tr><td><strong>Idempotent webhook</strong></td><td>Safe to call the same webhook twice with the same payload — second call is a no-op.</td><td>TFS sometimes retries; we don't double-index.</td></tr>
+
+<tr><td><strong>Dead-letter queue (DLQ)</strong></td><td>Failed jobs go to a holding area for manual review.</td><td>Errors don't disappear silently.</td></tr>
+
+<tr><td><strong>Coverage matrix</strong></td><td>A table showing per-entity which doc types are filled and which are missing.</td><td>Surfaces gaps. Nightly job auto-fills the largest gaps first.</td></tr>
+
+<tr><td><strong>Self-healing</strong></td><td>Failed user questions go to a queue. The next nightly run regenerates docs for those entities at deeper quality.</td><td>The system gets measurably better at the questions your team actually asks.</td></tr>
+
+<tr><td><strong>RAGAS</strong></td><td>An open-source evaluation framework for RAG systems.</td><td>Measures faithfulness, context relevance, etc. Catches regressions when prompts change.</td></tr>
+
+<tr><td><strong>Prompt injection</strong></td><td>An attacker hides instructions inside a chunk so the LLM follows them ("ignore previous instructions, do X").</td><td>We sandbox retrieved content and structure prompts to resist this.</td></tr>
+
+<tr><td><strong>PAT (Personal Access Token)</strong></td><td>Authenticated string that proves you have permission to read a TFS repo.</td><td>How we authenticate to TFS for cloning. Stored in a vault, never on disk.</td></tr>
+
+<tr><td><strong>Partial + shallow clone</strong></td><td>git clone with --filter=blob:none --depth 50 — pulls only recent commits and skips most file blobs.</td><td>Cuts disk usage to ~10% of full clone. Still enough for tree-sitter to parse.</td></tr>
+
+<tr><td><strong>Product context</strong></td><td>The RMS / OneSite / ILM the user is currently scoped to. All queries auto-filtered to that product's repos.</td><td>Enforces isolation. RMS questions never accidentally retrieve OneSite chunks.</td></tr>
+
+</tbody>
+</table>
+</section>
+
+<!-- ============================================================== -->
+<section id="decisions">
+<h2>11. Locked Decisions Summary</h2>
+
+<table>
+<thead><tr><th>Area</th><th>Locked decision</th></tr></thead>
+<tbody>
+<tr><td>Team name</td><td>RealRAG</td></tr>
+<tr><td>Tagline</td><td>"Paste a TFS URL → ask questions. Cited answers in seconds. Living docs forever."</td></tr>
+<tr><td>Architecture pattern</td><td>Doc-first RAG → agentic source-walk fallback (4-tier router)</td></tr>
+<tr><td>Database</td><td>Single Postgres; product_id column on every table; FAISS files separated by product folder</td></tr>
+<tr><td>Vector DB</td><td>FAISS, IndexIVFFlat, per-repo per-product indices, in RAM at startup</td></tr>
+<tr><td>Embedding model</td><td>BAAI/bge-large-en-v1.5 (OS) by default; OpenAI text-embedding-3-large as alt</td></tr>
+<tr><td>LLM tiers</td><td>Qwen 2.5 Coder (T1) → Llama 3.3 70B / Qwen 32B (T2) → DeepSeek-V3 (T3); Anthropic Claude as paid fallback</td></tr>
+<tr><td>Self-hosting</td><td>vLLM for LLMs; TEI for embeddings; LiteLLM as gateway</td></tr>
+<tr><td>Code parsing</td><td>tree-sitter (multi-lang) + lxml (XML) + sqlglot (SQL)</td></tr>
+<tr><td>Chunking</td><td>AST-aware; one chunk per atomic unit; multi-vector per entity (signature/body/summary)</td></tr>
+<tr><td>Doc generation</td><td>3-pass layered + verifier; schema-constrained Pydantic output; six perspectives per entity</td></tr>
+<tr><td>Examples</td><td>Stored alongside every rule as a mandatory field; pre-computed at index time</td></tr>
+<tr><td>Cross-repo</td><td>Hand-curated YAML pattern catalog + LLM-assisted discovery + co-occurrence statistics</td></tr>
+<tr><td>Source ingestion</td><td>git clone via PAT (HTTP header, not URL); partial+shallow; per-product/repo/branch dirs</td></tr>
+<tr><td>Update flow</td><td><strong>Initial:</strong> manual "Refresh" button in admin panel. <strong>Phase 2 (deferred):</strong> TFS webhook + entity-content-hash skip-if-unchanged; nightly catch-up.</td></tr>
+<tr><td>Frontend</td><td>Streamlit (hackathon) → Next.js (production)</td></tr>
+<tr><td>Auth</td><td><strong>Initial:</strong> simple env-var auth, shared dev PAT, trusted-network deployment. <strong>Phase 2 (deferred):</strong> SSO + per-user PAT vault; per-product ACL enforced at API + DB row level.</td></tr>
+<tr><td>Eval</td><td>RAGAS + golden test set; regression checked on every prompt/retrieval change</td></tr>
+<tr><td>Observability</td><td>OpenTelemetry + Prometheus + Grafana + Loki</td></tr>
+<tr><td>Deployment</td><td>Docker Compose locally; Azure-aligned production</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ============================================================== -->
+<section id="needs">
+<h2>12. What We Need From the Team</h2>
+
+<table>
+<thead><tr><th>Item</th><th>Why</th><th>Effort</th></tr></thead>
+<tbody>
+<tr><td>TFS PATs (Code: Read scope)</td><td>To clone repos</td><td>5 min per repo</td></tr>
+<tr><td>RMS DB schema (pg_dump --schema-only)</td><td>Lifts SQL-claim accuracy from 85% to 98%; enables column-level docs</td><td>5 min</td></tr>
+<tr><td>OneSite / ILM / other product schemas</td><td>Same benefit per product</td><td>5 min each</td></tr>
+<tr><td>Cross-repo pattern catalog (YAML)</td><td>Captures RealPage-specific conventions (query name dispatch, ETL XML, etc.)</td><td>1 day, one-time, by a senior engineer</td></tr>
+<tr><td>Domain glossary (RMS terms)</td><td>Forces consistent vocabulary across the corpus</td><td>2-4 hours, one-time</td></tr>
+<tr><td>50-100 hand-written test questions with expected answers</td><td>Golden eval set for regression testing</td><td>1 day across the team</td></tr>
+<tr><td>Decision: physical or logical product isolation</td><td>Drives DB topology (single DB vs N DBs)</td><td>One meeting</td></tr>
+<tr><td>Decision: hosting plan (on-prem vs Azure)</td><td>Drives infra choices</td><td>One meeting</td></tr>
+<tr><td>Cost budget approval</td><td>~$300 one-time per repo to onboard; ongoing ~$50-200/month per active product</td><td>One approval</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ============================================================== -->
+<section id="risks">
+<h2>13. Risks &amp; Mitigations</h2>
+
+<table>
+<thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+<tbody>
+<tr><td>LLM hallucinates a function or table that doesn't exist</td><td>Verifier checks symbol grounding against parser facts; refusal mode triggers if evidence is thin</td></tr>
+<tr><td>Documentation drifts behind code</td><td>Webhook-driven incremental re-index; nightly catch-up replays missed webhooks; index has the commit SHA</td></tr>
+<tr><td>Cost spikes when refactoring large files</td><td>Entity-content hashing; tier routing; per-product budgets with alerts</td></tr>
+<tr><td>Cross-repo connection missed (no example given to system)</td><td>Three-strategy stack: hand-curated catalog + LLM-assisted discovery + co-occurrence; failed-question feedback loop</td></tr>
+<tr><td>Sensitive data (secrets, PII) ingested into the index</td><td>detect-secrets + trufflehog scan before chunking; dropped files logged but not indexed</td></tr>
+<tr><td>Cross-product data leakage</td><td>Defense-in-depth: API ACL + every query has WHERE product_id + (production) Postgres row-level security</td></tr>
+<tr><td>PAT exposed in logs / process list</td><td>HTTP header auth (not URL); vault stores PAT; logging filters strip Authorization</td></tr>
+<tr><td>Disk fills up with clones</td><td>Per-product quota; partial+shallow clone keeps size at ~10% of full</td></tr>
+<tr><td>FAISS index gets corrupted mid-write</td><td>Atomic upsert with both Postgres and FAISS in single tx; rollback on any failure</td></tr>
+<tr><td>Wrong embedding model swapped in</td><td>Index versioning forces full rebuild on model change; zero-downtime parallel switch-over</td></tr>
+<tr><td>Webhook missed (network blip)</td><td>Idempotent on (repo, sha); nightly reconciliation job replays diffs from last_indexed_sha</td></tr>
+<tr><td>Concurrent clones DOS the system</td><td>Worker pool with max 4 concurrent clones; queued otherwise</td></tr>
+<tr><td>Prompt injection from indexed content</td><td>Retrieved content sandboxed in a clearly-marked block; system prompt instructs model to ignore instructions inside chunks</td></tr>
+<tr><td>Non-OS LLM provider has outage</td><td>LiteLLM gateway swaps to fallback provider; OS LLMs (vLLM) always available as last resort</td></tr>
+<tr><td>RAGAS metrics regress after a prompt change</td><td>Eval runs in CI; regression blocks deploy</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ============================================================== -->
+<section id="build">
+<h2>14. Build Order &mdash; Hackathon vs Production</h2>
+
+<h3>14.1 &mdash; Hackathon (3&ndash;5 days, demo-driven)</h3>
+
+<div class="callout"><strong>Goal:</strong> a live demo where pasting a TFS URL produces an indexed repo, asking a cross-repo question returns a cited answer in &lt; 2 s, and pushing a commit live triggers a doc refresh in &lt; 1 minute.</div>
+
+<table>
+<thead><tr><th>Day</th><th>Morning</th><th>Afternoon</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Postgres + FAISS scaffolding; clone 1 repo; tree-sitter parse + chunk + embed for Java</td><td><code>/ask</code> endpoint with vector retrieval; Streamlit chat MVP</td></tr>
+<tr><td>2</td><td>Hybrid retrieval (keyword + symbol); 2-pass doc-gen with Qwen Coder; citation-strict prompt</td><td>Index the other 3 RMS repos; tune for &lt; 2 s latency; prep 5 demo questions</td></tr>
+<tr><td>3</td><td>Webhook receiver + incremental re-index for 1 repo; UI polish (evidence cards, freshness badge)</td><td>Buffer for fixes; record backup demo video</td></tr>
+<tr><td>4 (optional)</td><td>Cross-repo edges + recursive CTE walk for the Revenue Trend Widget question</td><td>Product context picker; per-product scoping</td></tr>
+<tr><td>5 (optional)</td><td>Worked-examples generation pass; admin panel skeleton</td><td>Final rehearsal</td></tr>
+</tbody>
+</table>
+
+<h4>What's cut for the hackathon</h4>
+<ul>
+<li>SSO / auth (single-user demo)</li>
+<li>RBAC, ACL per product (defer to v2)</li>
+<li>Cross-encoder re-ranking (score floor only)</li>
+<li>HyDE, multi-vector embeddings</li>
+<li>Celery / job queue (use Python threading)</li>
+<li>OpenTelemetry / dashboards (stdout logs)</li>
+<li>Slack/Teams bot</li>
+<li>Graph view UI</li>
+<li>Backups / DR</li>
+<li>Next.js production UI (Streamlit only)</li>
+</ul>
+
+<h3>14.2 &mdash; Production roadmap (post-hackathon)</h3>
+
+<table>
+<thead><tr><th>Phase</th><th>Duration</th><th>Deliverable</th></tr></thead>
+<tbody>
+<tr><td>Phase 1 &mdash; Hardening</td><td>2 weeks</td><td>SSO + auth; vault for PATs; sensitive-data scanner; atomic upsert; index versioning; pytest coverage</td></tr>
+<tr><td>Phase 2 &mdash; Quality</td><td>3 weeks</td><td>Cross-encoder re-ranking; HyDE; multi-vector embeddings; verifier loop; RAGAS eval CI</td></tr>
+<tr><td>Phase 3 &mdash; Scale</td><td>3 weeks</td><td>Celery + Valkey; per-product job priority lanes; per-repo isolation; OTEL + Prometheus + Grafana</td></tr>
+<tr><td>Phase 4 &mdash; Cross-repo</td><td>2 weeks</td><td>Pattern catalog; LLM-assisted pattern discovery at onboarding; co-occurrence nightly job; orphan reports</td></tr>
+<tr><td>Phase 5 &mdash; Doc depth</td><td>3 weeks</td><td>Diátaxis four-doc-type generation; six-perspective coverage; coverage matrix; auto-fill nightly job</td></tr>
+<tr><td>Phase 6 &mdash; Self-hosted LLMs</td><td>2 weeks</td><td>vLLM serving Qwen / Llama / DeepSeek; LiteLLM gateway; cost dashboard per product</td></tr>
+<tr><td>Phase 7 &mdash; Production UI</td><td>3 weeks</td><td>Next.js with chat + graph view + admin panel + repo browser; SSE streaming; evidence cards</td></tr>
+<tr><td>Phase 8 &mdash; Ecosystem</td><td>2 weeks</td><td>Slack/Teams bot; VS Code extension; CLI; webhook on PR creation for review-time queries</td></tr>
+</tbody>
+</table>
+<p><strong>Total to v1.0 production: ~5 months</strong> with a small team (2-3 backend, 1 frontend, 1 ML/RAG specialist).</p>
+</section>
+
+<!-- ============================================================== -->
+<section id="endnote">
+<h2>One last thing</h2>
+<p>This document is the contract. Every implementation decision should be checkable against it. If you find yourself building something not described here, stop and update this document first.</p>
+
+<div class="good">
+<strong>Read this end-to-end before writing code.</strong> If anything is unclear, write it down and resolve it before starting. Confusion at design time is cheap; confusion at integration time is expensive.
+</div>
+</section>
+
+<footer>
+RealRAG &mdash; Implementation Bible. Living document. Update with every locked decision.
+</footer>
+
+</div>
+</body>
+</html>

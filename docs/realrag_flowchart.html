@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RealRAG — Complete Flowchart (with file responsibilities)</title>
+<style>
+  :root{
+    --offline:#2b6cb0; --offline-bg:#eaf2fb;
+    --runtime:#2f855a; --runtime-bg:#e9f7ef;
+    --decision:#b7791f; --decision-bg:#fdf6e3;
+    --agent:#6b46c1; --agent-bg:#f1ebfb;
+    --store:#475569; --store-bg:#f1f5f9;
+    --ink:#1b1b1b; --muted:#667085;
+  }
+  *{box-sizing:border-box}
+  body{font:15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);
+       margin:0;padding:28px 16px 60px;background:#fafbfc}
+  .wrap{max-width:880px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 4px;border-bottom:3px solid var(--runtime);padding-bottom:8px}
+  h2{font-size:18px;margin:34px 0 10px}
+  .sub{color:var(--muted);margin:0 0 18px}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 8px;font-size:12px}
+  .legend span{padding:3px 10px;border-radius:12px;border:1px solid #ddd}
+  .lg-off{background:var(--offline-bg);color:var(--offline)}
+  .lg-run{background:var(--runtime-bg);color:var(--runtime)}
+  .lg-dec{background:var(--decision-bg);color:var(--decision)}
+  .lg-ag{background:var(--agent-bg);color:var(--agent)}
+  .lg-st{background:var(--store-bg);color:var(--store)}
+
+  .col{display:flex;flex-direction:column;align-items:stretch}
+  .step{border:1.5px solid #cbd5e1;border-radius:10px;padding:11px 14px;background:#fff;position:relative}
+  .step .n{display:inline-block;min-width:24px;height:24px;line-height:24px;text-align:center;
+           border-radius:50%;color:#fff;font-weight:700;font-size:12px;margin-right:8px;vertical-align:top}
+  .step .t{font-weight:600}
+  .step .d{color:#333;margin:4px 0 0 32px;font-size:14px}
+  .files{margin:8px 0 0 32px}
+  .files code{display:inline-block;background:#0f172a;color:#e2e8f0;border-radius:5px;
+              padding:1px 7px;margin:2px 4px 2px 0;font-size:12px;font-family:ui-monospace,Consolas,monospace}
+  .files .role{color:var(--muted);font-size:12px}
+
+  .offline{border-left:5px solid var(--offline)} .offline .n{background:var(--offline)}
+  .runtime{border-left:5px solid var(--runtime)} .runtime .n{background:var(--runtime)}
+  .store{border-left:5px solid var(--store);background:var(--store-bg)} .store .n{background:var(--store)}
+  .agent{border-left:5px solid var(--agent);background:var(--agent-bg)} .agent .n{background:var(--agent)}
+
+  .decision{border:1.5px dashed var(--decision);background:var(--decision-bg);border-radius:10px;
+            padding:10px 14px;font-weight:600;color:#7a5b12}
+  .decision .q{color:var(--decision)}
+  .branch{margin:8px 0 8px 26px;border-left:3px dotted var(--decision);padding-left:14px}
+  .arrow{align-self:center;color:#94a3b8;font-size:20px;line-height:1;margin:5px 0}
+  .yes{color:var(--decision);font-weight:700;font-size:12px;margin:6px 0 2px 26px}
+  .start,.end{align-self:center;background:var(--ink);color:#fff;border-radius:20px;padding:7px 18px;font-weight:700}
+  .note{background:#fff8e6;border:1px solid #f0d98c;border-radius:8px;padding:8px 12px;font-size:13px;margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>RealRAG — Complete Flowchart</h1>
+  <p class="sub">Every step, and the file responsible for it. Two flows: (A) building the knowledge base offline, (B) answering a question at runtime.</p>
+  <div class="legend">
+    <span class="lg-off">Offline / indexing</span>
+    <span class="lg-run">Runtime / query</span>
+    <span class="lg-dec">Decision / branch</span>
+    <span class="lg-ag">Agent (opt-in)</span>
+    <span class="lg-st">Storage</span>
+  </div>
+
+  <h2>A. Build the knowledge base (offline — once per repo)</h2>
+  <div class="col">
+    <div class="start">START: add a repo</div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">1</span><span class="t">Register repo</span>
+      <div class="d">Capture metadata: TFS URL, product, repo role, priority, critical entry points, languages.</div>
+      <div class="files"><code>frontend/streamlit_app.py</code><code>lib/models.py</code><code>lib/presets.py</code><code>lib/repos_repo.py</code><code>db/schema/001_initial.sql</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">2</span><span class="t">Clone the repository</span>
+      <div class="d">Shallow/partial git clone to <code>storage/repos/&lt;product&gt;/&lt;repo&gt;/</code>.</div>
+      <div class="files"><code>lib/clone.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">3</span><span class="t">Walk &amp; classify files</span>
+      <div class="d">List files, detect language, skip binaries/generated/vendored/test files.</div>
+      <div class="files"><code>lib/walker.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">4</span><span class="t">Parse each file into atomic units (by language)</span>
+      <div class="d">The chunker dispatches every file to the right parser; parsers also extract facts (reads/writes table, has-column).</div>
+      <div class="files">
+        <span class="role">dispatch:</span> <code>lib/chunker.py</code><br>
+        <code>lib/parser_java.py</code><code>lib/parser_typescript.py</code><code>lib/parser_xml.py</code>
+        <code>lib/parser_sql.py</code><code>lib/parser_ddl.py</code><code>lib/parser_jrxml.py</code>
+        <code>lib/parser_markdown.py</code><code>lib/parsers_common.py</code>
+      </div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">5</span><span class="t">Save pieces + facts (skip-if-unchanged)</span>
+      <div class="d">Persist entities, code/doc chunks, and fact triples; a body-hash skips unchanged pieces on re-runs.</div>
+      <div class="files"><code>lib/chunker.py</code><code>lib/db.py</code><code>db/schema/003_pipeline.sql</code><code>db/schema/006_facts_edges_sessions.sql</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">6</span><span class="t">Doc-gen Pass 1 — entity docs (Haiku)</span>
+      <div class="d">For each meaningful piece: 6 perspectives (structural, behavioral, business, edge-cases, worked example, cross-refs), schema-constrained, glossary-grounded, with a verifier.</div>
+      <div class="files"><code>lib/doc_gen.py</code><code>lib/glossary.py</code><code>lib/llm.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">7</span><span class="t">Build cross-repo edges (no LLM)</span>
+      <div class="d">Apply the hand-curated pattern catalog to link UI → API → SQL → ETL → table.</div>
+      <div class="files"><code>lib/cross_repo.py</code><code>data/patterns_realpage.yaml</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">8</span><span class="t">Doc-gen Pass 2 — module narratives (Sonnet)</span>
+      <div class="d">Roll up each file's entity docs into a module-level explanation.</div>
+      <div class="files"><code>lib/doc_gen_pass2.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">9</span><span class="t">L4 enrichment (PO only)</span>
+      <div class="d">Extra worked examples, statement-level annotations, and git-history context for the deepest tier.</div>
+      <div class="files"><code>lib/doc_gen_l4_enrich.py</code><code>lib/git_history.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">10</span><span class="t">Doc-gen Pass 3 — cross-module narratives (Opus)</span>
+      <div class="d">Walk each entry point's cross-repo chain and narrate the end-to-end workflow.</div>
+      <div class="files"><code>lib/doc_gen_pass3.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">11</span><span class="t">Embed everything (OpenAI)</span>
+      <div class="d">Embed code chunks + generated docs; batched, on-disk cache, 8192-token truncation.</div>
+      <div class="files"><code>lib/embed_pipeline.py</code><code>lib/embedder.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">12</span><span class="t">Build vector indexes</span>
+      <div class="d">Per-repo FAISS indexes (code.*, generated.*) + a curated business-docs index (bible/scope/glossary).</div>
+      <div class="files"><code>lib/faiss_store.py</code><code>lib/business_docs.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step offline"><span class="n">13</span><span class="t">Coverage matrix + self-healing queue</span>
+      <div class="d">Track per-entity doc coverage; failed user questions are logged for later fill.</div>
+      <div class="files"><code>lib/coverage.py</code><code>db/schema/009_coverage_and_healing.sql</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step store"><span class="n">DB</span><span class="t">Knowledge base is ready</span>
+      <div class="d">Structure in Postgres (entities, chunks, facts, edges, docs, glossary, sessions). Vectors in FAISS. Linked by chunk/doc id.</div>
+      <div class="files"><code>lib/db.py</code><code>lib/faiss_store.py</code></div>
+    </div>
+  </div>
+
+  <h2>B. Answer a question (runtime)</h2>
+  <div class="col">
+    <div class="start">YOU ASK A QUESTION</div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step runtime"><span class="n">1</span><span class="t">Receive question + load conversation</span>
+      <div class="d">Chat input; sidebar toggles (Deep search, Agent mode). Resume saved session &amp; history.</div>
+      <div class="files"><code>frontend/streamlit_app.py</code><code>lib/sessions_repo.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="decision"><span class="q">&#9670; DECISION:</span> exact repeat in cache? <span style="font-weight:400">(cache currently OFF during iteration)</span></div>
+    <div class="yes">If hit &rarr;</div>
+    <div class="branch">
+      <div class="step runtime"><span class="n">&#10003;</span><span class="t">Return cached answer instantly</span>
+        <div class="files"><code>lib/query_cache.py</code></div>
+      </div>
+    </div>
+    <div class="arrow">&#9660; (miss / disabled)</div>
+
+    <div class="decision"><span class="q">&#9670; DECISION:</span> Agent / Trace mode ON?</div>
+    <div class="yes">If ON &rarr; jump to the AGENT LOOP (step 11)</div>
+    <div class="arrow">&#9660; (OFF = default fast path)</div>
+
+    <div class="step runtime"><span class="n">2</span><span class="t">Understand the question</span>
+      <div class="d">Build context from last ~4 turns. Intent: fast heuristic (no LLM) or — in Deep search — the LLM classifier (adds HyDE + rewrite + structural targets). Detects "exact" and "enumeration" phrasing.</div>
+      <div class="files"><code>lib/chat.py</code> <span class="role">(prepare_answer, _fast_intent)</span><code>lib/intent.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step runtime"><span class="n">3</span><span class="t">Embed the question</span>
+      <div class="d">Turn the question (+ prior turn) into a vector via OpenAI.</div>
+      <div class="files"><code>lib/embedder.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step runtime"><span class="n">4</span><span class="t">Knowledge-graph shortcut (structural questions)</span>
+      <div class="d">"What writes/reads table X" answered deterministically from fact triples.</div>
+      <div class="files"><code>lib/kg.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step runtime"><span class="n">5</span><span class="t">Search — run all arms in parallel</span>
+      <div class="d">Vector(code) + Vector(generated docs) + Keyword(full-text) + Exact-symbol(+its doc) + Business-docs.</div>
+      <div class="files">
+        <span class="role">orchestration:</span> <code>lib/retrieval.py</code><br>
+        <code>lib/faiss_store.py</code><code>lib/kg.py</code><code>lib/business_docs.py</code><code>lib/embedder.py</code>
+      </div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step runtime"><span class="n">6</span><span class="t">Rank &amp; blend results</span>
+      <div class="d">Reciprocal Rank Fusion + generated-doc boost + calc-bias (favor po/SQL for "how is X calculated") + curated entry-point boost. In Deep search, an LLM re-ranker reorders the pool.</div>
+      <div class="files"><code>lib/retrieval.py</code><code>lib/llm.py</code> <span class="role">(re-rank)</span></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="decision"><span class="q">&#9670; DECISION:</span> any good matches found?</div>
+    <div class="yes">If NO &rarr;</div>
+    <div class="branch">
+      <div class="step runtime"><span class="n">&#9889;</span><span class="t">Code-search fallback (grep live source)</span>
+        <div class="d">Scan the cloned files directly and answer from those; otherwise refuse honestly.</div>
+        <div class="files"><code>lib/code_search.py</code></div>
+      </div>
+    </div>
+    <div class="arrow">&#9660; (matches found)</div>
+
+    <div class="step runtime"><span class="n">7</span><span class="t">Assemble context (special handling)</span>
+      <div class="d">Enumeration ("what all / list all") &rarr; add EVERY entry of the dominant file. Exact request ("formula/table/columns") &rarr; switch to a prompt allowed to name precise artifacts.</div>
+      <div class="files"><code>lib/chat.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step runtime"><span class="n">8</span><span class="t">Write the answer (tier-routed, streamed)</span>
+      <div class="d">Build the prompt (history + KG facts + glossary + retrieved context + question). Pick the model by difficulty (Haiku / Sonnet / Opus). Stream tokens live, in plain business language.</div>
+      <div class="files"><code>lib/chat.py</code><code>lib/llm.py</code> <span class="role">(stream_text)</span><code>lib/glossary.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="decision"><span class="q">&#9670; DECISION:</span> self-check — is the answer weak? (refused / hedged / made-up name / off the named subject)</div>
+    <div class="yes">If WEAK &rarr; escalate: Deep search, then the Agent loop &rarr; replace the answer</div>
+    <div class="files" style="margin-left:26px"><code>lib/chat.py</code> <span class="role">(answer_looks_unsure, answer_has_fabrication, context_covers_subjects)</span></div>
+    <div class="arrow">&#9660; (answer is solid)</div>
+
+    <div class="step runtime"><span class="n">9</span><span class="t">Show answer + sources</span>
+      <div class="d">Render the streamed answer, a collapsible Sources list, and auto-scroll to it.</div>
+      <div class="files"><code>frontend/streamlit_app.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+
+    <div class="step runtime"><span class="n">10</span><span class="t">Persist the turn</span>
+      <div class="d">Save question + answer + sources so the conversation survives reloads/restarts. (Cache write is gated — currently off.)</div>
+      <div class="files"><code>lib/sessions_repo.py</code><code>lib/query_cache.py</code></div>
+    </div>
+    <div class="arrow">&#9660;</div>
+    <div class="end">ANSWER DELIVERED</div>
+
+    <div class="note">The Agent path below runs when Agent mode is ON, or when step-8's self-check escalates a weak answer.</div>
+
+    <div class="step agent"><span class="n">11</span><span class="t">AGENT LOOP — multi-step investigation (opt-in)</span>
+      <div class="d">The model plans up to ~6 tool calls, reads each result, decides the next step, then writes a grounded business answer. Tools:
+        search_knowledge_base, find_symbol, what_writes_to_table, what_reads_table, trace_cross_repo, grep_source, get_documentation.</div>
+      <div class="files"><code>lib/agent.py</code> <span class="role">(reuses)</span> <code>lib/retrieval.py</code><code>lib/kg.py</code><code>lib/code_search.py</code><code>lib/llm.py</code></div>
+    </div>
+  </div>
+
+  <h2>Foundation (used everywhere)</h2>
+  <div class="col">
+    <div class="step store"><span class="n">&#9881;</span><span class="t">Config, database, models</span>
+      <div class="d">Settings/keys from .env; embedded Postgres connection + schema; shared data models &amp; run logs.</div>
+      <div class="files"><code>lib/config.py</code><code>lib/db.py</code><code>lib/models.py</code><code>lib/runs_repo.py</code><code>db/schema/*.sql</code></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

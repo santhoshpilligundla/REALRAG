@@ -117,3 +117,33 @@ terms:
 
   - term: PricingReview
     definition: A ys workflow that lets users review and approve/override RMS-computed rents before they reach operations. Backed by PricingReviewController + PricingReviewServiceImpl.
+
+  # --- terms added 2026-06 from glossary-gap detection + failed questions ---
+
+  - term: In Place Lease
+    canonical: in-place lease
+    definition: A lease currently in effect on a unit — i.e., the unit is occupied under an active lease. "In-place" rent is the rent the current resident is paying. Used in occupancy counts and as the starting base for renewal and rent calculations.
+    notes: The phrase In Place Units means units that currently have an in-place (active) lease, i.e., occupied units — NOT the full physical unit inventory (which includes vacant, on-notice, model, and non-rentable units). Distinguish from vacant/available units.
+
+  - term: In Place Units
+    canonical: in-place units
+    definition: Units that currently have an active (in-place) lease — the occupied portion of a property's inventory. Counted as currentInPlaceLeases in rent and forecast calculations.
+    notes: Occupied units only; excludes vacant, on-notice, model, manager, and renovation units.
+
+  - term: Model Threshold
+    canonical: Model Threshold (ESS)
+    definition: In the Expiration Summary Statistics (ESS) view, the system-calculated ceiling for how many lease expirations are normal/acceptable in a given month and bedroom group. It is derived from the exposure forecasting model using the property's historical expiration statistics and its size — small properties (about 15 units or fewer) use a direct size-and-month lookup; larger properties scale a baseline percentage by actual unit count. Shown as a line on the ESS chart.
+    notes: Distinct from the Manual Threshold (a manager's override). The backend code calls this the "exposure threshold / fallback threshold"; the UI labels it "Model Threshold".
+
+  - term: Manual Threshold
+    canonical: Manual Threshold (ESS)
+    definition: In the Expiration Summary Statistics (ESS) view, a user-entered override of the Model Threshold for a specific month and bedroom group. A manager can set it to reflect business judgment and optionally apply it to future months.
+    notes: Overrides the system-calculated Model Threshold for display and downstream highlighting.
+
+  - term: Market Range
+    definition: The minimum (floor) and maximum (ceiling) market effective rent for a floor plan, derived from comparable peer-property rents. Recommended rents are clamped within this range so the system never recommends a rent outside observable market bounds.
+    notes: Stored/used as mktEffMin and mktEffMax in the rate calculation.
+
+  - term: Auto Pilot
+    canonical: AutoPilot
+    definition: A mode in which RMS automatically applies its recommended rents for a floor plan without requiring manual approval each cycle. Configured per floor plan in the floor-plan parameters.

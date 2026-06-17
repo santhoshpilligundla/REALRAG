@@ -711,6 +711,8 @@ _MEANINGFUL_KINDS = (
     "ts_component", "ts_service", "ts_pipe", "ts_directive", "ts_module",
     # XML query catalogs and ETL service catalogs
     "sql_query", "xml_service",
+    # Standalone SQL functions / stored procedures (core calc logic, e.g. Func_*)
+    "sql_function", "sql_procedure", "sql_view", "sql_script",
     # JRXML JASPER reports
     "jrxml_report",
     # DDL (db_table; db_column omitted as too short for full doc)

@@ -1,6 +1,24 @@
+# --- core / db / ui ---
 pgserver>=0.1.4
 psycopg[binary]>=3.2
 pydantic>=2.7
 pydantic-settings>=2.4
 streamlit>=1.56
 python-dotenv>=1.0
+
+# --- llm + embeddings ---
+anthropic>=0.40
+openai>=1.40
+numpy>=1.26
+tiktoken>=0.7
+
+# --- vector store ---
+faiss-cpu>=1.8
+
+# --- parsers ---
+tree-sitter>=0.21
+tree-sitter-java>=0.21
+tree-sitter-typescript>=0.21
+lxml>=5.2
+sqlglot>=25.0
+PyYAML>=6.0

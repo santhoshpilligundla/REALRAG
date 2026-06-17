@@ -101,6 +101,31 @@ def _glossary_for_product(product_id: UUID | None) -> tuple[GlossaryTerm, ...]:
         )
 
 
+def glossary_expansion(product_id: UUID | None, text: str) -> str:
+    """Return definitions (+notes) of glossary terms that appear in `text`.
+
+    Used to expand a retrieval query: business terms in a question often differ
+    from the vocabulary in the code that implements them (e.g., UI "Model
+    Threshold" vs. backend "exposure / fallback threshold"). Folding the
+    definition into the embedded query bridges that gap so retrieval can reach
+    the implementation, not just the UI label.
+    """
+    glossary = _glossary_for_product(product_id)
+    if not glossary or not text:
+        return ""
+    tl = text.lower()
+    parts: list[str] = []
+    for g in glossary:
+        hay = g.term.lower()
+        canon = (g.canonical or "").lower()
+        if (len(hay) >= 3 and hay in tl) or (len(canon) >= 3 and canon in tl):
+            piece = f"{g.term}: {g.definition}"
+            if g.notes:
+                piece += f" {g.notes}"
+            parts.append(piece)
+    return "\n".join(parts)
+
+
 def glossary_block(product_id: UUID | None, focus_terms: list[str] | None = None) -> str:
     """Format glossary for inclusion in an LLM prompt.
 

@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Revenue Management — Reskin Performance Report</title>
+  <style>
+    :root {
+      --blue:    #0A75CB;
+      --red:     #D93025;
+      --orange:  #E37400;
+      --green:   #1E8E3E;
+      --gray-50: #F8F9FA;
+      --gray-100:#F1F3F4;
+      --gray-200:#E8EAED;
+      --gray-400:#BDC1C6;
+      --gray-600:#80868B;
+      --gray-800:#3C4043;
+      --gray-900:#202124;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      color: var(--gray-900);
+      background: #fff;
+      line-height: 1.6;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      background: linear-gradient(135deg, #0A75CB 0%, #005A9E 100%);
+      color: #fff;
+      padding: 56px 64px;
+    }
+    .cover h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+    .cover .sub { font-size: 16px; opacity: .85; margin-bottom: 24px; }
+    .cover .meta { font-size: 13px; opacity: .7; }
+    .cover .env-pills { display: flex; gap: 12px; margin-top: 20px; }
+    .pill {
+      padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    }
+    .pill-ocr { background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.4); }
+    .pill-qa  { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.3); }
+
+    /* ── Layout ── */
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 40px; }
+    section { padding: 48px 0 32px; border-bottom: 1px solid var(--gray-200); }
+    section:last-child { border-bottom: none; }
+    h2 {
+      font-size: 22px; font-weight: 700; color: var(--gray-900);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
+    }
+    h2 .num {
+      background: var(--blue); color: #fff;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    h3 { font-size: 15px; font-weight: 600; color: var(--gray-800); margin: 28px 0 10px; }
+    p  { color: var(--gray-800); margin-bottom: 10px; }
+    .section-intro { color: var(--gray-600); font-size: 13px; margin-bottom: 24px; }
+
+    /* ── Metric cards ── */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px; margin: 24px 0;
+    }
+    .metric-card {
+      border: 1px solid var(--gray-200);
+      border-radius: 10px; padding: 20px;
+      background: var(--gray-50);
+    }
+    .metric-card .label { font-size: 11px; font-weight: 600; color: var(--gray-600); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .metric-card .values { display: flex; gap: 12px; align-items: flex-end; }
+    .metric-card .val-ocr { font-size: 26px; font-weight: 700; }
+    .metric-card .val-qa  { font-size: 18px; font-weight: 600; color: var(--green); }
+    .metric-card .val-label { font-size: 11px; color: var(--gray-600); margin-bottom: 4px; }
+    .red  { color: var(--red); }
+    .orange { color: var(--orange); }
+    .green  { color: var(--green); }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 9px; border-radius: 12px; font-size: 11px; font-weight: 600;
+    }
+    .badge-red    { background: #FCE8E6; color: var(--red); }
+    .badge-orange { background: #FEF3E2; color: var(--orange); }
+    .badge-green  { background: #E6F4EA; color: var(--green); }
+    .badge-blue   { background: #E8F0FE; color: var(--blue); }
+    .badge-gray   { background: var(--gray-100); color: var(--gray-600); }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    thead tr { background: var(--gray-100); }
+    th { padding: 10px 14px; text-align: left; font-weight: 600; color: var(--gray-800); border-bottom: 2px solid var(--gray-200); }
+    td { padding: 9px 14px; border-bottom: 1px solid var(--gray-200); vertical-align: top; }
+    tr:hover td { background: var(--gray-50); }
+    .td-mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+    .td-right { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ── Code blocks ── */
+    .code-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+    .code-block { border-radius: 8px; overflow: hidden; }
+    .code-block .code-header {
+      padding: 8px 14px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .code-block.ocr .code-header { background: #FCE8E6; color: var(--red); }
+    .code-block.qa  .code-header { background: #E6F4EA; color: var(--green); }
+    pre {
+      background: var(--gray-900); color: #E8EAED;
+      padding: 16px; font-size: 12px; line-height: 1.7;
+      overflow-x: auto; font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    .hl-red    { color: #F28B82; }
+    .hl-green  { color: #81C995; }
+    .hl-yellow { color: #FDD663; }
+    .hl-gray   { color: #9AA0A6; }
+
+    /* ── Issue cards ── */
+    .issue-list { display: flex; flex-direction: column; gap: 14px; margin: 16px 0; }
+    .issue-card {
+      border: 1px solid var(--gray-200); border-radius: 8px;
+      padding: 16px 20px; position: relative;
+      border-left: 4px solid var(--gray-400);
+    }
+    .issue-card.p0 { border-left-color: var(--red); }
+    .issue-card.p1 { border-left-color: var(--orange); }
+    .issue-card.p2 { border-left-color: var(--blue); }
+    .issue-card .issue-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+    .issue-card .issue-id { font-size: 11px; font-weight: 700; color: var(--gray-600); min-width: 28px; }
+    .issue-card .issue-title { font-weight: 600; font-size: 14px; }
+    .issue-card .issue-desc { font-size: 13px; color: var(--gray-800); line-height: 1.6; }
+    .issue-card .issue-file {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px; color: var(--blue);
+      background: #E8F0FE; padding: 2px 8px; border-radius: 4px;
+      display: inline-block; margin-top: 6px;
+    }
+
+    /* ── Priority summary ── */
+    .priority-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 24px 0; }
+    .priority-col { border-radius: 8px; overflow: hidden; }
+    .priority-col .priority-head {
+      padding: 10px 16px; font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .priority-col.p0 .priority-head { background: #FCE8E6; color: var(--red); }
+    .priority-col.p1 .priority-head { background: #FEF3E2; color: var(--orange); }
+    .priority-col.p2 .priority-head { background: #E8F0FE; color: var(--blue); }
+    .priority-col .priority-items { border: 1px solid var(--gray-200); border-top: none; border-radius: 0 0 8px 8px; }
+    .priority-item {
+      padding: 10px 16px; font-size: 13px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .priority-item:last-child { border-bottom: none; }
+    .priority-item .pi-id { font-weight: 700; font-size: 11px; color: var(--gray-600); }
+
+    /* ── CSS domain chart ── */
+    .bar-chart { margin: 16px 0; }
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
+    .bar-label { width: 260px; color: var(--gray-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+    .bar-track { flex: 1; background: var(--gray-100); border-radius: 4px; overflow: hidden; height: 18px; position: relative; }
+    .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 6px; font-size: 11px; font-weight: 600; color: #fff; }
+    .bar-ocr  { background: var(--red); }
+    .bar-qa   { background: var(--green); }
+    .bar-val  { width: 60px; text-align: right; color: var(--gray-600); font-variant-numeric: tabular-nums; }
+
+    /* ── Footer ── */
+    .report-footer {
+      background: var(--gray-100); padding: 24px 40px;
+      text-align: center; color: var(--gray-600); font-size: 12px;
+    }
+
+    @media print {
+      .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     COVER
+══════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="container">
+    <h1>AI Revenue Management — Reskin Performance Report</h1>
+    <div class="sub">OCR (Reskin) vs QA (Production) — Full Analysis</div>
+    <div class="meta">Recorded: June 13, 2026 &nbsp;|&nbsp; Branch: Feature/RM-reskin &nbsp;|&nbsp; Tool: Playwright + HAR + Web Vitals</div>
+    <div class="env-pills">
+      <span class="pill pill-ocr">aoocr.realpage.com — Reskin</span>
+      <span class="pill pill-qa">aoqa.realpage.com — Production</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 1 — HEAD-TO-HEAD METRICS
+══════════════════════════════════════════════════ -->
+<section>
+  <h2><span class="num">1</span> Head-to-Head Performance Metrics</h2>
+  <p class="section-intro">Metrics captured via Playwright with PerformanceObserver, Navigation Timing API, and HAR recording.</p>
+
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="label">Total Page Load</div>
+      <div class="values">
+        <div><div class="val-label">OCR</div><div class="val-ocr red">28.5 s</div></div>
+        <div><div class="val-label">QA</div><div class="val-qa">1.4 s</div></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="label">DOM / JS Parse</div>
+      <div class="values">
+        <div><div class="val-label">OCR</div><div class="val-ocr red">27.4 s</div></div>
+        <div><div class="val-label">QA</div><div class="val-qa">0.7 s</div></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Long Tasks (Main Thread)</div>
+      <div class="values">
+        <div><div class="val-label">OCR</div><div class="val-ocr red">166 / 21.4 s</div></div>
+        <div><div class="val-label">QA</div><div class="val-qa">105 / 10.1 s</div></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Layout Shift (CLS)</div>
+      <div class="values">
+        <div><div class="val-label">OCR</div><div class="val-ocr red">2.77</div></div>
+        <div><div class="val-label">QA</div><div class="val-qa">—</div></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="label">JS Transferred</div>
+      <div class="values">
+        <div><div class="val-label">OCR</div><div class="val-ocr red">4.44 MB</div></div>
+        <div><div class="val-label">QA</div><div class="val-qa">cached</div></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Largest JS File</div>
+      <div class="values">
+        <div><div class="val-label">OCR</div><div class="val-ocr red">2.5 MB</div></div>
+        <div><div class="val-label">QA</div><div class="val-qa">&lt; 500 KB</div></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="label">XHR Cumulative Wait</div>
+      <div class="values">
+        <div><div class="val-label">OCR</div><div class="val-ocr red">106.7 s</div></div>
+        <div><div class="val-label">QA</div><div class="val-qa">23.9 s</div></div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Console Errors</div>
+      <div class="values">
+        <div><div class="val-label">OCR</div><div class="val-ocr orange">12</div></div>
+        <div><div class="val-label">QA</div><div class="val-qa">9</div></div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>OCR (Reskin)</th>
+        <th>QA (Production)</th>
+        <th>Difference</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Total page load</td>
+        <td class="red td-right">28,534 ms</td>
+        <td class="green td-right">1,375 ms</td>
+        <td class="td-right"><span class="badge badge-red">20× slower</span></td>
+      </tr>
+      <tr>
+        <td>DOM / JS parse time</td>
+        <td class="red td-right">27,353 ms</td>
+        <td class="green td-right">664 ms</td>
+        <td class="td-right"><span class="badge badge-red">41× heavier</span></td>
+      </tr>
+      <tr>
+        <td>Long tasks — count</td>
+        <td class="red td-right">166</td>
+        <td class="green td-right">105</td>
+        <td class="td-right"><span class="badge badge-orange">+61 tasks</span></td>
+      </tr>
+      <tr>
+        <td>Long tasks — total blocked time</td>
+        <td class="red td-right">21,427 ms</td>
+        <td class="green td-right">10,091 ms</td>
+        <td class="td-right"><span class="badge badge-red">2× more blocking</span></td>
+      </tr>
+      <tr>
+        <td>Cumulative Layout Shift (CLS)</td>
+        <td class="red td-right">2.77</td>
+        <td class="td-right">—</td>
+        <td class="td-right"><span class="badge badge-red">27× over threshold</span></td>
+      </tr>
+      <tr>
+        <td>Script requests</td>
+        <td class="td-right">66</td>
+        <td class="green td-right">79 (cached)</td>
+        <td class="td-right">—</td>
+      </tr>
+      <tr>
+        <td>Script time — cumulative</td>
+        <td class="red td-right">88,093 ms</td>
+        <td class="green td-right">679 ms</td>
+        <td class="td-right"><span class="badge badge-red">130× slower</span></td>
+      </tr>
+      <tr>
+        <td>XHR requests</td>
+        <td class="td-right">84</td>
+        <td class="green td-right">51</td>
+        <td class="td-right"><span class="badge badge-orange">+33 calls</span></td>
+      </tr>
+      <tr>
+        <td>XHR cumulative wait</td>
+        <td class="red td-right">106,652 ms</td>
+        <td class="green td-right">23,940 ms</td>
+        <td class="td-right"><span class="badge badge-red">4× more API wait</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 2 — SLOWEST REQUESTS
+══════════════════════════════════════════════════ -->
+<section>
+  <h2><span class="num">2</span> Slowest Requests — OCR (Reskin)</h2>
+  <p class="section-intro">Top requests by duration. Both JS bundles and API calls.</p>
+  <table>
+    <thead>
+      <tr><th>Request</th><th>Type</th><th class="td-right">Duration</th><th class="td-right">Size</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-mono">ysrmsocr.realpage.com/ys/main.a7fe1d71.js</td>
+        <td>script</td>
+        <td class="td-right red">26,609 ms</td>
+        <td class="td-right red">2,502 KB</td>
+        <td><span class="badge badge-red">Monolithic bundle</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">/airm-dashboard/amenities</td>
+        <td>XHR</td>
+        <td class="td-right orange">5,753 ms</td>
+        <td class="td-right">—</td>
+        <td><span class="badge badge-orange">Slow API</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">/fa/getPropertyFeatures</td>
+        <td>XHR</td>
+        <td class="td-right orange">3,538 ms + 3,246 ms</td>
+        <td class="td-right">—</td>
+        <td><span class="badge badge-orange">Called twice</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">googletagmanager.com/gtag/js</td>
+        <td>script</td>
+        <td class="td-right orange">3,040 ms</td>
+        <td class="td-right">—</td>
+        <td><span class="badge badge-orange">3rd-party blocking</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">cs-cdn.realpage.com/WC/PP/1.1.0/rp-property-picker.js</td>
+        <td>script</td>
+        <td class="td-right orange">3,036 ms</td>
+        <td class="td-right">—</td>
+        <td><span class="badge badge-orange">New CDN domain</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">/airm-dashboard/portfolio-overview</td>
+        <td>XHR</td>
+        <td class="td-right">2,893 ms</td>
+        <td class="td-right">—</td>
+        <td><span class="badge badge-gray">Slow API</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">ysrmsocr.realpage.com/ys/488.cf79440f.js</td>
+        <td>script</td>
+        <td class="td-right">2,837 ms</td>
+        <td class="td-right">494 KB</td>
+        <td><span class="badge badge-gray">Lazy chunk</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/omnibar.css</td>
+        <td>link</td>
+        <td class="td-right orange">2,747 ms</td>
+        <td class="td-right orange">1,318 KB</td>
+        <td><span class="badge badge-orange">Dev CDN, unminified</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">assets/scripts/raul/v2.85.5/js/raul.min.gz.js</td>
+        <td>script</td>
+        <td class="td-right">2,591 ms</td>
+        <td class="td-right">153 KB</td>
+        <td><span class="badge badge-red">Legacy library</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">assets/jqgrid/js/jquery.jqGrid.patched.src.js</td>
+        <td>script</td>
+        <td class="td-right">2,353 ms</td>
+        <td class="td-right">110 KB</td>
+        <td><span class="badge badge-red">Legacy library</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 3 — CSS ANALYSIS
+══════════════════════════════════════════════════ -->
+<section>
+  <h2><span class="num">3</span> CSS Loading Analysis</h2>
+  <p class="section-intro">OCR loads CSS across 8 domains. Total CSS load time: 26,646 ms vs 17,002 ms in QA.</p>
+
+  <h3>CSS Load Time by Domain — OCR vs QA</h3>
+  <div class="bar-chart">
+    <div class="bar-row">
+      <div class="bar-label">cs-cdn-dev.realpage.com</div>
+      <div class="bar-track"><div class="bar-fill bar-ocr" style="width:100%">8,540 ms</div></div>
+      <div class="bar-val red">8,540</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">aoocr.realpage.com (app server)</div>
+      <div class="bar-track"><div class="bar-fill bar-ocr" style="width:58%">5,003 ms</div></div>
+      <div class="bar-val red">5,003</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">cs-cdn.realpage.com <span style="color:var(--red);font-weight:700">← NEW</span></div>
+      <div class="bar-track"><div class="bar-fill bar-ocr" style="width:50%">4,273 ms</div></div>
+      <div class="bar-val red">4,273</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">cdn.realpage.com</div>
+      <div class="bar-track"><div class="bar-fill bar-ocr" style="width:39%">3,359 ms</div></div>
+      <div class="bar-val red">3,359</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">ysrmsocr.realpage.com</div>
+      <div class="bar-track"><div class="bar-fill bar-ocr" style="width:37%">3,204 ms</div></div>
+      <div class="bar-val red">3,204</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">fonts.googleapis.com</div>
+      <div class="bar-track"><div class="bar-fill bar-ocr" style="width:16%">1,371 ms</div></div>
+      <div class="bar-val">1,371</div>
+    </div>
+  </div>
+
+  <h3>Top Slow CSS Files — OCR (Reskin)</h3>
+  <table>
+    <thead>
+      <tr><th>File</th><th class="td-right">DNS</th><th class="td-right">TCP+SSL</th><th class="td-right">Wait</th><th class="td-right">Receive</th><th class="td-right">Total</th><th class="td-right">Size</th><th>Issue</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-mono">omnibar.css (1st load)</td>
+        <td class="td-right">80</td><td class="td-right">945</td><td class="td-right">296</td>
+        <td class="td-right red">7,219</td><td class="td-right red">8,540 ms</td>
+        <td class="td-right red">1,318 KB</td>
+        <td><span class="badge badge-red">Dev CDN + unminified</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">omnibar.css (2nd load)</td>
+        <td class="td-right">0</td><td class="td-right">0</td><td class="td-right orange">1,143</td>
+        <td class="td-right orange">1,199</td><td class="td-right orange">2,341 ms</td>
+        <td class="td-right">121 KB</td>
+        <td><span class="badge badge-orange">No cache headers</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">rp-property-picker.css</td>
+        <td class="td-right">59</td><td class="td-right">521</td><td class="td-right">208</td>
+        <td class="td-right">1,144</td><td class="td-right orange">1,932 ms</td>
+        <td class="td-right">107 KB</td>
+        <td><span class="badge badge-orange">New CDN domain</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">styles.90047d75.css</td>
+        <td class="td-right">0</td><td class="td-right">0</td><td class="td-right">285</td>
+        <td class="td-right orange">1,442</td><td class="td-right orange">1,728 ms</td>
+        <td class="td-right orange">255 KB</td>
+        <td><span class="badge badge-red">New — unminified, Tailwind</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">raul-plugin-ag-grid.min.css</td>
+        <td class="td-right">0</td><td class="td-right">453</td><td class="td-right red">778</td>
+        <td class="td-right">13</td><td class="td-right orange">1,244 ms</td>
+        <td class="td-right">12 KB</td>
+        <td><span class="badge badge-orange">Server wait on tiny file</span></td>
+      </tr>
+      <tr>
+        <td class="td-mono">raulStyling.css / login.css</td>
+        <td class="td-right">0</td><td class="td-right orange">860</td><td class="td-right">318</td>
+        <td class="td-right">28</td><td class="td-right orange">~1,200 ms each</td>
+        <td class="td-right">&lt;2 KB</td>
+        <td><span class="badge badge-orange">New TCP per tiny file</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>CSS Bottleneck Summary</h3>
+  <table>
+    <thead><tr><th>Bottleneck Type</th><th>OCR Count</th><th>QA Count</th><th>Root Cause</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Server-wait dominated (wait &gt; receive)</td>
+        <td class="red">19 files</td><td class="green">19 files</td>
+        <td>HTTP/2 not enabled — each request waits for connection slot</td>
+      </tr>
+      <tr>
+        <td>Transfer-size dominated (receive &gt; wait)</td>
+        <td class="red">5 files</td><td class="green">2 files</td>
+        <td>Unminified CSS, 1.3 MB omnibar</td>
+      </tr>
+      <tr>
+        <td>Connection overhead (&gt;500 ms TCP+SSL)</td>
+        <td class="red">5 files</td><td class="green">1 file</td>
+        <td>3 CDN domains in OCR vs 1 in QA</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 4 — CODE CHANGES ANALYSIS
+══════════════════════════════════════════════════ -->
+<section>
+  <h2><span class="num">4</span> Code Changes Causing Performance Issues</h2>
+  <p class="section-intro">Direct comparison of <code>C:\RM-space\rm-web</code> (reskin) vs <code>C:\codebase\rm-web</code> (develop). Files analysed: angular.json, package.json, index.original.html, styles.scss.</p>
+
+  <!-- 4.1 -->
+  <h3>4.1 — Production Build: CSS Not Minified + Source Maps On</h3>
+  <div class="code-compare">
+    <div class="code-block ocr">
+      <div class="code-header">Reskin — angular.json (production)</div>
+      <pre><span class="hl-gray">"configurations": {</span>
+  <span class="hl-gray">"production": {</span>
+    <span class="hl-gray">"optimization": {</span>
+      <span class="hl-gray">"scripts": true,</span>
+      <span class="hl-gray">"styles": {</span>
+        <span class="hl-red">"minify": false,</span>
+        <span class="hl-red">"inlineCritical": false</span>
+      <span class="hl-gray">}</span>
+    <span class="hl-gray">},</span>
+    <span class="hl-red">"sourceMap": true,</span>
+    <span class="hl-gray">"buildOptimizer": true</span>
+  <span class="hl-gray">}</span>
+<span class="hl-gray">}</span>
+<span class="hl-red">"defaultConfiguration": ""</span></pre>
+    </div>
+    <div class="code-block qa">
+      <div class="code-header">Develop — angular.json (production)</div>
+      <pre><span class="hl-gray">"configurations": {</span>
+  <span class="hl-gray">"production": {</span>
+    <span class="hl-green">"optimization": true,</span>
+    <span class="hl-green">"sourceMap": false,</span>
+    <span class="hl-gray">"buildOptimizer": true,</span>
+    <span class="hl-green">"aot": true</span>
+  <span class="hl-gray">}</span>
+<span class="hl-gray">}</span></pre>
+    </div>
+  </div>
+  <p>The reskin production build ships CSS completely unminified (<code>minify: false</code>). This is why <code>styles.css</code> is 255 KB instead of ~80 KB. <code>inlineCritical: false</code> forces an extra network round-trip before first paint. <code>defaultConfiguration: ""</code> means a plain <code>ng build</code> runs with <code>optimization: false</code> — if the OCR deployment script does not explicitly pass <code>--configuration=production</code>, the entire app ships in unoptimized dev mode.</p>
+
+  <!-- 4.2 -->
+  <h3>4.2 — Legacy Libraries Never Removed from index.html</h3>
+  <div class="code-compare">
+    <div class="code-block ocr">
+      <div class="code-header">Reskin — index.original.html (still present)</div>
+      <pre><span class="hl-red">&lt;!-- Legacy stack — still loading in reskin --&gt;</span>
+<span class="hl-red">&lt;script src="assets/jquery-3.4.1.min.js"&gt;&lt;/script&gt;</span>
+<span class="hl-red">&lt;script src="assets/jquery-ui.min.js"&gt;&lt;/script&gt;</span>
+<span class="hl-red">&lt;script src="assets/jqgrid/js/jquery.jqGrid.patched.src.js"&gt;</span>
+<span class="hl-red">&lt;/script&gt;</span>
+<span class="hl-red">&lt;script src="./assets/scripts/raul/v2.85.5/js/raul.min.gz.js"&gt;</span>
+<span class="hl-red">&lt;/script&gt;</span>
+<span class="hl-red">&lt;link href="cdn.realpage.com/raul/v2.85.5/css/raul.min.gz.css"&gt;</span>
+<span class="hl-green">+ new Angular / RAUL3 / rm-ui-lib on top</span></pre>
+    </div>
+    <div class="code-block qa">
+      <div class="code-header">Develop — index.original.html (same legacy stack)</div>
+      <pre><span class="hl-gray">&lt;!-- Legacy stack -- QA only uses this --&gt;</span>
+<span class="hl-gray">&lt;script src="assets/jquery-3.4.1.min.js"&gt;&lt;/script&gt;</span>
+<span class="hl-gray">&lt;script src="assets/jquery-ui.min.js"&gt;&lt;/script&gt;</span>
+<span class="hl-gray">&lt;script src="assets/jqgrid/js/..."&gt;&lt;/script&gt;</span>
+<span class="hl-gray">&lt;script src="raul.min.gz.js"&gt;&lt;/script&gt;</span>
+<span class="hl-gray">&lt;link href="raul.min.gz.css"&gt;</span>
+<span class="hl-green">No Angular reskin — uses QA Angular only</span></pre>
+    </div>
+  </div>
+  <p>The reskin did not remove any legacy libraries from <code>index.original.html</code>. jQuery, jQuery UI, jqGrid, RAUL v2.85.5 JS (loaded twice — module + nomodule), RAUL v2.85.5 CSS, Bootstrap JS chain (Tether, Wizard, Popper, Bootstrap) — all render-blocking synchronous scripts are still loading on every page load in addition to the new Angular reskin code.</p>
+
+  <!-- 4.3 -->
+  <h3>4.3 — Tailwind CSS Added Without Content Purging</h3>
+  <div class="code-compare">
+    <div class="code-block ocr">
+      <div class="code-header">Reskin — src/styles.scss (new additions)</div>
+      <pre><span class="hl-red">@use "rm-ui-lib/styles/material-theme";</span>
+<span class="hl-red">@use "rm-ui-lib/styles/material-overrides";</span>
+
+<span class="hl-red">@tailwind base;</span>
+<span class="hl-red">@tailwind components;</span>
+<span class="hl-red">@tailwind utilities;  /* 2–3 MB unminified */</span>
+
+<span class="hl-red">@import "~gridstack/dist/gridstack.min.css";</span>
+<span class="hl-red">@import "styles/shared/omnibar-overrides";</span></pre>
+    </div>
+    <div class="code-block qa">
+      <div class="code-header">Develop — src/styles.scss</div>
+      <pre><span class="hl-green">/* Named SCSS partials only — no frameworks */</span>
+<span class="hl-gray">@import url('../node_modules/@realpage/raul3/raul/raul.css');</span>
+<span class="hl-gray">@import "styles/shared/shared";</span>
+<span class="hl-gray">@import "styles/aidashboard/aidashboard";</span>
+<span class="hl-gray">@import "styles/competitor/competitor";</span>
+<span class="hl-gray">@import "styles/dashboards/dashboards";</span>
+<span class="hl-gray">@import "styles/lease-up-analysis/...";</span></pre>
+    </div>
+  </div>
+  <p><code>@tailwind utilities</code> generates every possible utility class at build time. Without a <code>content</code> array configured in <code>tailwind.config.js</code> to purge unused classes, the full output — 2–3 MB unminified — is included in the global CSS bundle. Combined with <code>minify: false</code> in the production config, this is the primary reason <code>styles.css</code> is 255 KB.</p>
+
+  <!-- 4.4 -->
+  <h3>4.4 — Six New Global CSS Files Added to angular.json Styles Array</h3>
+  <div class="code-compare">
+    <div class="code-block ocr">
+      <div class="code-header">Reskin — angular.json styles array (new entries)</div>
+      <pre><span class="hl-red">"@realpage/raul3/raul/raul.css",</span>
+<span class="hl-red">"src/styles/raul3-overrides/tokens-legacy.css",</span>
+<span class="hl-red">"src/styles/raul3-overrides/tokens-light.css",</span>
+<span class="hl-red">"src/styles/raul3-overrides/tokens-dark.css",</span>
+<span class="hl-red">"src/styles/raul3-overrides/style-overrides.css",</span>
+<span class="hl-red">"rm-ui-lib/styles/tokens.css"</span></pre>
+    </div>
+    <div class="code-block qa">
+      <div class="code-header">Develop — angular.json styles array</div>
+      <pre><span class="hl-gray">"node_modules/angular2-toaster/toaster.css",</span>
+<span class="hl-gray">"@ag-grid-community/.../ag-grid.css",</span>
+<span class="hl-gray">"@ag-grid-enterprise/.../ag-grid.css",</span>
+<span class="hl-gray">"@ag-grid-enterprise/.../ag-theme-bootstrap.css",</span>
+<span class="hl-gray">"src/ys-styles.css",</span>
+<span class="hl-gray">"src/styles.scss"</span></pre>
+    </div>
+  </div>
+  <p>All six new entries are bundled into the single global <code>styles.css</code>. Three theme token files (legacy, light, dark) all download on every page load even though only one theme is active at a time. Theme tokens should be lazy-loaded and swapped at runtime, not all bundled together.</p>
+
+  <!-- 4.5 -->
+  <h3>4.5 — gridstack Replaced angular-gridster2 Without Code Removal</h3>
+  <table>
+    <thead><tr><th>Item</th><th>Develop (QA)</th><th>Reskin (OCR)</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Grid library</td>
+        <td><code>angular-gridster2: ^10.1.4</code></td>
+        <td class="red"><code>gridstack: ^12.4.2</code></td>
+      </tr>
+      <tr>
+        <td>CSS import</td>
+        <td>none (Angular-native)</td>
+        <td class="red"><code>@import "~gridstack/dist/gridstack.min.css"</code> in styles.scss</td>
+      </tr>
+      <tr>
+        <td>jQuery dependency</td>
+        <td>No</td>
+        <td class="red">Yes — gridstack requires jQuery already loaded</td>
+      </tr>
+      <tr>
+        <td>Runtime error</td>
+        <td>None</td>
+        <td class="red"><code>GridStack.on(column) event not supported</code></td>
+      </tr>
+    </tbody>
+  </table>
+  <p>gridstack is a jQuery-based dashboard framework that adds its own CSS and JS overhead. The version deployed (12.4.2) does not support the column-change event that the dashboard code is listening for, causing a runtime error on the dashboard page.</p>
+
+  <!-- 4.6 -->
+  <h3>4.6 — New Heavy Dependencies + CommonJS Libraries (Non-Tree-Shakeable)</h3>
+  <table>
+    <thead><tr><th>Dependency</th><th>Change</th><th>Bundle Impact</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>rm-ui-lib: ^0.0.106</code></td>
+        <td><span class="badge badge-red">NEW</span></td>
+        <td>Reskin component library — all component styles bundled globally</td>
+      </tr>
+      <tr>
+        <td><code>highcharts: ^12.5.0</code></td>
+        <td><span class="badge badge-orange">8.2.0 → 12.5.0</span></td>
+        <td>Highcharts 12 is ~40% larger than version 8</td>
+      </tr>
+      <tr>
+        <td><code>ng2-img-max, ng2-pica, raf</code></td>
+        <td><span class="badge badge-red">NEW — CommonJS</span></td>
+        <td>Cannot be tree-shaken — entire library bundled regardless of usage</td>
+      </tr>
+      <tr>
+        <td><code>html-to-image: 1.11.13</code></td>
+        <td><span class="badge badge-red">NEW</span></td>
+        <td>New export library with no equivalent in develop</td>
+      </tr>
+      <tr>
+        <td><code>@angular: 10 → 15</code></td>
+        <td><span class="badge badge-orange">Major upgrade</span></td>
+        <td>Angular 15 core + Material is larger than v10</td>
+      </tr>
+      <tr>
+        <td><code>gridstack: ^12.4.2</code></td>
+        <td><span class="badge badge-red">NEW</span></td>
+        <td>Replaces lightweight angular-gridster2 with jQuery-dependent framework</td>
+      </tr>
+    </tbody>
+  </table>
+  <p><code>ng2-img-max</code>, <code>ng2-pica</code>, and <code>raf</code> appear in <code>allowedCommonJsDependencies</code> in <code>angular.json</code>, meaning the Angular build suppressed tree-shaking warnings for them. CommonJS modules cannot be partially bundled — the entire library is always included.</p>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 5 — FULL ISSUE LIST
+══════════════════════════════════════════════════ -->
+<section>
+  <h2><span class="num">5</span> Performance Fix List — Reskin</h2>
+  <p class="section-intro">All performance and page-loading fixes identified across runtime analysis and code review.</p>
+
+  <h3>JavaScript & Bundle</h3>
+  <div class="issue-list">
+    <div class="issue-card p0">
+      <div class="issue-header">
+        <span class="issue-id">J1</span>
+        <span class="issue-title">Split the 2.5 MB monolithic <code>main.js</code> into lazy-loaded chunks</span>
+        <span class="badge badge-red" style="margin-left:auto">P0</span>
+      </div>
+      <div class="issue-desc">Angular code-splitting must be applied so only the current route's code downloads on load. The current build puts all feature code into one file that takes 26 seconds to parse. Each feature module should use <code>loadChildren</code> lazy loading.</div>
+      <span class="issue-file">angular.json + feature routing modules</span>
+    </div>
+    <div class="issue-card p0">
+      <div class="issue-header">
+        <span class="issue-id">J2</span>
+        <span class="issue-title">Remove legacy JS libraries from <code>index.original.html</code></span>
+        <span class="badge badge-red" style="margin-left:auto">P0</span>
+      </div>
+      <div class="issue-desc">jQuery, jQuery UI, jqGrid, RAUL v2.85.5 JS (×2), Bootstrap JS, Tether, Popper are all render-blocking synchronous scripts still loading on every page. These must be removed once the Angular reskin replaces their functionality. 4.4 MB of duplicate JS.</div>
+      <span class="issue-file">src/index.original.html</span>
+    </div>
+    <div class="issue-card p1">
+      <div class="issue-header">
+        <span class="issue-id">J3</span>
+        <span class="issue-title">Deduplicate <code>getPropertyFeatures</code> API call</span>
+        <span class="badge badge-orange" style="margin-left:auto">P1</span>
+      </div>
+      <div class="issue-desc">The same endpoint fires twice per page load (3.5 sec + 3.2 sec = 6.7 sec wasted). Two components are independently subscribing to the same data. Use <code>shareReplay(1)</code> in the service or a shared state store to deduplicate.</div>
+      <span class="issue-file">getPropertyFeatures service</span>
+    </div>
+    <div class="issue-card p1">
+      <div class="issue-header">
+        <span class="issue-id">J4</span>
+        <span class="issue-title">CommonJS libraries (<code>ng2-img-max</code>, <code>ng2-pica</code>, <code>raf</code>) not tree-shakeable</span>
+        <span class="badge badge-orange" style="margin-left:auto">P1</span>
+      </div>
+      <div class="issue-desc">These three libraries are listed in <code>allowedCommonJsDependencies</code>, bypassing Angular's tree-shaking warning. CommonJS modules are always fully bundled. Replace with ESM equivalents or ensure they are only imported in the specific lazy-loaded modules that need them.</div>
+      <span class="issue-file">angular.json — allowedCommonJsDependencies</span>
+    </div>
+    <div class="issue-card p2">
+      <div class="issue-header">
+        <span class="issue-id">J5</span>
+        <span class="issue-title">Load Google Maps API asynchronously</span>
+        <span class="badge badge-blue" style="margin-left:auto">P2</span>
+      </div>
+      <div class="issue-desc">Google Maps is loaded synchronously without <code>loading=async</code>, blocking HTML parsing until the Maps script downloads and executes. Add <code>loading=async</code> to the Maps script tag.</div>
+      <span class="issue-file">src/index.original.html or Maps initialisation service</span>
+    </div>
+  </div>
+
+  <h3>Build Configuration</h3>
+  <div class="issue-list">
+    <div class="issue-card p0">
+      <div class="issue-header">
+        <span class="issue-id">B1</span>
+        <span class="issue-title">Enable CSS minification in production build</span>
+        <span class="badge badge-red" style="margin-left:auto">P0</span>
+      </div>
+      <div class="issue-desc">Change <code>"styles": { "minify": false }</code> to <code>"styles": { "minify": true }</code> in the production configuration. This alone will reduce <code>styles.css</code> from 255 KB to ~80 KB.</div>
+      <span class="issue-file">angular.json — configurations.production.optimization.styles</span>
+    </div>
+    <div class="issue-card p0">
+      <div class="issue-header">
+        <span class="issue-id">B2</span>
+        <span class="issue-title">Enable critical CSS inlining</span>
+        <span class="badge badge-red" style="margin-left:auto">P0</span>
+      </div>
+      <div class="issue-desc">Change <code>"inlineCritical": false</code> to <code>true</code>. Angular will extract above-the-fold CSS and inline it in the HTML, allowing the browser to render the first frame without waiting for the full stylesheet to download.</div>
+      <span class="issue-file">angular.json — configurations.production.optimization.styles</span>
+    </div>
+    <div class="issue-card p1">
+      <div class="issue-header">
+        <span class="issue-id">B3</span>
+        <span class="issue-title">Set a <code>defaultConfiguration</code> to prevent unoptimized deployments</span>
+        <span class="badge badge-orange" style="margin-left:auto">P1</span>
+      </div>
+      <div class="issue-desc"><code>"defaultConfiguration": ""</code> means a plain <code>ng build</code> runs with <code>optimization: false</code>, <code>buildOptimizer: false</code>, and full source maps. If the OCR deployment script does not pass <code>--configuration=production</code> explicitly, the app ships in dev mode. Set <code>"defaultConfiguration": "production"</code>.</div>
+      <span class="issue-file">angular.json — defaultConfiguration</span>
+    </div>
+    <div class="issue-card p1">
+      <div class="issue-header">
+        <span class="issue-id">B4</span>
+        <span class="issue-title">Disable source maps in production</span>
+        <span class="badge badge-orange" style="margin-left:auto">P1</span>
+      </div>
+      <div class="issue-desc"><code>"sourceMap": true</code> in the production config generates <code>.map</code> files that are served alongside every JS chunk on first load. Set <code>"sourceMap": false</code> in the production configuration as done in the develop branch.</div>
+      <span class="issue-file">angular.json — configurations.production.sourceMap</span>
+    </div>
+  </div>
+
+  <h3>CSS</h3>
+  <div class="issue-list">
+    <div class="issue-card p0">
+      <div class="issue-header">
+        <span class="issue-id">C1</span>
+        <span class="issue-title">Move omnibar CSS from dev CDN to production CDN and reduce file size</span>
+        <span class="badge badge-red" style="margin-left:auto">P0</span>
+      </div>
+      <div class="issue-desc"><code>omnibar.css</code> is 1.3 MB and served from <code>cs-cdn-dev.realpage.com</code> — a dev origin with no edge caching. Takes 8,540 ms on first load. It must be published to <code>cs-cdn.realpage.com</code> (production CDN) and all dev/debug styles stripped. Target size: under 100 KB.</div>
+      <span class="issue-file">Omnibar package publishing configuration</span>
+    </div>
+    <div class="issue-card p0">
+      <div class="issue-header">
+        <span class="issue-id">C2</span>
+        <span class="issue-title">Fix <code>Cache-Control</code> headers on omnibar CSS</span>
+        <span class="badge badge-red" style="margin-left:auto">P0</span>
+      </div>
+      <div class="issue-desc">Missing cache headers cause the browser to re-download the 1.3 MB omnibar CSS on every SPA navigation (2,341 ms each time). In QA the second load is 414 ms. Set <code>Cache-Control: public, max-age=31536000, immutable</code> on the production CDN for versioned assets.</div>
+      <span class="issue-file">cs-cdn-dev.realpage.com server configuration</span>
+    </div>
+    <div class="issue-card p1">
+      <div class="issue-header">
+        <span class="issue-id">C3</span>
+        <span class="issue-title">Configure Tailwind content purging to remove unused utility classes</span>
+        <span class="badge badge-orange" style="margin-left:auto">P1</span>
+      </div>
+      <div class="issue-desc"><code>@tailwind utilities</code> in <code>styles.scss</code> generates every possible utility class (2–3 MB unminified). The <code>content</code> array in <code>tailwind.config.js</code> must list all component file paths so Tailwind's JIT compiler removes unused classes. Combined with <code>minify: true</code> this will reduce the global CSS bundle significantly.</div>
+      <span class="issue-file">tailwind.config.js — content array</span>
+    </div>
+    <div class="issue-card p1">
+      <div class="issue-header">
+        <span class="issue-id">C4</span>
+        <span class="issue-title">Lazy-load theme token files — only one theme is active at a time</span>
+        <span class="badge badge-orange" style="margin-left:auto">P1</span>
+      </div>
+      <div class="issue-desc">Three token files (<code>tokens-legacy.css</code>, <code>tokens-light.css</code>, <code>tokens-dark.css</code>) are all bundled into the global stylesheet and downloaded on every page load. Only one theme is active. Load only the active theme's tokens on startup and swap dynamically.</div>
+      <span class="issue-file">angular.json styles array + theme service</span>
+    </div>
+    <div class="issue-card p1">
+      <div class="issue-header">
+        <span class="issue-id">C5</span>
+        <span class="issue-title">Consolidate CSS to fewer domains — eliminate extra TCP/SSL handshakes</span>
+        <span class="badge badge-orange" style="margin-left:auto">P1</span>
+      </div>
+      <div class="issue-desc">OCR loads CSS from 8 domains causing 5 extra TCP+SSL handshakes (~500–1,000 ms each). The reskin added <code>cs-cdn.realpage.com</code> alongside existing <code>cdn.realpage.com</code> and <code>cs-cdn-dev.realpage.com</code>. Consolidate to one CDN domain for all RealPage-hosted CSS.</div>
+      <span class="issue-file">index.original.html + omnibar config</span>
+    </div>
+    <div class="issue-card p2">
+      <div class="issue-header">
+        <span class="issue-id">C6</span>
+        <span class="issue-title">Enable HTTP/2 on the OCR app server</span>
+        <span class="badge badge-blue" style="margin-left:auto">P2</span>
+      </div>
+      <div class="issue-desc">19 of 32 CSS files have 300–800 ms server wait times despite being under 15 KB. Files this small should respond in under 50 ms. HTTP/2 multiplexing allows all CSS requests over one connection to be served simultaneously without queuing.</div>
+      <span class="issue-file">OCR server infrastructure configuration</span>
+    </div>
+    <div class="issue-card p2">
+      <div class="issue-header">
+        <span class="issue-id">C7</span>
+        <span class="issue-title">Add <code>&lt;link rel="preload"&gt;</code> for critical CSS files</span>
+        <span class="badge badge-blue" style="margin-left:auto">P2</span>
+      </div>
+      <div class="issue-desc">Critical stylesheets (omnibar.css, styles.css, raul.css) are discovered late during HTML parsing. Preload hints tell the browser to fetch them in parallel with the HTML document, reducing time-to-first-render by 1–2 seconds.</div>
+      <span class="issue-file">src/index.original.html — &lt;head&gt;</span>
+    </div>
+  </div>
+
+  <h3>Layout Stability</h3>
+  <div class="issue-list">
+    <div class="issue-card p0">
+      <div class="issue-header">
+        <span class="issue-id">L1</span>
+        <span class="issue-title">Reserve space for components before data loads — fix CLS score of 2.77</span>
+        <span class="badge badge-red" style="margin-left:auto">P0</span>
+      </div>
+      <div class="issue-desc">Content is jumping 27× beyond the acceptable limit (threshold: 0.1, OCR score: 2.77) as reskin components load in. Dashboard widgets must use skeleton placeholders or fixed-height containers so layout does not reflow as data and components arrive. Primary contributors: omnibar, Angular dashboard widgets, GridStack reflow.</div>
+      <span class="issue-file">Dashboard component templates</span>
+    </div>
+    <div class="issue-card p1">
+      <div class="issue-header">
+        <span class="issue-id">L2</span>
+        <span class="issue-title">Fix ag-Grid <code>sizeColumnsToFit()</code> called on hidden containers (9 occurrences)</span>
+        <span class="badge badge-orange" style="margin-left:auto">P1</span>
+      </div>
+      <div class="issue-desc">The reskin's new layout changes container visibility timing, causing grids to call <code>sizeColumnsToFit()</code> while their container has zero width. Each failed sizing causes a wasted render cycle. Call <code>sizeColumnsToFit()</code> only after the <code>gridReady</code> event and use a ResizeObserver to re-fire when the container becomes visible.</div>
+      <span class="issue-file">Grid component ngAfterViewInit hooks</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 6 — PRIORITY SUMMARY
+══════════════════════════════════════════════════ -->
+<section>
+  <h2><span class="num">6</span> Priority Summary</h2>
+  <div class="priority-grid">
+    <div class="priority-col p0">
+      <div class="priority-head">Must Fix Before Release</div>
+      <div class="priority-items">
+        <div class="priority-item"><span class="pi-id">J1</span> Split 2.5 MB JS bundle (code-splitting)</div>
+        <div class="priority-item"><span class="pi-id">J2</span> Remove legacy jQuery / RAUL2 / jqGrid from HTML</div>
+        <div class="priority-item"><span class="pi-id">B1</span> Enable CSS minification in production</div>
+        <div class="priority-item"><span class="pi-id">B2</span> Enable critical CSS inlining</div>
+        <div class="priority-item"><span class="pi-id">C1</span> Omnibar CSS — move to prod CDN, reduce to &lt;100 KB</div>
+        <div class="priority-item"><span class="pi-id">C2</span> Fix Cache-Control headers on omnibar CSS</div>
+        <div class="priority-item"><span class="pi-id">L1</span> Add skeleton placeholders — fix CLS 2.77</div>
+      </div>
+    </div>
+    <div class="priority-col p1">
+      <div class="priority-head">Fix Before Release</div>
+      <div class="priority-items">
+        <div class="priority-item"><span class="pi-id">B3</span> Set defaultConfiguration to production</div>
+        <div class="priority-item"><span class="pi-id">B4</span> Disable source maps in production</div>
+        <div class="priority-item"><span class="pi-id">J3</span> Deduplicate getPropertyFeatures API call</div>
+        <div class="priority-item"><span class="pi-id">J4</span> Replace CommonJS libs with ESM alternatives</div>
+        <div class="priority-item"><span class="pi-id">C3</span> Configure Tailwind content purging</div>
+        <div class="priority-item"><span class="pi-id">C4</span> Lazy-load theme tokens — one theme at a time</div>
+        <div class="priority-item"><span class="pi-id">C5</span> Consolidate CSS to fewer CDN domains</div>
+        <div class="priority-item"><span class="pi-id">L2</span> Fix ag-Grid sizeColumnsToFit on hidden containers</div>
+      </div>
+    </div>
+    <div class="priority-col p2">
+      <div class="priority-head">Fix Soon After Release</div>
+      <div class="priority-items">
+        <div class="priority-item"><span class="pi-id">J5</span> Load Google Maps async</div>
+        <div class="priority-item"><span class="pi-id">C6</span> Enable HTTP/2 on OCR app server</div>
+        <div class="priority-item"><span class="pi-id">C7</span> Add &lt;link rel="preload"&gt; for critical CSS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+
+<div class="report-footer">
+  AI Revenue Management · Reskin Performance Report · Generated June 13, 2026 · aoocr.realpage.com vs aoqa.realpage.com
+</div>
+
+</body>
+</html>

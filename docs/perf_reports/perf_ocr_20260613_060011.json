@@ -1,0 +1,508 @@
+{
+  "env": "ocr",
+  "url": "https://aoocr.realpage.com",
+  "recorded_at": "20260613_060011",
+  "web_vitals": {
+    "lcp_ms": 0,
+    "cls_score": 2.7741,
+    "fid_ms": 1.5,
+    "long_tasks": 166,
+    "long_task_total_ms": 21427
+  },
+  "navigation_timing": {
+    "dns": 43.19999998807907,
+    "tcp": 842.6000000238419,
+    "ttfb": 284,
+    "response": 1.699999988079071,
+    "dom_loading": 27353.40000000596,
+    "load_event": 0.29999998211860657,
+    "total_load": 28533.79999998212
+  },
+  "resource_summary": {
+    "by_type": {
+      "link": {
+        "count": 12,
+        "total_ms": 10917,
+        "total_bytes": 302273
+      },
+      "script": {
+        "count": 66,
+        "total_ms": 88093,
+        "total_bytes": 4546567
+      },
+      "fetch": {
+        "count": 76,
+        "total_ms": 18026,
+        "total_bytes": 0
+      },
+      "xmlhttprequest": {
+        "count": 84,
+        "total_ms": 106652,
+        "total_bytes": 53838
+      },
+      "other": {
+        "count": 3,
+        "total_ms": 560,
+        "total_bytes": 2165
+      },
+      "img": {
+        "count": 5,
+        "total_ms": 1010,
+        "total_bytes": 6414
+      },
+      "css": {
+        "count": 4,
+        "total_ms": 1387,
+        "total_bytes": 158950
+      }
+    },
+    "slow_requests": [
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js",
+        "type": "script",
+        "duration": 26609,
+        "size": 2561844,
+        "start": 1488
+      },
+      {
+        "name": "https://ysrmsappocr.realpage.com/airm-dashboard/amenities?ysmasterPropertyId=2298&client=camden",
+        "type": "xmlhttprequest",
+        "duration": 5753,
+        "size": 0,
+        "start": 45004
+      },
+      {
+        "name": "https://ysrmsappocr.realpage.com/fa/getPropertyFeatures",
+        "type": "xmlhttprequest",
+        "duration": 3538,
+        "size": 0,
+        "start": 38869
+      },
+      {
+        "name": "https://ysrmsappocr.realpage.com/fa/getPropertyFeatures",
+        "type": "xmlhttprequest",
+        "duration": 3246,
+        "size": 0,
+        "start": 92208
+      },
+      {
+        "name": "https://www.googletagmanager.com/gtag/js?id=G-HFM1PZKE5M",
+        "type": "script",
+        "duration": 3040,
+        "size": 0,
+        "start": 1487
+      },
+      {
+        "name": "https://cs-cdn.realpage.com/WC/PP/1.1.0/rp-property-picker/p-Dk-ZMIqk.js",
+        "type": "script",
+        "duration": 3036,
+        "size": 0,
+        "start": 37349
+      },
+      {
+        "name": "https://ysrmsappocr.realpage.com/airm-dashboard/portfolio-overview",
+        "type": "xmlhttprequest",
+        "duration": 2893,
+        "size": 0,
+        "start": 93198
+      },
+      {
+        "name": "https://ysrmsappocr.realpage.com/dashboard/portfolioRenewals",
+        "type": "xmlhttprequest",
+        "duration": 2845,
+        "size": 0,
+        "start": 93241
+      },
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/26.cf79440fd6a5341b.js",
+        "type": "script",
+        "duration": 2837,
+        "size": 375721,
+        "start": 34064
+      },
+      {
+        "name": "https://ysrmsappocr.realpage.com/airm-dashboard/getLeadVolumeNLeadQuality",
+        "type": "xmlhttprequest",
+        "duration": 2810,
+        "size": 0,
+        "start": 93275
+      },
+      {
+        "name": "https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/omnibar.css",
+        "type": "link",
+        "duration": 2747,
+        "size": 0,
+        "start": 1485
+      },
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/488.f68a67b07d48d7a3.js",
+        "type": "script",
+        "duration": 2735,
+        "size": 505469,
+        "start": 34067
+      },
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/assets/scripts/raul/v2.85.5/js/plugins/raul-plugin-ag-grid.min.js",
+        "type": "script",
+        "duration": 2594,
+        "size": 153471,
+        "start": 1488
+      },
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/assets/scripts/raul/v2.85.5/js/raul.min.gz.js",
+        "type": "script",
+        "duration": 2591,
+        "size": 156844,
+        "start": 1488
+      },
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/assets/jqgrid/js/jquery.jqGrid.patched.src.js",
+        "type": "script",
+        "duration": 2353,
+        "size": 112261,
+        "start": 1487
+      },
+      {
+        "name": "https://ysrmsappocr.realpage.com/ds/fetch-data?propertyId=2298&client=camden&queryName=getUnitsWidgetData",
+        "type": "xmlhttprequest",
+        "duration": 2290,
+        "size": 0,
+        "start": 45020
+      },
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/polyfills.96242877a83fd098.js",
+        "type": "script",
+        "duration": 2276,
+        "size": 12362,
+        "start": 1488
+      },
+      {
+        "name": "https://ysrmsappocr.realpage.com/ds/fetch-data?propertyIds=2298&client=ysanalysis&queryName=getAmenityTrendChartReport",
+        "type": "xmlhttprequest",
+        "duration": 2212,
+        "size": 0,
+        "start": 46897
+      },
+      {
+        "name": "https://ysrmsappocr.realpage.com/fa/getFeatures",
+        "type": "xmlhttprequest",
+        "duration": 2109,
+        "size": 0,
+        "start": 45091
+      },
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/styles.90047d75ceadf4b4.css",
+        "type": "link",
+        "duration": 2021,
+        "size": 261123,
+        "start": 1487
+      }
+    ],
+    "large_requests": [
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js",
+        "type": "script",
+        "duration": 26609,
+        "size": 2561844,
+        "start": 1488
+      },
+      {
+        "name": "https://ysrmsocr.realpage.com/ys/488.f68a67b07d48d7a3.js",
+        "type": "script",
+        "duration": 2735,
+        "size": 505469,
+        "start": 34067
+      }
+    ]
+  },
+  "console_errors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "location": "https://tracking-stg.realpage.com/tracker?systemId=SYPO1:0"
+    },
+    {
+      "type": "warning",
+      "text": "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading",
+      "location": "https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDLCJcDIyGDM1Tu_tnBKswfbzEOM2v38Ak&libraries=weather,geometry,drawing,visualization,places&language=en:1544"
+    },
+    {
+      "type": "error",
+      "text": "The library weather is unknown. Please see https://developers.google.com/maps/documentation/javascript/libraries",
+      "location": "https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDLCJcDIyGDM1Tu_tnBKswfbzEOM2v38Ak&libraries=weather,geometry,drawing,visualization,places&language=en:1505"
+    },
+    {
+      "type": "warning",
+      "text": "[OMNIBAR] ocr is not a valid environment value. Please checks the docs.",
+      "location": "https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-7828ccf8.js:41"
+    },
+    {
+      "type": "warning",
+      "text": "[OMNIBAR] ocr is not a valid environment value. Please checks the docs.",
+      "location": "https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-7828ccf8.js:41"
+    },
+    {
+      "type": "error",
+      "text": "TypeError: Cannot read properties of undefined (reading 'helpUri')\n    at OmnibarUnifiedHelp.onlineHelpUrl (https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-28490a7e.entry.js:43:192748)\n    at t (https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-28490a7e.entry.js:43:192934)\n    at e (https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-28490a7e.entry.js:43:192878)\n    at OmnibarUnifiedHelp.render (https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-28490a7e.entry.js:43:193517)\n    at we (https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-b821b718.js:1:12997)\n    at ye (https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-b821b718.js:1:12763)\n    at https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-b821b718.js:1:12512\n    at he (https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-b821b718.js:1:12555)\n    at pe (https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-b821b718.js:1:12502)\n    at Array.l (https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-b821b718.js:1:12306) JSHandle@node",
+      "location": "https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-b821b718.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "[OMNIBAR] ocr is not a valid environment value. Please checks the docs.",
+      "location": "https://cs-cdn.realpage.com/RAUL/omnibar/v2/omnibar/p-7828ccf8.js:41"
+    },
+    {
+      "type": "error",
+      "text": "GridStack.on(column) event not supported",
+      "location": "https://ysrmsocr.realpage.com/ys/488.f68a67b07d48d7a3.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "Mixed Content: The page at 'https://ysrmsocr.realpage.com/ys/rm/ai/dashboards/property' was loaded over HTTPS, but requested an insecure element 'http://cdn.realpage.com/images/illustrations/generic.svg'. This request was automatically upgraded to HTTPS, For more information see https://blog.chromium.org/2019/10/no-more-mixed-messages-about-https.html",
+      "location": "https://ysrmsocr.realpage.com/ys/rm/ai/dashboards/property:0"
+    },
+    {
+      "type": "warning",
+      "text": "Deprecation warning: value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), which is not reliable across all browsers and versions. Non RFC2822/ISO date formats are discouraged. Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.\nArguments: \n[0] _isAMomentObject: true, _isUTC: false, _useUTC: false, _l: undefined, _i: 04/07/26, _f: undefined, _strict: undefined, _locale: [object Object]\nError\n    at e.createFromInputFallback (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:490875)\n    at vl (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:514353)\n    at ts (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:514407)\n    at ol (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:514746)\n    at ha (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:515066)\n    at d0 (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:515133)\n    at Q0 (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:515170)\n    at e (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:487580)\n    at n.generateDate (https://ysrmsocr.realpage.com/ys/488.f68a67b07d48d7a3.js:1:287385)\n    at https://ysrmsocr.realpage.com/ys/488.f68a67b07d48d7a3.js:1:287286",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'score')\n    at dashboardsDataService.getBenchMarkDetails.pipe.subscribe.benchmarkAPIResponse [as _next] (https://ysrmsocr.realpage.com/ys/488.f68a67b07d48d7a3.js:1:206099)\n    at h.__tryOrUnsub (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3377587)\n    at h.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3376816)\n    at s._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375999)\n    at s.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l.nextOrComplete (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412460)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412382)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3403488)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "error",
+      "text": "GridStack.on(column) event not supported",
+      "location": "https://ysrmsocr.realpage.com/ys/488.f68a67b07d48d7a3.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "Mixed Content: The page at 'https://ysrmsocr.realpage.com/ys/rm/ai/dashboards/portfolio' was loaded over HTTPS, but requested an insecure element 'http://cdn.realpage.com/images/illustrations/generic.svg'. This request was automatically upgraded to HTTPS, For more information see https://blog.chromium.org/2019/10/no-more-mixed-messages-about-https.html",
+      "location": "https://ysrmsocr.realpage.com/ys/rm/ai/dashboards/portfolio:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: tried to call sizeColumnsToFit() but the grid is coming back with zero width, maybe the grid is not visible yet on the screen?",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "location": "https://ysrmsappocr.realpage.com/airm-dashboard/bookstranslation/247370:0"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "location": "https://ysrmsappocr.realpage.com/airm-dashboard/bookstranslation/2298:0"
+    },
+    {
+      "type": "warning",
+      "text": "[rm-button] ariaLabel is required for variant=\"icon\" when there is no visible text.",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "warning",
+      "text": "[rm-button] ariaLabel is required for variant=\"icon\" when there is no visible text.",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "warning",
+      "text": "ag-grid: since v19.0 toolPanelSuppressSideButtons has been completely removed. See https://www.ag-grid.com/javascript-grid-tool-panel/",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: since v20, grid options enableSorting and enableServerSideSorting are gone. Instead set sortable=true on the column definition for the columns sorting are allowed on. To migrate from gridOption.enableSorting=true, set gridOptions.defaultColDef.sortable=true",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: since v20, grid options enableFilter and enableServerSideFilter are gone. Instead set filter=true (if not already specifying a specific filter) on the column definition for the columns filtering is allowed on. To migrate from gridOptions.enableFilter=true, set gridOptions.defaultColDef.filter=true. If you are explicitly setting specific filters for each column (ie colDef.filter is already set) the you don't need to do anything.",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: since v20, colDef.suppressSorting is gone, instead use colDef.sortable=false. {resizable: true, sortable: true, filter: false, cellClass: Array(2), headerClass: rm-header-center}",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: since v20, colDef.suppressResize is gone, instead use colDef.resizable=false. {resizable: true, sortable: false, filter: false, cellClass: Array(2), headerClass: rm-header-center}",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-grid: since v19.0 toolPanelSuppressSideButtons has been completely removed. See https://www.ag-grid.com/javascript-grid-tool-panel/",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: since v20, grid options enableSorting and enableServerSideSorting are gone. Instead set sortable=true on the column definition for the columns sorting are allowed on. To migrate from gridOption.enableSorting=true, set gridOptions.defaultColDef.sortable=true",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: since v20, grid options enableFilter and enableServerSideFilter are gone. Instead set filter=true (if not already specifying a specific filter) on the column definition for the columns filtering is allowed on. To migrate from gridOptions.enableFilter=true, set gridOptions.defaultColDef.filter=true. If you are explicitly setting specific filters for each column (ie colDef.filter is already set) the you don't need to do anything.",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-grid: since v19.0 toolPanelSuppressSideButtons has been completely removed. See https://www.ag-grid.com/javascript-grid-tool-panel/",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "warning",
+      "text": "ag-Grid: since v20, grid options enableFilter and enableServerSideFilter are gone. Instead set filter=true (if not already specifying a specific filter) on the column definition for the columns filtering is allowed on. To migrate from gridOptions.enableFilter=true, set gridOptions.defaultColDef.filter=true. If you are explicitly setting specific filters for each column (ie colDef.filter is already set) the you don't need to do anything.",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:0"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'forEach')\n    at rrulDataService.getUnitLevelGridData.pipe.subscribe.dataRequestSent [as _next] (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:240583)\n    at h.__tryOrUnsub (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3377587)\n    at h.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3376816)\n    at s._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375999)\n    at s.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l.nextOrComplete (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412460)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412382)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3403488)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of undefined (reading 'forEachNodeAfterFilter')\n    at i.getDisplayedRows (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:56671)\n    at i.ngAfterViewInit (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:56318)\n    at Si (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4155010)\n    at Rn (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4154817)\n    at HA (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4154527)\n    at Mr (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205999)\n    at qh (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205390)\n    at Mr (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205418)\n    at qh (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205390)\n    at Mr (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205418)",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'forEach')\n    at rrulDataService.getUnitLevelGridData.pipe.subscribe.dataRequestSent [as _next] (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:240583)\n    at h.__tryOrUnsub (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3377587)\n    at h.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3376816)\n    at s._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375999)\n    at s.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l.nextOrComplete (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412460)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412382)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3403488)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'forEach')\n    at rrulDataService.getUnitLevelGridData.pipe.subscribe.dataRequestSent [as _next] (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:240583)\n    at h.__tryOrUnsub (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3377587)\n    at h.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3376816)\n    at s._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375999)\n    at s.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l.nextOrComplete (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412460)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412382)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3403488)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of undefined (reading 'forEachNodeAfterFilter')\n    at i.getDisplayedRows (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:56671)\n    at i.ngAfterViewInit (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:56318)\n    at Si (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4155010)\n    at Rn (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4154817)\n    at HA (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4154527)\n    at Mr (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205999)\n    at qh (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205390)\n    at Mr (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205418)\n    at qh (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205390)\n    at Mr (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205418)",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of null (reading 'forEach')\n    at rrulDataService.getUnitLevelGridData.pipe.subscribe.dataRequestSent [as _next] (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:240583)\n    at h.__tryOrUnsub (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3377587)\n    at h.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3376816)\n    at s._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375999)\n    at s.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l.nextOrComplete (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412460)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3412382)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)\n    at l._next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3403488)\n    at l.next (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:3375773)",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "error",
+      "text": "ERROR TypeError: Cannot read properties of undefined (reading 'forEachNodeAfterFilter')\n    at i.getDisplayedRows (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:56671)\n    at i.ngAfterViewInit (https://ysrmsocr.realpage.com/ys/6643.45615ed3dfc3b525.js:1:56318)\n    at Si (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4155010)\n    at Rn (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4154817)\n    at HA (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4154527)\n    at Mr (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205999)\n    at qh (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205390)\n    at Mr (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205418)\n    at qh (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205390)\n    at Mr (https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:401:4205418)",
+      "location": "https://ysrmsocr.realpage.com/ys/main.a7fe1d71ba695d93.js:400"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "location": "https://www.googletagmanager.com/ns.html?id=function%20ks(et){return()=%3Eet.getGoogleTagManagerId()}:0"
+    }
+  ],
+  "failed_requests": [
+    {
+      "url": "https://data.pendo.io/data/ptm.gif/7acefbd3-a47d-498b-5904-08ab2e384aff?v=2.83.2_prod&ct=1781355635849&jzb=eJzFUl_v0jAU_Sqmz8tG94-5Nw0YCUaJP_m9GNOUtRuVrq1tp5mE786tQSIJ8KAmvC3n7Nx77jn9vEd-NBzVSDCuvGhHFKGN1T8ct8SLHhg8rXBWFGVWVDmO0HfhhNeWCAYiZ4SUohsUkxSEtGn0oPxVbrASwK33xtVJQrVubGw5lYZ2PG50n4yu0aoVXUKNSSRVTKgOdMZq41C9R1oycrGcrObvZx_IJ8Je-51-w8QyMyAI_90z8ncHHCLk6WYR8LeLb7t1JZZ5Ne2ecZWCrrW0579IrHC5nn38Ol-9-6mFCuRm9BwuyIr8EJ3j7rkPC29HnT4w6tPi8HltPii6AWYBwxVZP4VwTn5uSRTkA-gTVX6r3fbF6oIVjhg6BhN1S6XjMM9QC-_x1XkqQIz6MANnyaRM0klahjK5dUIrgNO4yuKUwA3sP5SV4_KPsqSm7G5Z2QPLCuZ-W8LT8uW_H5_mk8OXI2WEXW0",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://data.pendo.io/data/guide.js/7acefbd3-a47d-498b-5904-08ab2e384aff?jzb=eJx1jkFrwzAMhf9K8XnEXQpl5LbjboOwcxC26wgcyVhKoYz89yqXwKC7mff8fXq_7o6Cyu0rusFJxVIwrxQLuDcHIfBK-qpaW7FwVq0yeA_MoXUtQamQUxd48Q8JTDfMHmr1BSgiZeOWpBBBwQ3H5f2JL04YlFfTWZNo-hnddiz6DyFY9u8jkM4s8-n7T4syVXjsO4YbFEnmq9AS6edhtcjW7Y73iz9ffX_ur0beUxNksrjvPi5dP9XG0W3bE7F2bNk&v=2.83.2_prod&ct=1781355635853",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://www.google-analytics.com/g/collect?v=2&tid=G-H8Y5PW0TDE&gtm=45je66a1h1v9201297023z89201285045za20gzb9201285045zd9201285045&_p=1781355625134&gcd=13l3l3l3l1l1&npa=0&dma=0&are=1&cid=1632199958.1781355626&frm=0&pscdl=noapi&rcb=5&sr=1280x720&uaa=x86&uab=64&uafvl=Google%2520Chrome%3B149.0.7827.103%7CChromium%3B149.0.7827.103%7CNot)A%253BBrand%3B24.0.0.0&uam=&uamb=0&uap=Windows&uapv=19.0.0&uaw=0&ul=en-us&_s=1&tag_exp=115938465~115938468~119392697~119392705~119456239~119456247&sid=1781355639&sct=1&seg=0&dl=https%3A%2F%2Faoocr.realpage.com%2Fysconfig%2Fapp%2Flanding&dr=https%3A%2F%2Faoocr.realpage.com%2Fysconfig%2Fapp%2Flogin&dt=RealPage%2C%20Inc%20-%20Asset%20Optimization&en=link_click&_fv=1&_ss=1&ep.link_url=https%3A%2F%2Faoocr.realpage.com%2Fysconfig%2Fapp%2Fredirect%3Furl%3Dhttps%253a%252f%252fysrmsocr.realpage.com%252fys%252frm%252fai&tfd=16402",
+      "method": "POST",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://data.pendo.io/data/ptm.gif/7acefbd3-a47d-498b-5904-08ab2e384aff?v=2.83.2_prod&ct=1781355640968&jzb=eJztVWFv2jwQ_iuVpX6D0gTapEivJihUzQbtxET3Tm1VOY4T3Dp2Zju02cR_7yXVIFDWpWid-oGAIL7z3fOcffZz-ROZLKGojUJJUo1qyFfyXlN1Y1gMZstxrebBwWHzyG45NTRlmhmpblgAETphnLMoFQHHEIgJkakwa32p4mCcGJPodqOBpSRqT1HMExzRPSLjRqaJFCGLGjhJGhyLgIkI4hIlE43aQBKriJqntwhSdcBZAME_4TAlfzHMcOAsUs6BjjGqCJ0oGoJ_GULRgClKzAdg9l_Ba7fZ2bVP4JtpFetVgoUdflT-hhma1VCceSKgD6i9DxQmjAeLYYIVFabPabxgPPAqUy4nP1hObq9PPh78Sh7I1IeMr4GwKvHveRfPCvClMTL-qnBSBceGBioDWc0_IsWYiWMpDMzpsekct2T-ewUOO97ZRlu0-frJet5f9XtYwISqDbBg-Dqst8bId-atMWQsmI9VXU8o51XAjlbR4FCtgzsfnnndzqj-5bQ_mB8o6c-BnghMskBhQ4MqyKsdvx63e977tlHnwW2wlH62eCD6Ae5LdCWuTOmzPHo-rmJ5IWPH2xnRKRUp3RliAf0WQ7HlKahghn0vr_XU-343dtmnlutEF5ZrQ8mhwjEtnJawDse90W3_8-CHZCJ3aqo1k6Jw-x-PZXg4_T-7k7h7u3-SK1dmKKyQ5TTdWW2ua4QzcveCrrUc2JV3o2uljid1zFQ87wcICVJi8msPzli126KaMm21dKulWy3daulWS3-jpe9WTEEvOY6gkkvEaWjQ9T9QV9exZ9ePSXCgkg",
+      "method": "GET",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://www.google-analytics.com/g/collect?v=2&tid=G-HFM1PZKE5M&gtm=45je66a1v9192862970za200zd9192862970&_p=1781355643792&gcd=13l3l3l3l1l1&npa=0&dma=0&are=1&cid=1632199958.1781355626&frm=0&pscdl=noapi&rcb=5&sr=1280x720&uaa=x86&uab=64&uafvl=Google%2520Chrome%3B149.0.7827.103%7CChromium%3B149.0.7827.103%7CNot)A%253BBrand%3B24.0.0.0&uam=&uamb=0&uap=Windows&uapv=19.0.0&uaw=0&ul=en-us&_s=1&tag_exp=115938465~115938468~119456239~119456247&sid=1781355644&sct=1&seg=0&dl=https%3A%2F%2Fysrmsocr.realpage.com%2Fys%2Frm%2Fai&dr=https%3A%2F%2Faoocr.realpage.com%2F&dt=&en=page_view&_fv=1&_ss=1&_ee=1&tfd=4582",
+      "method": "POST",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://tracking-stg.realpage.com/tracker?systemId=SYPO1",
+      "method": "GET",
+      "failure": "net::ERR_NAME_NOT_RESOLVED"
+    },
+    {
+      "url": "https://www.googletagmanager.com/gtm.js?id=function%20ks(et){return()=%3Eet.getGoogleTagManagerId()}",
+      "method": "GET",
+      "failure": "net::ERR_BLOCKED_BY_ORB"
+    },
+    {
+      "url": "https://ysrmsappocr.realpage.com/dashboard/getExposureSummaryChart",
+      "method": "POST",
+      "failure": "net::ERR_ABORTED"
+    }
+  ],
+  "http_errors": [
+    {
+      "url": "https://www.googletagmanager.com/ns.html?id=function%20ks(et){return()=%3Eet.getGoogleTagManagerId()}",
+      "status": 404,
+      "method": "GET"
+    },
+    {
+      "url": "https://ysrmsappocr.realpage.com/airm-dashboard/bookstranslation/247370",
+      "status": 404,
+      "method": "GET"
+    },
+    {
+      "url": "https://ysrmsappocr.realpage.com/airm-dashboard/bookstranslation/2298",
+      "status": 404,
+      "method": "GET"
+    }
+  ],
+  "shots_dir": "docs\\perf_reports\\shots_ocr_20260613_060011",
+  "video_path": "not recorded (ffmpeg unavailable)",
+  "report_path": "docs\\perf_reports\\perf_ocr_20260613_060011.json",
+  "har_path": "docs\\perf_reports\\network_ocr_20260613_060011.har"
+}

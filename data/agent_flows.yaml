@@ -1,0 +1,112 @@
+# ============================================================================
+# Cross-repo agent orchestration config for the "Live Code + Agents interact"
+# mode (real-time / troubleshooting questions).
+#
+# The DEPENDENCY GRAPH IS DATA: each product is a set of `nodes` (repos) plus
+# directed `depends_on` edges. RealRAG classifies a question to an entry node,
+# walks the edges to the leaf to derive the chain + the repos to expose, and
+# launches the existing Claude Code agents headless. Adding a new product =
+# adding a block under `products:` — no code change.
+#
+# These agents already exist in each repo's .claude/agents/ (orchestrator +
+# specialists + cross-repo-handoff-contracts.md). RealRAG only DRIVES them.
+# ============================================================================
+
+default_product: RMS
+
+# How every headless `claude -p` run is executed (unattended / gateless).
+run:
+  permission_mode: bypassPermissions      # never blocks on permission prompts
+  output_format: stream-json
+  include_partial_messages: true
+  max_turns: 80                            # full rm-web->ys->po chains spawn many sub-agents
+  # How the run handles a CODE fix once the root cause is found. (DATA fixes are
+  # ALWAYS output as SQL and never executed, regardless of this setting.)
+  #   describe — write a description only (no diff, no edits)
+  #   patch    — emit a unified diff to docs/fixes/, but do NOT apply it
+  #   apply    — launch rms-fix-agent to edit source (its guardrails bind)
+  fix_mode: patch
+
+  fix_directives:
+    describe: |
+      - CODE FIX HANDLING: do NOT edit source and do NOT launch the fix agent.
+        For any needed code fix, DESCRIBE it only — name the file + method and the
+        precise change to make.
+    patch: |
+      - CODE FIX HANDLING: do NOT edit source and do NOT launch the fix agent.
+        For any needed code fix, produce the exact change as a UNIFIED DIFF, show
+        it in your final answer, and save it to docs/fixes/code_fix_<id>.diff.
+        Do NOT apply the diff — it is for human review.
+    apply: |
+      - CODE FIX HANDLING: for a code/config fix you MAY launch rms-fix-agent to
+        APPLY it (its guardrails bind: max 2 files, max 10 lines per fix). Still
+        never execute data-fix SQL — save it for the human to run.
+
+  # Appended to every launch prompt so the run stays gateless AND safe:
+  #  - auto-chain, never AskUserQuestion (it cannot be answered headlessly)
+  #  - resolve db_connection from the directive; if unavailable, skip live DB, don't ask
+  #  - {fix_directive} is filled from fix_mode above
+  unattended_directive: |
+    OPERATING MODE: fully unattended. Follow these rules strictly:
+    - Auto-chain every investigation hop. Do NOT pause for approval and NEVER call
+      AskUserQuestion — there is no human to answer; asking will hang the run.
+    - db_connection: {db_connection}. If it is "unavailable", skip all live DB steps
+      and continue (mark live verification "not run"); do NOT prompt for it.
+    - Produce a clear root-cause behavior explanation. If a data fix is warranted,
+      OUTPUT the data-fix SQL inline and save it under docs/fixes/ — never execute it.
+    {fix_directive}
+    - End with a concise, business-readable summary of the issue (and the fix if any).
+
+products:
+  RMS:
+    common_parent: 'c:\codebase'
+    orchestrator: cross-repo-triage-orchestrator
+    default_entry_node: rm-web            # used when routing can't pick a dominant repo
+    # Where this product's db_aliases (alias -> host + engine) are defined.
+    # Reused as-is; credentials still live in that repo's tools/.env.
+    db_aliases_from: 'c:\codebase\po\.claude\rms-config.yaml'
+
+    # repo_name returned by RealRAG retrieval  ->  graph node
+    repo_aliases:
+      rm-web: rm-web
+      ys: ys
+      po: po
+      ys-reports: ys-reports
+
+    # ---- the dependency graph (nodes + depends_on edges) ----
+    # `route_keywords` only NUDGE the retrieval-based routing; they are optional.
+    nodes:
+      rm-web:
+        cwd: 'c:\codebase\rm-web'
+        entry_agent: rm-web-ui-investigator-agent
+        launch: orchestrator              # full rm-web -> ys -> po chain
+        depends_on: [ys]
+        route_keywords: [widget, screen, dashboard, page, button, ui, tab, grid, displays, shows]
+      ys:
+        cwd: 'c:\codebase\ys'
+        entry_agent: ys-api-investigator-agent
+        launch: orchestrator              # ys -> po (driven by orchestrator)
+        depends_on: [po]
+        route_keywords: [endpoint, api, service, controller, queryname, dao]
+      po:
+        cwd: 'c:\codebase\po'
+        entry_agent: rms-ticket-interpreter-agent
+        launch: direct                    # po-local chain (leaf)
+        db_alias: qa
+        depends_on: []
+        route_keywords: [etl, forecast, forecasting, nightly, demand, seasonality, recommended rent, rate generation, renewal rate]
+        # The po specialists don't call each other — the driver sequences them.
+        # On a default (no --agent) session, invoke these in order, forwarding
+        # outputs per cross-repo-handoff-contracts.md (fix-agent omitted: report-only).
+        agent_sequence: [rms-ticket-interpreter-agent, rms-pipeline-investigator-agent, rms-module-debugger-agent, rms-root-cause-agent]
+      ys-reports:
+        cwd: 'C:\RM-codebase\ys-reports'
+        entry_agent: ys-reports-investigator-agent
+        launch: direct
+        db_alias: qa
+        depends_on: [po]
+        route_keywords: [report, rent roll, jasper, jrxml, report data, recommendation history]
+        agent_sequence: [ys-reports-investigator-agent]
+        # ys-reports lives under a different checkout root than po; expose po so
+        # the ys-reports -> po hop can read it.
+        extra_add_dirs: ['c:\codebase\po']
