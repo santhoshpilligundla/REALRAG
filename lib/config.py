@@ -29,6 +29,18 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
 
+    # Extra knowledge dirs (colon-separated paths)
+    # EXTRA_DOC_DIRS  = markdown/HTML docs to embed into the business index
+    # EXTRA_SCHEMA_DIRS = folders of .sql DDL files to embed as schema knowledge
+    extra_doc_dirs: str = ""
+    extra_schema_dirs: str = ""
+
+    def get_extra_doc_dirs(self) -> list:
+        return [p for p in self.extra_doc_dirs.split(";") if p.strip()]
+
+    def get_extra_schema_dirs(self) -> list:
+        return [p for p in self.extra_schema_dirs.split(";") if p.strip()]
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -18,18 +18,26 @@ import faiss
 import numpy as np
 
 from lib.embedder import embed_texts
+from lib.config import get_settings
 
 _DIR = Path("storage/faiss/business")
 _IDX = _DIR / "business.index"
 _CHUNKS = _DIR / "chunks.json"
 
-# Sources: the RealRAG design docs (business-framed) + optional NLW business pack.
+# Built-in HTML sources
 _HTML_SOURCES = [
     Path("docs/RealRAG-bible.html"),
     Path("docs/RealRAG-scope.html"),
     Path("docs/RealRAG-glossary.html"),
 ]
-_MD_DIRS: list[Path] = []  # add local markdown dirs here if needed
+
+
+def _get_extra_dirs() -> tuple[list[Path], list[Path]]:
+    """Read EXTRA_DOC_DIRS and EXTRA_SCHEMA_DIRS from .env at call time."""
+    s = get_settings()
+    doc_dirs = [Path(p.strip()) for p in s.get_extra_doc_dirs()]
+    schema_dirs = [Path(p.strip()) for p in s.get_extra_schema_dirs()]
+    return doc_dirs, schema_dirs
 
 
 def _strip_html(h: str) -> str:
@@ -61,15 +69,34 @@ def _chunk(text: str, source: str, title: str, max_chars: int = 1400) -> list[di
 
 def _gather() -> list[dict]:
     chunks: list[dict] = []
+    doc_dirs, schema_dirs = _get_extra_dirs()
+
+    # Built-in HTML docs
     for p in _HTML_SOURCES:
         if p.exists():
             chunks += _chunk(_strip_html(p.read_text(encoding="utf-8", errors="replace")),
                              source=p.name, title=p.stem)
-    for d in _MD_DIRS:
+
+    # Extra markdown doc dirs (e.g. schema description .md files)
+    for d in doc_dirs:
         if d.exists():
-            for p in sorted(d.glob("*.md")):
+            for p in sorted(d.rglob("*.md")):
                 chunks += _chunk(p.read_text(encoding="utf-8", errors="replace"),
-                                 source=p.name, title=p.stem)
+                                 source=str(p.name), title=p.stem)
+        else:
+            print(f"[business_docs] WARNING: EXTRA_DOC_DIRS path not found: {d}")
+
+    # Extra SQL schema dirs (DDL files — table/column definitions)
+    for d in schema_dirs:
+        if d.exists():
+            for p in sorted(d.rglob("*.sql")):
+                text = p.read_text(encoding="utf-8", errors="replace")
+                # Use parent folder name as context (e.g. "ysmaster/public.sql")
+                label = f"{p.parent.name}/{p.name}" if p.parent != d else p.name
+                chunks += _chunk(text, source=label, title=f"Schema: {p.stem}")
+        else:
+            print(f"[business_docs] WARNING: EXTRA_SCHEMA_DIRS path not found: {d}")
+
     return [c for c in chunks if len(c["content"]) > 80]
 
 
