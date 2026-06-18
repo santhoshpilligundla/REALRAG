@@ -5,9 +5,17 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import pgserver
+import pgserver._commands as _pgcmds
 import psycopg
 
 from lib.config import get_settings
+
+# Patch pgserver's pg_ctl timeout from 10s → 120s so postgres has enough
+# time to complete WAL recovery after an unclean shutdown.
+_orig_command = _pgcmds.command
+def _patched_command(cmd, pgdata, user, timeout=120, **kwargs):
+    return _orig_command(cmd, pgdata, user, timeout=max(timeout, 120), **kwargs)
+_pgcmds.command = _patched_command
 
 
 @lru_cache
