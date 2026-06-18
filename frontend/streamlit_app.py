@@ -35,7 +35,7 @@ from lib.coverage import (  # noqa: E402
 )
 from lib.cross_repo import count_edges_by_kind, discover_edges  # noqa: E402
 from lib.db import apply_schema  # noqa: E402
-from lib.doc_gen import count_pending_docs, doc_gen_repo  # noqa: E402
+from lib.doc_gen import count_pending_docs, doc_gen_repo, doc_gen_all_repos_parallel  # noqa: E402
 from lib.doc_gen_l4_enrich import count_pending_l4_enrich, enrich_l4_repo  # noqa: E402
 from lib.doc_gen_pass2 import count_pending_pass2, doc_gen_pass2_repo  # noqa: E402
 from lib.doc_gen_pass3 import count_pending_pass3, doc_gen_pass3  # noqa: E402
@@ -429,7 +429,7 @@ def _render_registered_repos_tab() -> None:
 
     pending_pass3 = count_pending_pass3()
 
-    top_l, top_clone, top_parse, top_doc, top_edges, top_pass3, top_embed = st.columns([3, 1, 1, 1, 1, 1, 1])
+    top_l, top_clone, top_parse, top_doc, top_pardoc, top_edges, top_pass3, top_embed = st.columns([3, 1, 1, 1, 1, 1, 1, 1])
     with top_l:
         st.write(
             f"**{len(repos)} repos**  ·  "
@@ -489,6 +489,29 @@ def _render_registered_repos_tab() -> None:
                     continue
                 _run_docgen(r, "meaningful")
             st.rerun()
+    with top_pardoc:
+        if pending_docs_total and st.button(
+            f"⚡ Parallel doc-gen ({pending_docs_total:,})",
+            key="pardocgen_all_btn",
+            type="primary",
+            help="Run doc-gen on ALL repos simultaneously with batch verification. ~12hrs for full codebase.",
+        ):
+            messages = []
+            def _par_progress(repo, msg):
+                messages.append(f"[{repo}] {msg}")
+            with st.spinner("Running parallel doc-gen across all repos…"):
+                results = doc_gen_all_repos_parallel(
+                    docgen_eligible, "meaningful",
+                    on_progress=_par_progress,
+                    run_verifier=True,
+                )
+            for repo_name, r in results.items():
+                if r.success:
+                    st.success(f"{repo_name}: ok={r.succeeded} fail={r.failed}")
+                else:
+                    st.error(f"{repo_name}: {r.error}")
+            st.rerun()
+
     with top_edges:
         if st.button("Build cross-repo edges", key="edges_btn",
                      help="Run pattern catalog → populate cross_repo_edges."):

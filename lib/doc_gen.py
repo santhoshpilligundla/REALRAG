@@ -400,6 +400,45 @@ async def averify_doc(body: str, doc: EntityDoc) -> tuple[VerifierResult | None,
         return None, 0, 0
 
 
+_VERIFIER_BATCH_SYSTEM = """You are a documentation auditor reviewing multiple entity docs.
+For each doc provided, check if ALL claims are grounded in the source code.
+
+Return ONLY a JSON array (one object per doc, in the same order):
+[{"is_faithful": true|false, "unsupported_claims": ["..."], "confidence": 0.0}, ...]
+"""
+
+VERIFY_BATCH_SIZE = 5
+
+
+async def averify_docs_batch(
+    items: list[tuple[str, EntityDoc]]
+) -> tuple[list[VerifierResult | None], int, int]:
+    """Verify multiple docs in a single LLM call. items = [(body, doc), ...]
+    Returns (results_list, in_tokens, out_tokens)."""
+    parts = []
+    for i, (body, doc) in enumerate(items, 1):
+        parts.append(
+            f"=== DOC {i} ===\n"
+            f"SOURCE:\n```\n{body[:2000]}\n```\n"
+            f"GENERATED DOC:\n```json\n{doc.model_dump_json(indent=2)}\n```"
+        )
+    user = "\n\n".join(parts) + "\n\nReturn the JSON array only."
+    try:
+        raw, llm = await acall_json(_VERIFIER_BATCH_SYSTEM, user, tier="default", max_tokens=2048)
+        results: list[VerifierResult | None] = []
+        if isinstance(raw, list):
+            for item in raw:
+                try:
+                    results.append(VerifierResult(**item))
+                except Exception:
+                    results.append(None)
+        while len(results) < len(items):
+            results.append(None)
+        return results[:len(items)], llm.prompt_tokens, llm.completion_tokens
+    except Exception:
+        return [None] * len(items), 0, 0
+
+
 # ---------------------------------------------------------------------------
 # Entity-level doc generation (sync + async)
 # ---------------------------------------------------------------------------
@@ -666,7 +705,7 @@ async def agenerate_entity_doc(entity_id: UUID, *, run_verifier: bool = True) ->
 
 
 DocGenScope = str  # 'critical' | 'types' | 'all' | 'meaningful'
-DEFAULT_DOC_GEN_CONCURRENCY = 5
+DEFAULT_DOC_GEN_CONCURRENCY = 40
 
 
 @dataclass
@@ -770,6 +809,89 @@ def count_pending_docs(repo_id: UUID, scope: DocGenScope, repo_critical_entry_po
     return len(_list_entities_for_scope(repo_id, scope, repo_critical_entry_points))
 
 
+def _fetch_doc_for_verify(doc_id: UUID) -> EntityDoc | None:
+    """Fetch a persisted doc by doc_id for the verify phase."""
+    with get_conn() as conn, conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            "SELECT structural, behavioral, business, edge_cases, worked_example, cross_references "
+            "FROM generated_docs WHERE doc_id = %s",
+            (doc_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        try:
+            return EntityDoc(
+                structural=row["structural"] or "",
+                behavioral=row["behavioral"] or "",
+                business=row["business"] or "",
+                edge_cases=row["edge_cases"] or "",
+                worked_example=row.get("worked_example"),
+                cross_references=row.get("cross_references") or "",
+            )
+        except Exception:
+            return None
+
+
+def _update_verified_flag(doc_id: UUID, is_faithful: bool) -> None:
+    """Update the verified flag on a generated doc."""
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE generated_docs SET verified = %s WHERE doc_id = %s",
+            (is_faithful, doc_id),
+        )
+        conn.commit()
+
+
+def doc_gen_all_repos_parallel(
+    repos: list,
+    scope: DocGenScope = "meaningful",
+    on_progress: Callable[[str, str], None] | None = None,
+    max_concurrency: int = DEFAULT_DOC_GEN_CONCURRENCY,
+    *,
+    run_verifier: bool = True,
+) -> dict:
+    """Run doc-gen on all repos simultaneously using asyncio.
+    on_progress(repo_name, message) called per update.
+    Returns dict of repo_name -> BulkDocGenResult."""
+
+    cb_fn = on_progress or (lambda repo, msg: None)
+
+    async def _run_all():
+        tasks = {}
+        for repo in repos:
+            entity_ids = _list_entities_for_scope(
+                repo.repo_id, scope, repo.critical_entry_points
+            )
+            if not entity_ids:
+                continue
+
+            def make_cb(rname):
+                def cb(msg):
+                    cb_fn(rname, msg)
+                return cb
+
+            tasks[repo.display_name] = asyncio.create_task(
+                _adoc_gen_repo(
+                    entity_ids,
+                    make_cb(repo.display_name),
+                    max_concurrency,
+                    run_verifier=run_verifier,
+                )
+            )
+
+        results = {}
+        for name, task in tasks.items():
+            try:
+                ok, fail, t_in, t_out = await task
+                results[name] = BulkDocGenResult(True, ok + fail, ok, fail, t_in, t_out)
+            except Exception as e:
+                results[name] = BulkDocGenResult(False, 0, 0, 0, 0, 0, error=str(e))
+        return results
+
+    return asyncio.run(_run_all())
+
+
 async def _adoc_gen_repo(
     entity_ids: list[UUID],
     cb: Callable[[str], None],
@@ -777,14 +899,23 @@ async def _adoc_gen_repo(
     *,
     run_verifier: bool = True,
 ) -> tuple[int, int, int, int]:
+    """Two-phase pipeline:
+    Phase 1 — Generate all docs in parallel (no verify) at full concurrency.
+    Phase 2 — Batch verify in groups of VERIFY_BATCH_SIZE (5x fewer API calls).
+    """
     sem = asyncio.Semaphore(max_concurrency)
-    state = {"i": 0, "ok": 0, "fail": 0, "in": 0, "out": 0, "verified": 0}
+    state = {"i": 0, "ok": 0, "fail": 0, "in": 0, "out": 0}
     total = len(entity_ids)
 
-    async def _one(eid: UUID) -> None:
+    # (doc_id, body, doc) for batch verify phase
+    generated: list[tuple[UUID, str, EntityDoc]] = []
+    gen_lock = asyncio.Lock()
+
+    # ── Phase 1: Generate (no verify) ───────────────────────────────────────
+    async def _gen_one(eid: UUID) -> None:
         async with sem:
             try:
-                r = await agenerate_entity_doc(eid, run_verifier=run_verifier)
+                r = await agenerate_entity_doc(eid, run_verifier=False)
             except Exception as e:
                 r = DocGenResult(False, None, 0, 0, error=f"{type(e).__name__}: {e}")
         state["i"] += 1
@@ -792,6 +923,21 @@ async def _adoc_gen_repo(
             state["ok"] += 1
             state["in"] += r.prompt_tokens
             state["out"] += r.completion_tokens
+            if run_verifier and r.doc_id:
+                # Fetch body + doc for verify phase
+                try:
+                    ent = await asyncio.to_thread(_fetch_entity_data, eid)
+                    body = await asyncio.to_thread(
+                        _read_entity_body,
+                        ent["clone_path"] or "", ent["file_path"],
+                        ent["start_line"], ent["end_line"],
+                    ) if ent else ""
+                    doc_row = await asyncio.to_thread(_fetch_doc_for_verify, r.doc_id)
+                    if doc_row and body:
+                        async with gen_lock:
+                            generated.append((r.doc_id, body, doc_row))
+                except Exception:
+                    pass
         else:
             state["fail"] += 1
         if state["i"] % 25 == 0 or state["i"] == total:
@@ -801,7 +947,31 @@ async def _adoc_gen_repo(
                 f"tokens(in/out)={state['in']}/{state['out']}"
             )
 
-    await asyncio.gather(*(_one(eid) for eid in entity_ids))
+    await asyncio.gather(*(_gen_one(eid) for eid in entity_ids))
+
+    # ── Phase 2: Batch verify ────────────────────────────────────────────────
+    if run_verifier and generated:
+        cb(f"batch-verify {len(generated)} docs in groups of {VERIFY_BATCH_SIZE}…")
+        vsem = asyncio.Semaphore(max(max_concurrency // VERIFY_BATCH_SIZE, 4))
+        batches = [generated[i:i + VERIFY_BATCH_SIZE]
+                   for i in range(0, len(generated), VERIFY_BATCH_SIZE)]
+
+        async def _verify_batch(batch: list) -> None:
+            async with vsem:
+                items = [(body, doc) for _, body, doc in batch]
+                results, v_in, v_out = await averify_docs_batch(items)
+                state["in"] += v_in
+                state["out"] += v_out
+                for (doc_id, _, _), result in zip(batch, results):
+                    if result is not None:
+                        await asyncio.to_thread(
+                            _update_verified_flag, doc_id, bool(result.is_faithful)
+                        )
+
+        await asyncio.gather(*(_verify_batch(b) for b in batches))
+        cb(f"batch-verify complete · {len(batches)} batches · "
+           f"tokens(in/out)={state['in']}/{state['out']}")
+
     return state["ok"], state["fail"], state["in"], state["out"]
 
 
